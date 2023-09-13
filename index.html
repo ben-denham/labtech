@@ -505,38 +505,38 @@ run them with maximal parallelism and result caching:</p>
 </ul>
 <p>Here's an example of defining a single long-running task to produce a
 result for a large number of dependent tasks:</p>
-<div class="highlight"><pre><span></span><code>from time import sleep
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
 
-import labtech
+<span class="kn">import</span> <span class="nn">labtech</span>
 
-@labtech.task
-class SlowTask:
-    base: int
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">SlowTask</span><span class="p">:</span>
+    <span class="n">base</span><span class="p">:</span> <span class="nb">int</span>
 
-    def run(self):
-        sleep(5)
-        return self.base ** 2
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">**</span> <span class="mi">2</span>
 
-@labtech.task
-class DependentTask:
-    slow_task: SlowTask
-    multiplier: int
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">DependentTask</span><span class="p">:</span>
+    <span class="n">slow_task</span><span class="p">:</span> <span class="n">SlowTask</span>
+    <span class="n">multiplier</span><span class="p">:</span> <span class="nb">int</span>
 
-    def run(self):
-        return self.multiplier * self.slow_task.result
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplier</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slow_task</span><span class="o">.</span><span class="n">result</span>
 
-some_slow_task = SlowTask(base=42)
-dependent_tasks = [
-    DependentTask(
-        slow_task=some_slow_task,
-        multiplier=multiplier,
-    )
-    for multiplier in range(10)
-]
+<span class="n">some_slow_task</span> <span class="o">=</span> <span class="n">SlowTask</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">dependent_tasks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">DependentTask</span><span class="p">(</span>
+        <span class="n">slow_task</span><span class="o">=</span><span class="n">some_slow_task</span><span class="p">,</span>
+        <span class="n">multiplier</span><span class="o">=</span><span class="n">multiplier</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">multiplier</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="p">]</span>
 
-lab = labtech.Lab(storage=&#39;demo_lab&#39;)
-results = lab.run_tasks(dependent_tasks)
-print([results[task] for task in dependent_tasks])
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="s1">&#39;demo_lab&#39;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">dependent_tasks</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">results</span><span class="p">[</span><span class="n">task</span><span class="p">]</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">dependent_tasks</span><span class="p">])</span>
 </code></pre></div>
 <p>To learn more, see:</p>
 <ul>
