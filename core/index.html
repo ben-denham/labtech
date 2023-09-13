@@ -1,0 +1,1910 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for labtech">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../caching/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.3.1">
+    
+    
+      
+        <title>Labs and Tasks - labtech</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.046329b4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#labtech.Lab" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="labtech" class="md-header__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            labtech
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Labs and Tasks
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="labtech" class="md-nav__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    labtech
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    README
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Labs and Tasks
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Labs and Tasks
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.Lab" class="md-nav__link">
+    Lab
+  </a>
+  
+    <nav class="md-nav" aria-label="Lab">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.run_tasks" class="md-nav__link">
+    run_tasks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.cached_tasks" class="md-nav__link">
+    cached_tasks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.is_cached" class="md-nav__link">
+    is_cached()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.uncache_tasks" class="md-nav__link">
+    uncache_tasks()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.task" class="md-nav__link">
+    task()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.types.Task" class="md-nav__link">
+    Task
+  </a>
+  
+    <nav class="md-nav" aria-label="Task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#labtech.types.Task.cache_key" class="md-nav__link">
+    cache_key
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.types.Task.result" class="md-nav__link">
+    result
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.types.Task.run" class="md-nav__link">
+    run()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.is_task_type" class="md-nav__link">
+    is_task_type()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.is_task" class="md-nav__link">
+    is_task()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.logger" class="md-nav__link">
+    logger
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../caching/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Caches and Storage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.Lab" class="md-nav__link">
+    Lab
+  </a>
+  
+    <nav class="md-nav" aria-label="Lab">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.run_tasks" class="md-nav__link">
+    run_tasks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.cached_tasks" class="md-nav__link">
+    cached_tasks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.is_cached" class="md-nav__link">
+    is_cached()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.uncache_tasks" class="md-nav__link">
+    uncache_tasks()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.task" class="md-nav__link">
+    task()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.types.Task" class="md-nav__link">
+    Task
+  </a>
+  
+    <nav class="md-nav" aria-label="Task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#labtech.types.Task.cache_key" class="md-nav__link">
+    cache_key
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.types.Task.result" class="md-nav__link">
+    result
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.types.Task.run" class="md-nav__link">
+    run()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.is_task_type" class="md-nav__link">
+    is_task_type()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.is_task" class="md-nav__link">
+    is_task()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labtech.logger" class="md-nav__link">
+    logger
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Labs and Tasks</h1>
+
+<p>In this document you'll find API reference documentation for
+configuring <a class="autorefs autorefs-internal" href="#labtech.Lab">Labs</a> and <a class="autorefs autorefs-internal" href="#labtech.task">tasks</a>. For a
+tutorial-style explanation, see the <a href="../">README</a>.</p>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="labtech.Lab" class="doc doc-heading">
+          <code>labtech.Lab</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents first">
+
+  
+      <p>Primary interface for configuring, running, and getting results of tasks.</p>
+<p>A Lab can be used to run tasks with <a class="autorefs autorefs-internal" href="#labtech.Lab.run_tasks"><code>run_tasks()</code></a>.</p>
+<p>Previously cached tasks can be retrieved with
+<a class="autorefs autorefs-internal" href="#labtech.Lab.cached_tasks"><code>cached_tasks()</code></a>, and can then have
+their results loaded with <a class="autorefs autorefs-internal" href="#labtech.Lab.run_tasks"><code>run_tasks()</code></a>
+or be removed from the cache storage with
+<a class="autorefs autorefs-internal" href="#labtech.Lab.uncache_tasks"><code>uncache_tasks()</code></a>.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>labtech/lab.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Lab</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Primary interface for configuring, running, and getting results of tasks.</span>
+
+<span class="sd">    A Lab can be used to run tasks with [`run_tasks()`][labtech.Lab.run_tasks].</span>
+
+<span class="sd">    Previously cached tasks can be retrieved with</span>
+<span class="sd">    [`cached_tasks()`][labtech.Lab.cached_tasks], and can then have</span>
+<span class="sd">    their results loaded with [`run_tasks()`][labtech.Lab.run_tasks]</span>
+<span class="sd">    or be removed from the cache storage with</span>
+<span class="sd">    [`uncache_tasks()`][labtech.Lab.uncache_tasks].</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                 <span class="n">storage</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Storage</span><span class="p">],</span>
+                 <span class="n">continue_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">notebook</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            storage: Where task results should be cached to. A string will be</span>
+<span class="sd">                interpreted as the path to a local directory, `None` will result</span>
+<span class="sd">                in no caching. Any [Storage][labtech.types.Storage] instance may</span>
+<span class="sd">                also be specified.</span>
+<span class="sd">            continue_on_failure: If `True`, exceptions raised by tasks will be</span>
+<span class="sd">                logged, but execution of other tasks will continue.</span>
+<span class="sd">            max_workers: The maximum number of parallel worker processes for</span>
+<span class="sd">                running tasks. Uses the same default as</span>
+<span class="sd">                `concurrent.futures.ProcessPoolExecutor`: the number of</span>
+<span class="sd">                processors on the machine.</span>
+<span class="sd">            notebook: Should be set to `True` if run from a Jupyter notebook</span>
+<span class="sd">                for graphical progress bars.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">storage</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">storage</span> <span class="o">=</span> <span class="n">LocalStorage</span><span class="p">(</span><span class="n">storage</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">storage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">storage</span> <span class="o">=</span> <span class="n">NullStorage</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span> <span class="o">=</span> <span class="n">storage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_on_failure</span> <span class="o">=</span> <span class="n">continue_on_failure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span> <span class="o">=</span> <span class="n">max_workers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notebook</span> <span class="o">=</span> <span class="n">notebook</span>
+
+    <span class="k">def</span> <span class="nf">run_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
+                  <span class="n">bust_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">keep_nested_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                  <span class="n">disable_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Task</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the given tasks with as much process parallelism as possible.</span>
+<span class="sd">        Loads task results from the cache storage where possible and</span>
+<span class="sd">        caches results of executed tasks.</span>
+
+<span class="sd">        Any attribute of a task that is itself a task object is</span>
+<span class="sd">        considered a &quot;nested task&quot;, and will be executed or loaded so</span>
+<span class="sd">        that it&#39;s result is made available to its parent task. If the</span>
+<span class="sd">        same task is nested inside multiple task objects, it will only</span>
+<span class="sd">        be executed/loaded once.</span>
+
+<span class="sd">        As well as returning the results, each task&#39;s result will be</span>
+<span class="sd">        assigned to a `result` attribute on the task itself (including</span>
+<span class="sd">        nested tasks when `keep_nested_results` is `True`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tasks: The tasks to execute. Each should be an instance of a class</span>
+<span class="sd">                decorated with [`labtech.task`][labtech.task].</span>
+<span class="sd">            bust_cache: If `True`, no task results will be loaded from the</span>
+<span class="sd">                cache storage; all tasks will be re-executed.</span>
+<span class="sd">            keep_nested_results: If `False`, results of nested tasks that were</span>
+<span class="sd">                executed or loaded in order to complete the provided tasks will</span>
+<span class="sd">                be cleared from memory once they are no longer needed.</span>
+<span class="sd">            disable_progress: If `True`, do not display a tqdm progress bar</span>
+<span class="sd">                tracking task execution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary mapping each of the provided tasks to its</span>
+<span class="sd">                corresponding result.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">runner</span> <span class="o">=</span> <span class="n">TaskRunner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                            <span class="n">bust_cache</span><span class="o">=</span><span class="n">bust_cache</span><span class="p">,</span>
+                            <span class="n">keep_nested_results</span><span class="o">=</span><span class="n">keep_nested_results</span><span class="p">,</span>
+                            <span class="n">disable_progress</span><span class="o">=</span><span class="n">disable_progress</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns all task instances present in the Lab&#39;s cache storage for</span>
+<span class="sd">        the given `task_types`, each of which should be a task class</span>
+<span class="sd">        decorated with [`labtech.task`][labtech.task].</span>
+
+<span class="sd">        Does not load task results from the cache storage, but they</span>
+<span class="sd">        can be loaded by calling</span>
+<span class="sd">        [`run_tasks()`][labtech.Lab.run_tasks] with the returned task</span>
+<span class="sd">        instances.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">find_keys</span><span class="p">()</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">task_type</span> <span class="ow">in</span> <span class="n">task_types</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">task</span> <span class="o">=</span> <span class="n">task_type</span><span class="o">.</span><span class="n">_lt</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">load_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">,</span> <span class="n">task_type</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">TaskNotFound</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">tasks</span>
+
+    <span class="k">def</span> <span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if a result is present for given task in the Lab&#39;s cache</span>
+<span class="sd">        storage.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">_lt</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">,</span> <span class="n">task</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes cached results for the given tasks from the Lab&#39;s cache</span>
+<span class="sd">        storage.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cached</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+                <span class="n">task</span><span class="o">.</span><span class="n">_lt</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">,</span> <span class="n">task</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="labtech.Lab.__init__" class="doc doc-heading">
+          <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">storage</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Storage</span><span class="p">],</span> <span class="n">continue_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">notebook</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+
+
+
+  <p>Parameters:</p>
+  <ul>
+      <li class="field-body">
+        <b><code>storage</code></b>
+            (<code><span title="typing.Union">Union</span>[str, None, <a class="autorefs autorefs-internal" title="labtech.types.Storage" href="../caching/#labtech.storage.Storage">Storage</a>]</code>)
+        –
+        <div class="doc-md-description">
+          <p>Where task results should be cached to. A string will be
+interpreted as the path to a local directory, <code>None</code> will result
+in no caching. Any <a class="autorefs autorefs-internal" href="../caching/#labtech.storage.Storage">Storage</a> instance may
+also be specified.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b><code>continue_on_failure</code></b>
+            (<code>bool</code>, default:
+                <code>True</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>If <code>True</code>, exceptions raised by tasks will be
+logged, but execution of other tasks will continue.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b><code>max_workers</code></b>
+            (<code><span title="typing.Optional">Optional</span>[int]</code>, default:
+                <code>None</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>The maximum number of parallel worker processes for
+running tasks. Uses the same default as
+<code>concurrent.futures.ProcessPoolExecutor</code>: the number of
+processors on the machine.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b><code>notebook</code></b>
+            (<code>bool</code>, default:
+                <code>False</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>Should be set to <code>True</code> if run from a Jupyter notebook
+for graphical progress bars.</p>
+        </div>
+      </li>
+  </ul>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/lab.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+             <span class="n">storage</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Storage</span><span class="p">],</span>
+             <span class="n">continue_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+             <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">notebook</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        storage: Where task results should be cached to. A string will be</span>
+<span class="sd">            interpreted as the path to a local directory, `None` will result</span>
+<span class="sd">            in no caching. Any [Storage][labtech.types.Storage] instance may</span>
+<span class="sd">            also be specified.</span>
+<span class="sd">        continue_on_failure: If `True`, exceptions raised by tasks will be</span>
+<span class="sd">            logged, but execution of other tasks will continue.</span>
+<span class="sd">        max_workers: The maximum number of parallel worker processes for</span>
+<span class="sd">            running tasks. Uses the same default as</span>
+<span class="sd">            `concurrent.futures.ProcessPoolExecutor`: the number of</span>
+<span class="sd">            processors on the machine.</span>
+<span class="sd">        notebook: Should be set to `True` if run from a Jupyter notebook</span>
+<span class="sd">            for graphical progress bars.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">storage</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">storage</span> <span class="o">=</span> <span class="n">LocalStorage</span><span class="p">(</span><span class="n">storage</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">storage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">storage</span> <span class="o">=</span> <span class="n">NullStorage</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span> <span class="o">=</span> <span class="n">storage</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">continue_on_failure</span> <span class="o">=</span> <span class="n">continue_on_failure</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span> <span class="o">=</span> <span class="n">max_workers</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notebook</span> <span class="o">=</span> <span class="n">notebook</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="labtech.Lab.run_tasks" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">bust_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">keep_nested_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">disable_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Task</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Run the given tasks with as much process parallelism as possible.
+Loads task results from the cache storage where possible and
+caches results of executed tasks.</p>
+<p>Any attribute of a task that is itself a task object is
+considered a "nested task", and will be executed or loaded so
+that it's result is made available to its parent task. If the
+same task is nested inside multiple task objects, it will only
+be executed/loaded once.</p>
+<p>As well as returning the results, each task's result will be
+assigned to a <code>result</code> attribute on the task itself (including
+nested tasks when <code>keep_nested_results</code> is <code>True</code>).</p>
+
+
+
+  <p>Parameters:</p>
+  <ul>
+      <li class="field-body">
+        <b><code>tasks</code></b>
+            (<code><span title="typing.Sequence">Sequence</span>[<a class="autorefs autorefs-internal" title="labtech.types.Task" href="#labtech.types.Task">Task</a>]</code>)
+        –
+        <div class="doc-md-description">
+          <p>The tasks to execute. Each should be an instance of a class
+decorated with <a class="autorefs autorefs-internal" href="#labtech.task"><code>labtech.task</code></a>.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b><code>bust_cache</code></b>
+            (<code>bool</code>, default:
+                <code>False</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>If <code>True</code>, no task results will be loaded from the
+cache storage; all tasks will be re-executed.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b><code>keep_nested_results</code></b>
+            (<code>bool</code>, default:
+                <code>False</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>If <code>False</code>, results of nested tasks that were
+executed or loaded in order to complete the provided tasks will
+be cleared from memory once they are no longer needed.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b><code>disable_progress</code></b>
+            (<code>bool</code>, default:
+                <code>False</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>If <code>True</code>, do not display a tqdm progress bar
+tracking task execution.</p>
+        </div>
+      </li>
+  </ul>
+
+
+
+  <p>Returns:</p>
+  <ul>
+      <li class="field-body">
+            <code><span title="typing.Dict">Dict</span>[<a class="autorefs autorefs-internal" title="labtech.types.Task" href="#labtech.types.Task">Task</a>, <span title="typing.Any">Any</span>]</code>
+        –
+        <div class="doc-md-description">
+          <p>A dictionary mapping each of the provided tasks to its
+corresponding result.</p>
+      </div>
+      </li>
+  </ul>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/lab.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
+              <span class="n">bust_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+              <span class="n">keep_nested_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+              <span class="n">disable_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Task</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the given tasks with as much process parallelism as possible.</span>
+<span class="sd">    Loads task results from the cache storage where possible and</span>
+<span class="sd">    caches results of executed tasks.</span>
+
+<span class="sd">    Any attribute of a task that is itself a task object is</span>
+<span class="sd">    considered a &quot;nested task&quot;, and will be executed or loaded so</span>
+<span class="sd">    that it&#39;s result is made available to its parent task. If the</span>
+<span class="sd">    same task is nested inside multiple task objects, it will only</span>
+<span class="sd">    be executed/loaded once.</span>
+
+<span class="sd">    As well as returning the results, each task&#39;s result will be</span>
+<span class="sd">    assigned to a `result` attribute on the task itself (including</span>
+<span class="sd">    nested tasks when `keep_nested_results` is `True`).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tasks: The tasks to execute. Each should be an instance of a class</span>
+<span class="sd">            decorated with [`labtech.task`][labtech.task].</span>
+<span class="sd">        bust_cache: If `True`, no task results will be loaded from the</span>
+<span class="sd">            cache storage; all tasks will be re-executed.</span>
+<span class="sd">        keep_nested_results: If `False`, results of nested tasks that were</span>
+<span class="sd">            executed or loaded in order to complete the provided tasks will</span>
+<span class="sd">            be cleared from memory once they are no longer needed.</span>
+<span class="sd">        disable_progress: If `True`, do not display a tqdm progress bar</span>
+<span class="sd">            tracking task execution.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary mapping each of the provided tasks to its</span>
+<span class="sd">            corresponding result.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="n">TaskRunner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">bust_cache</span><span class="o">=</span><span class="n">bust_cache</span><span class="p">,</span>
+                        <span class="n">keep_nested_results</span><span class="o">=</span><span class="n">keep_nested_results</span><span class="p">,</span>
+                        <span class="n">disable_progress</span><span class="o">=</span><span class="n">disable_progress</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="labtech.Lab.cached_tasks" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">cached_tasks</span><span class="p">(</span><span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns all task instances present in the Lab's cache storage for
+the given <code>task_types</code>, each of which should be a task class
+decorated with <a class="autorefs autorefs-internal" href="#labtech.task"><code>labtech.task</code></a>.</p>
+<p>Does not load task results from the cache storage, but they
+can be loaded by calling
+<a class="autorefs autorefs-internal" href="#labtech.Lab.run_tasks"><code>run_tasks()</code></a> with the returned task
+instances.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/lab.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns all task instances present in the Lab&#39;s cache storage for</span>
+<span class="sd">    the given `task_types`, each of which should be a task class</span>
+<span class="sd">    decorated with [`labtech.task`][labtech.task].</span>
+
+<span class="sd">    Does not load task results from the cache storage, but they</span>
+<span class="sd">    can be loaded by calling</span>
+<span class="sd">    [`run_tasks()`][labtech.Lab.run_tasks] with the returned task</span>
+<span class="sd">    instances.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">find_keys</span><span class="p">()</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">task_type</span> <span class="ow">in</span> <span class="n">task_types</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="n">task_type</span><span class="o">.</span><span class="n">_lt</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">load_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">,</span> <span class="n">task_type</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">TaskNotFound</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">tasks</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="labtech.Lab.is_cached" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">is_cached</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Checks if a result is present for given task in the Lab's cache
+storage.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/lab.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if a result is present for given task in the Lab&#39;s cache</span>
+<span class="sd">    storage.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">_lt</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">,</span> <span class="n">task</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="labtech.Lab.uncache_tasks" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">uncache_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">])</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Removes cached results for the given tasks from the Lab's cache
+storage.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/lab.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes cached results for the given tasks from the Lab&#39;s cache</span>
+<span class="sd">    storage.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cached</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">_lt</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">,</span> <span class="n">task</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="labtech.task" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">CacheDefault</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="n">CACHE_DEFAULT</span><span class="p">,</span> <span class="n">max_parallel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Class decorator for defining task type classes.</p>
+<p>Attribute definitions in task types are handled in the same way as
+[<code>dataclasses</code>], and they should capture all parameters of the
+task type. Parameter attributes can be any of the following types:</p>
+<ul>
+<li>Simple scalar types: <code>str</code>, <code>bool</code>, <code>float</code>, <code>int</code>, <code>None</code></li>
+<li>Collections of any of these types: <code>list</code>, <code>tuple</code>, <code>dict</code>, <code>Enum</code></li>
+<li>Task types: A task parameter is a "nested task" that will be executed
+  before its parent so that it may make use of the nested result.</li>
+</ul>
+<p>The task type is expected to define a <code>run()</code> method that takes no
+arguments (other than <code>self</code>). The <code>run()</code> method should execute
+the task as parameterised by the task's attributes and return the
+result of the task.</p>
+<p>Example usage:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">multiplier</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplier</span><span class="o">.</span><span class="n">value</span>
+
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">multiplier</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<p>You can also provide arguments to the decorator to control caching
+and parallelism:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_parallel</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+</code></pre></div>
+
+
+
+  <p>Parameters:</p>
+  <ul>
+      <li class="field-body">
+        <b><code>cache</code></b>
+            (<code><span title="typing.Union">Union</span>[<span title="labtech.tasks.CacheDefault">CacheDefault</span>, None, <span title="labtech.types.Cache">Cache</span>]</code>, default:
+                <code><span title="labtech.tasks.CACHE_DEFAULT">CACHE_DEFAULT</span></code>
+)
+        –
+        <div class="doc-md-description">
+          <p>The Cache that controls how task results are formatted for
+caching. Can be set to an instance of any
+<a href="../caching/#caches"><code>Cache</code></a> class, or <code>None</code> to disable caching
+of this type of task. Defaults to a
+<a class="autorefs autorefs-internal" href="../caching/#labtech.cache.PickleCache"><code>PickleCache</code></a>.</p>
+        </div>
+      </li>
+      <li class="field-body">
+        <b><code>max_parallel</code></b>
+            (<code><span title="typing.Optional">Optional</span>[int]</code>, default:
+                <code>None</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>The maximum number of instances of this task type that
+are allowed to run simultaneously in separate sub-processes. Useful
+to set if running too many instances of this particular task
+simultaneously will exhaust system memory or processing resources.</p>
+        </div>
+      </li>
+  </ul>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/tasks.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
+         <span class="n">cache</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">CacheDefault</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="n">CACHE_DEFAULT</span><span class="p">,</span>
+         <span class="n">max_parallel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class decorator for defining task type classes.</span>
+
+<span class="sd">    Attribute definitions in task types are handled in the same way as</span>
+<span class="sd">    [`dataclasses`], and they should capture all parameters of the</span>
+<span class="sd">    task type. Parameter attributes can be any of the following types:</span>
+
+<span class="sd">    * Simple scalar types: `str`, `bool`, `float`, `int`, `None`</span>
+<span class="sd">    * Collections of any of these types: `list`, `tuple`, `dict`, `Enum`</span>
+<span class="sd">    * Task types: A task parameter is a &quot;nested task&quot; that will be executed</span>
+<span class="sd">      before its parent so that it may make use of the nested result.</span>
+
+<span class="sd">    The task type is expected to define a `run()` method that takes no</span>
+<span class="sd">    arguments (other than `self`). The `run()` method should execute</span>
+<span class="sd">    the task as parameterised by the task&#39;s attributes and return the</span>
+<span class="sd">    result of the task.</span>
+
+<span class="sd">    Example usage:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    @labtech.task</span>
+<span class="sd">    class Experiment:</span>
+<span class="sd">        seed: int</span>
+<span class="sd">        multiplier: int</span>
+
+<span class="sd">        def run(self):</span>
+<span class="sd">            return self.seed * self.multiplier.value</span>
+
+<span class="sd">    experiment = Experiment(seed=1, multiplier=2)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    You can also provide arguments to the decorator to control caching</span>
+<span class="sd">    and parallelism:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    @labtech.task(cache=None, max_parallel=1)</span>
+<span class="sd">    class Experiment:</span>
+<span class="sd">        ...</span>
+
+<span class="sd">        def run(self):</span>
+<span class="sd">            ...</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cache: The Cache that controls how task results are formatted for</span>
+<span class="sd">            caching. Can be set to an instance of any</span>
+<span class="sd">            [`Cache`](caching.md#caches) class, or `None` to disable caching</span>
+<span class="sd">            of this type of task. Defaults to a</span>
+<span class="sd">            [`PickleCache`][labtech.cache.PickleCache].</span>
+<span class="sd">        max_parallel: The maximum number of instances of this task type that</span>
+<span class="sd">            are allowed to run simultaneously in separate sub-processes. Useful</span>
+<span class="sd">            to set if running too many instances of this particular task</span>
+<span class="sd">            simultaneously will exhaust system memory or processing resources.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">nonlocal</span> <span class="n">cache</span>
+
+        <span class="n">reserved_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_lt&#39;</span><span class="p">,</span> <span class="s1">&#39;_is_task&#39;</span><span class="p">,</span> <span class="s1">&#39;cache_key&#39;</span><span class="p">,</span> <span class="s1">&#39;result&#39;</span><span class="p">,</span> <span class="s1">&#39;_results_map&#39;</span><span class="p">,</span> <span class="s1">&#39;_set_results_map&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_task_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">reserved_attr</span> <span class="ow">in</span> <span class="n">reserved_attrs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">reserved_attr</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task type already defines reserved attribute &#39;</span><span class="si">{</span><span class="n">reserved_attr</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="n">orig_post_init</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;__post_init__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__post_init__</span> <span class="o">=</span> <span class="n">_task_post_init</span>
+
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)(</span><span class="bp">cls</span><span class="p">)</span>
+
+        <span class="n">run_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">run_func</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task type &#39;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; must define a &#39;run&#39; method&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="n">CACHE_DEFAULT</span><span class="p">:</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="n">PickleCache</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="n">NullCache</span><span class="p">()</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_lt</span> <span class="o">=</span> <span class="n">TaskInfo</span><span class="p">(</span>
+            <span class="n">cache</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Cache</span><span class="p">,</span> <span class="n">cache</span><span class="p">),</span>
+            <span class="n">orig_post_init</span><span class="o">=</span><span class="n">orig_post_init</span><span class="p">,</span>
+            <span class="n">max_parallel</span><span class="o">=</span><span class="n">max_parallel</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__getstate__</span> <span class="o">=</span> <span class="n">_task__getstate__</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__setstate__</span> <span class="o">=</span> <span class="n">_task__setstate__</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_set_results_map</span> <span class="o">=</span> <span class="n">_task_set_results_map</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_task_result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">isclass</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="n">decorator</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">decorator</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div><p>Any task type decorated with <a class="autorefs autorefs-internal" href="#labtech.task"><code>labtech.task</code></a> will
+provide the following attributes and methods:</p>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="labtech.types.Task" class="doc doc-heading">
+          <code>labtech.types.Task</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
+
+  
+      <p>Interface provided by any class that is decorated by
+<a class="autorefs autorefs-internal" href="#labtech.task"><code>labtech.task</code></a>.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>labtech/types.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Task</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface provided by any class that is decorated by</span>
+<span class="sd">    [`labtech.task`][labtech.task].&quot;&quot;&quot;</span>
+    <span class="n">_lt</span><span class="p">:</span> <span class="n">TaskInfo</span>
+    <span class="n">_is_task</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span>
+    <span class="n">_results_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ResultsMap</span><span class="p">]</span>
+    <span class="n">cache_key</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The key that uniquely identifies the location for this task within cache storage.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_set_results_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_map</span><span class="p">:</span> <span class="n">ResultsMap</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the result executed/loaded for this task. If no result is</span>
+<span class="sd">        available in memory, accessing this property raises a `TaskError`.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;User-provided method that executes the task parameterised by the</span>
+<span class="sd">        attributes of the task.</span>
+
+<span class="sd">        Usually executed by [`Lab.run_tasks()`][labtech.Lab.run_tasks]</span>
+<span class="sd">        instead of being called directly.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+
+<h3 id="labtech.types.Task.cache_key" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">cache_key</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>The key that uniquely identifies the location for this task within cache storage.</p>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+
+<h3 id="labtech.types.Task.result" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">result</span><span class="p">:</span> <span class="n">Any</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the result executed/loaded for this task. If no result is
+available in memory, accessing this property raises a <code>TaskError</code>.</p>
+  </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="labtech.types.Task.run" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>User-provided method that executes the task parameterised by the
+attributes of the task.</p>
+<p>Usually executed by <a class="autorefs autorefs-internal" href="#labtech.Lab.run_tasks"><code>Lab.run_tasks()</code></a>
+instead of being called directly.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/types.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;User-provided method that executes the task parameterised by the</span>
+<span class="sd">    attributes of the task.</span>
+
+<span class="sd">    Usually executed by [`Lab.run_tasks()`][labtech.Lab.run_tasks]</span>
+<span class="sd">    instead of being called directly.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="labtech.is_task_type" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">is_task_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Returns <code>True</code> if the given <code>cls</code> is a class decorated with
+<a class="autorefs autorefs-internal" href="#labtech.task"><code>labtech.task</code></a>.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/types.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_task_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns `True` if the given `cls` is a class decorated with</span>
+<span class="sd">    [`labtech.task`][labtech.task].&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">isclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;_lt&#39;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="labtech.is_task" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">is_task</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Returns <code>True</code> if the given <code>obj</code> is an instance of a task class.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/types.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_task</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns `True` if the given `obj` is an instance of a task class.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;_is_task&#39;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+
+<h2 id="labtech.logger" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+  <div class="doc doc-contents first">
+  
+      <p><code>logging.Logger</code> object that labtech logs events to during task execution.</p>
+<p>Can be used to customize logging and to write additional logs from
+task <code>run()</code> methods:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">labtech</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="c1"># Change verbosity of logging</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+<span class="c1"># Logging methods to call from inside your task&#39;s run() method:</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Useful info from task: ...&#39;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Warning from task: ...&#39;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Error from task: ...&#39;</span><span class="p">)</span>
+</code></pre></div>
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tracking", "navigation.sections"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.dff1b7c8.min.js"></script>
+      
+    
+  </body>
+</html>
