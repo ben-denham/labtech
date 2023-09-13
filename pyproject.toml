@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "labtech"
+version = "0.1.0"
+license = "GPL-3.0-only"
+description = "Easily run experiment permutations with multi-processing and caching."
+authors = ["Ben Denham <ben@denham.nz>"]
+readme = "README.md"
+repository = "https://github.com/ben-denham/labtech"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+tqdm = "^4.64.1"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^5.0.4"
+pytest = "^7.1.3"
+pytest-cov = "^3.0.0"
+pytest-mock = "^3.10.0"
+mkdocs = "^1.5.2"
+mkdocstrings-python = "^1.5.2"
+mkdocs-material = "^9.2.4"
+# Use very recent mypy in order to support recursive types.
+mypy = { git = "https://github.com/python/mypy.git", rev = "0f17aff" }
+jupyterlab = "^3.4.6"
+IPython = "8.12.0"
+ipywidgets = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

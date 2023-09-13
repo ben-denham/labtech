@@ -1,0 +1,29 @@
+site_name: labtech
+repo_url: https://github.com/ben-denham/labtech/
+site_description: Documentation for labtech
+nav:
+  - README: 'README.md'
+  - Labs and Tasks: 'core.md'
+  - Caches and Storage: 'caching.md'
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            heading_level: 2
+            docstring_section_style: list
+            members_order: source
+            show_root_heading: true
+            show_signature_annotations: true
+markdown_extensions:
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.superfences
+theme:
+  name: material
+  features:
+    - navigation.tracking
+    - navigation.sections
+extra_css:
+    - stylesheets/extra.css

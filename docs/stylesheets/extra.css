@@ -1,0 +1,36 @@
+hr {
+    margin: 4em 0 1.5em 0 !important;
+}
+
+/* mkdocstrings */
+
+.doc-object {
+    padding-left: 10px;
+    border-left: 4px solid #9e9e9e3a;
+}
+
+.doc-heading {
+    margin: 0;
+}
+h1.doc-heading code,
+h2.doc-heading code,
+h3.doc-heading code,
+h4.doc-heading code,
+h5.doc-heading code,
+h6.doc-heading code {
+    font-weight: bold;
+}
+
+.doc-contents {
+    padding-left: 30px;
+}
+
+.doc-attribute, .doc-function {
+    margin-top: 40px;
+}
+
+.doc-label-class-attribute,
+.doc-label-instance-attribute,
+.doc-label-module-attribute{
+    display: none;
+}
