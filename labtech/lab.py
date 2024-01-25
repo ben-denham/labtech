@@ -205,6 +205,7 @@ class TaskRunner:
             return task._lt.cache.load_result(self.lab._storage, task)
         else:
             logger.debug(f"Running: '{task}'")
+            task.set_context(self.lab.context)
             result = task.run()
             task._lt.cache.save(self.lab._storage, task, result)
             logger.debug(f"Completed: '{task}'")
@@ -315,7 +316,8 @@ class Lab:
                  storage: Union[str, None, Storage],
                  continue_on_failure: bool = True,
                  max_workers: Optional[int] = None,
-                 notebook: bool = False):
+                 notebook: bool = False,
+                 context: Optional[dict[str, Any]] = None):
         """
         Args:
             storage: Where task results should be cached to. A string will be
@@ -330,6 +332,10 @@ class Lab:
                 processors on the machine.
             notebook: Should be set to `True` if run from a Jupyter notebook
                 for graphical progress bars.
+            context: A dictionary of additional variables to make available to
+                tasks. The context will not be cached, so the values should not
+                affect results (e.g. parallelism factors) or should be kept
+                constant between runs (e.g. datasets).
         """
         if isinstance(storage, str):
             storage = LocalStorage(storage)
@@ -339,6 +345,9 @@ class Lab:
         self.continue_on_failure = continue_on_failure
         self.max_workers = max_workers
         self.notebook = notebook
+        if context is None:
+            context = {}
+        self.context = context
 
     def run_tasks(self, tasks: Sequence[Task], *,
                   bust_cache: bool = False,

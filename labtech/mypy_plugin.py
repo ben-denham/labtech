@@ -21,6 +21,13 @@ def task_tag_callback(ctx: ClassDefContext):
             AnyType(TypeOfAny.explicit),
         ],
     )
+    context_type = Instance(
+        typ=ctx.api.named_type('builtins.dict').type,
+        args=[
+            ctx.api.named_type('builtins.str'),
+            AnyType(TypeOfAny.explicit),
+        ],
+    )
 
     add_attribute_to_class(
         api=ctx.api,
@@ -63,6 +70,24 @@ def task_tag_callback(ctx: ClassDefContext):
         cls=ctx.cls,
         name='result',
         typ=AnyType(TypeOfAny.explicit),
+    )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
+        name='set_context',
+        typ=CallableType(
+            arg_types=[context_type],
+            arg_kinds=[ArgKind.ARG_POS],
+            arg_names=['context'],
+            ret_type=NoneType(),
+            fallback=ctx.api.named_type('builtins.function'),
+        ),
+    )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
+        name='context',
+        typ=UnionType([NoneType(), context_type])
     )
 
 

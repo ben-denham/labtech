@@ -24,6 +24,8 @@ class Task(Protocol):
     _results_map: Optional[ResultsMap]
     cache_key: str
     """The key that uniquely identifies the location for this task within cache storage."""
+    context: Optional[dict[str, Any]]
+    """Context variables from the Lab that can be accessed when the task is running."""
 
     def _set_results_map(self, results_map: ResultsMap):
         pass
@@ -32,6 +34,10 @@ class Task(Protocol):
     def result(self) -> Any:
         """Returns the result executed/loaded for this task. If no result is
         available in memory, accessing this property raises a `TaskError`."""
+
+    def set_context(self, context: dict[str, Any]):
+        """Set the context that is made available to the task while it is
+        running."""
 
     def run(self):
         """User-provided method that executes the task parameterised by the

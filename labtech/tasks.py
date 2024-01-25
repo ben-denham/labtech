@@ -20,12 +20,17 @@ def _task_post_init(self):
     object.__setattr__(self, '_is_task', True)
     object.__setattr__(self, 'cache_key', self._lt.cache.cache_key(self))
     object.__setattr__(self, '_results_map', None)
+    object.__setattr__(self, 'context', None)
     if self._lt.orig_post_init is not None:
         self._lt.orig_post_init(self)
 
 
 def _task_set_results_map(self, results_map: ResultsMap):
     object.__setattr__(self, '_results_map', results_map)
+
+
+def _task_set_context(self, context: dict[str, Any]):
+    object.__setattr__(self, 'context', context)
 
 
 def _task_result(self) -> Any:
@@ -122,7 +127,7 @@ def task(*args,
     def decorator(cls):
         nonlocal cache
 
-        reserved_attrs = ['_lt', '_is_task', 'cache_key', 'result', '_results_map', '_set_results_map']
+        reserved_attrs = ['_lt', '_is_task', 'cache_key', 'result', 'context', 'set_context', '_results_map', '_set_results_map']
         if not is_task_type(cls):
             for reserved_attr in reserved_attrs:
                 if hasattr(cls, reserved_attr):
@@ -151,6 +156,7 @@ def task(*args,
         cls.__setstate__ = _task__setstate__
         cls._set_results_map = _task_set_results_map
         cls.result = property(_task_result)
+        cls.set_context = _task_set_context
         return cls
 
     if len(args) > 0 and isclass(args[0]):
