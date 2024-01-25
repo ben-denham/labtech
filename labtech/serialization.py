@@ -1,8 +1,9 @@
 """Serialization/deserialization of tasks to/from JSON."""
 
 from dataclasses import fields
+from datetime import datetime
 from enum import Enum
-from typing import cast, Dict, List, Type, Union
+from typing import cast, Dict, List, Optional, Type, Union
 
 from .types import Task, is_task
 from .exceptions import SerializationError
@@ -42,7 +43,7 @@ class Serializer:
 
         return serialized
 
-    def deserialize_task(self, serialized: Dict[str, jsonable]) -> Task:
+    def deserialize_task(self, serialized: Dict[str, jsonable], *, cache_timestamp: Optional[datetime]) -> Task:
         if not self.is_serialized_task(serialized):
             raise SerializationError(("deserialize_task() must be called with a "
                                       f"serialized Task, received: '{serialized}'"))
@@ -63,7 +64,9 @@ class Serializer:
             deserialized_value = self.deserialize_value(value)
             params[key] = deserialized_value
 
-        return task_cls(**params)
+        task = task_cls(**params)
+        task._set_cache_timestamp(cache_timestamp)
+        return task
 
     def serialize_value(self, value) -> jsonable:
         if is_task(value):
@@ -86,7 +89,7 @@ class Serializer:
 
     def deserialize_value(self, value: jsonable):
         if self.is_serialized_task(value):
-            return self.deserialize_task(cast(Dict[str, jsonable], value))
+            return self.deserialize_task(cast(Dict[str, jsonable], value), cache_timestamp=None)
         elif self.is_serialized_enum(value):
             return self.deserialize_enum(cast(Dict[str, jsonable], value))
         return value

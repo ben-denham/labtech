@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime
 from inspect import isclass
 from typing import Any, Callable, Dict, IO, Literal, Optional, Protocol, Sequence, Type
 
@@ -26,8 +27,13 @@ class Task(Protocol):
     """The key that uniquely identifies the location for this task within cache storage."""
     context: Optional[dict[str, Any]]
     """Context variables from the Lab that can be accessed when the task is running."""
+    cache_timestamp: Optional[datetime]
+    """The timestamp of cache creation if the task's result was loaded from cache."""
 
     def _set_results_map(self, results_map: ResultsMap):
+        pass
+
+    def _set_cache_timestamp(self, cache_timestamp: datetime):
         pass
 
     @property
@@ -122,6 +128,16 @@ class Cache(ABC):
         Args:
             storage: Storage provider to load the result from
             task: task instance to load the result for
+
+        """
+
+    @abstractmethod
+    def load_cache_timestamp(self, storage: Storage, task: Task) -> datetime:
+        """Loads the timestamp when the given task was cached in the storage provider.
+
+        Args:
+            storage: Storage provider to load the cache_timestamp from
+            task: task instance to load the cache_timestamp for
 
         """
 

@@ -89,6 +89,24 @@ def task_tag_callback(ctx: ClassDefContext):
         name='context',
         typ=UnionType([NoneType(), context_type])
     )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
+        name='_set_cache_timestamp',
+        typ=CallableType(
+            arg_types=[ctx.api.named_type('datetime.datetime')],
+            arg_kinds=[ArgKind.ARG_POS],
+            arg_names=['cache_timestamp'],
+            ret_type=NoneType(),
+            fallback=ctx.api.named_type('builtins.function'),
+        ),
+    )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
+        name='cache_timestamp',
+        typ=UnionType([NoneType(), ctx.api.named_type('datetime.datetime')])
+    )
 
 
 class LabtechPlugin(Plugin):

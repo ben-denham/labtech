@@ -32,6 +32,9 @@ class NullCache(Cache):
     def load_result(self, storage: Storage, task: Task) -> Any:
         raise CacheError('Loading a result from a NullCache is not supported.')
 
+    def load_cache_timestamp(self, storage: Storage, task: Task) -> Any:
+        raise CacheError('Loading a cache_timestamp from a NullCache is not supported.')
+
     def delete(self, storage: Storage, task: Task):
         pass
 
@@ -73,17 +76,25 @@ class BaseCache(Cache):
             json.dump(metadata, metadata_file, indent=2)
         self.save_result(storage, task, result)
 
-    def load_task(self, storage: Storage, task_type: Type[Task], key: str) -> Task:
+    def load_metadata(self, storage: Storage, task_type: Type[Task], key: str) -> dict[str, Any]:
         if not key.startswith(f'{self.KEY_PREFIX}{task_type.__qualname__}'):
             raise TaskNotFound
         with storage.file_handle(key, self.METADATA_FILENAME, mode='r') as metadata_file:
             metadata = json.load(metadata_file)
         if metadata.get('cache') != self.__class__.__qualname__:
             raise TaskNotFound
-        task = self.serializer.deserialize_task(metadata['task'])
+        return metadata
+
+    def load_task(self, storage: Storage, task_type: Type[Task], key: str) -> Task:
+        metadata = self.load_metadata(storage, task_type, key)
+        task = self.serializer.deserialize_task(metadata['task'], cache_timestamp=metadata['datetime'])
         if not isinstance(task, task_type):
             raise TaskNotFound
         return task
+
+    def load_cache_timestamp(self, storage: Storage, task: Task):
+        metadata = self.load_metadata(storage, type(task), task.cache_key)
+        return metadata['datetime']
 
     def delete(self, storage: Storage, task: Task):
         storage.delete(task.cache_key)

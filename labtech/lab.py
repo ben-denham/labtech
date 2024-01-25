@@ -3,6 +3,7 @@
 from collections import Counter, defaultdict
 import concurrent.futures
 from dataclasses import fields
+from datetime import datetime
 import logging
 from logging.handlers import QueueHandler
 import math
@@ -10,7 +11,7 @@ import multiprocessing
 import signal
 import sys
 from threading import Thread
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Tuple, Union
 
 from tqdm import tqdm
 from tqdm.notebook import tqdm as tqdm_notebook
@@ -198,18 +199,20 @@ class TaskRunner:
     def use_cache(self, task: Task):
         return (not self.bust_cache) and self.lab.is_cached(task)
 
-    def run_or_load_task(self, process_name: str, task: Task):
+    def run_or_load_task(self, process_name: str, task: Task) -> Tuple[Any, Optional[datetime]]:
         multiprocessing.current_process().name = process_name
         if self.use_cache(task):
             logger.debug(f"Loading from cache: '{task}'")
-            return task._lt.cache.load_result(self.lab._storage, task)
+            result = task._lt.cache.load_result(self.lab._storage, task)
+            cache_timestamp = task._lt.cache.load_cache_timestamp(self.lab._storage, task)
+            return result, cache_timestamp
         else:
             logger.debug(f"Running: '{task}'")
             task.set_context(self.lab.context)
             result = task.run()
             task._lt.cache.save(self.lab._storage, task, result)
             logger.debug(f"Completed: '{task}'")
-            return result
+            return result, None
 
     def logger_thread(self):
         # See: https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes
@@ -264,7 +267,7 @@ class TaskRunner:
                         for future in done:
                             task = future_to_task[future]
                             try:
-                                result = future.result()
+                                result, cache_timestamp = future.result()
                             except Exception as ex:
                                 state.complete_task(task, success=False, result=None)
                                 self.handle_failure(ex=ex, message=f"Task '{task}' failed.")
@@ -272,6 +275,7 @@ class TaskRunner:
                                 if task in tasks:
                                     task_results[task] = result
                                 state.complete_task(task, success=True, result=result)
+                                task._set_cache_timestamp(cache_timestamp)
                                 pbars[type(task)].update(1)
                         future_to_task = {future: future_to_task[future]
                                           for future in future_to_task
