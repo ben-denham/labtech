@@ -7,6 +7,8 @@ example:
 	poetry run python -m examples.basic
 jupyter:
 	poetry run jupyter lab
+mlflow:
+	poetry run mlflow ui --port 5000 --backend-store-uri examples/storage/mlruns
 
 lint:
 	poetry run flake8

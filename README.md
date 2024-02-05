@@ -26,6 +26,8 @@ run them with maximal parallelism and result caching:
   runs tasks in sub-processes with as much parallelism as possible.
 * **Implicit caching and loading of task results**; configurable and
   extensible options for how and where task results are cached.
+* **Integration with [mlflow](https://mlflow.org/)**; Automatically
+  log task runs to mlflow with all of their parameters.
 
 
 ## Installation

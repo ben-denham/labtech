@@ -74,7 +74,8 @@ def _task__setstate__(self, state: Dict[str, Any]) -> None:
 
 def task(*args,
          cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT,
-         max_parallel: Optional[int] = None):
+         max_parallel: Optional[int] = None,
+         mlflow_run: bool = False):
     """Class decorator for defining task type classes.
 
     Attribute definitions in task types are handled in the same way as
@@ -105,11 +106,12 @@ def task(*args,
     experiment = Experiment(seed=1, multiplier=2)
     ```
 
-    You can also provide arguments to the decorator to control caching
-    and parallelism:
+    You can also provide arguments to the decorator to control caching,
+    parallelism, and [mlflow](https://mlflow.org/docs/latest/tracking.html#quickstart)
+    tracking:
 
     ```python
-    @labtech.task(cache=None, max_parallel=1)
+    @labtech.task(cache=None, max_parallel=1, mlflow_run=True)
     class Experiment:
         ...
 
@@ -127,6 +129,11 @@ def task(*args,
             are allowed to run simultaneously in separate sub-processes. Useful
             to set if running too many instances of this particular task
             simultaneously will exhaust system memory or processing resources.
+        mlflow_run: If True, the execution of each instance of this task type
+            will be wrapped with `mlflow.start_run()`, tags the run with
+            `labtech_task_type` equal to the task class name, and all parameters
+            will be logged with `mlflow.log_param()`. You can make additional
+            mlflow logging calls from the task's `run()` method.
 
     """
 
@@ -160,6 +167,7 @@ def task(*args,
             cache=cast(Cache, cache),
             orig_post_init=orig_post_init,
             max_parallel=max_parallel,
+            mlflow_run=mlflow_run,
         )
         cls.__getstate__ = _task__getstate__
         cls.__setstate__ = _task__setstate__

@@ -4,6 +4,7 @@ from collections import Counter, defaultdict
 import concurrent.futures
 from dataclasses import fields
 from datetime import datetime
+from enum import Enum
 import logging
 from logging.handlers import QueueHandler
 import math
@@ -196,8 +197,47 @@ class TaskRunner:
         # Simplify traceback by clearing the exception chain.
         raise LabError(str(ex)) from None
 
-    def use_cache(self, task: Task):
+    def use_cache(self, task: Task) -> bool:
         return (not self.bust_cache) and self.lab.is_cached(task)
+
+    def run_task_with_mlflow(self, task: Task) -> Any:
+
+        def log_params(value: Any, *, path: str = ''):
+            prefix = path if path == '' else f'{path}.'
+            if is_task(value):
+                for field in fields(value):
+                    log_params(getattr(value, field.name), path=f'{prefix}{field.name}')
+            elif isinstance(value, tuple) or isinstance(value, list):
+                for i, item in enumerate(value):
+                    log_params(item, path=f'{prefix}{i}')
+            elif isinstance(value, dict):
+                for key, item in value.items():
+                    log_params(item, path=f'{prefix}{key}')
+            elif isinstance(value, Enum):
+                mlflow.log_param(path, f'{type(value).__qualname__}.{value.name}')
+            elif ((value is None)
+              or isinstance(value, str)
+              or isinstance(value, bool)
+              or isinstance(value, float)
+              or isinstance(value, int)):
+                mlflow.log_param(path, value)
+            else:
+                raise LabError(
+                    (f"Unable to mlflow log parameter '{path}' of type '{type(value).__qualname__}' "
+                     f"in task of type '{type(task).__qualname__}'.")
+                )
+
+        try:
+            import mlflow
+        except ImportError:
+            raise LabError(
+                (f"Task type '{type(task).__qualname__}' is configured with mlflow_run=True, but "
+                 "mlflow cannot be imported. You can install mlflow with `pip install mlflow`.")
+            )
+        with mlflow.start_run():
+            mlflow.set_tag('labtech_task_type', type(task).__qualname__)
+            log_params(task)
+            return task.run()
 
     def run_or_load_task(self, process_name: str, task: Task) -> Tuple[Any, Optional[datetime]]:
         multiprocessing.current_process().name = process_name
@@ -209,7 +249,10 @@ class TaskRunner:
         else:
             logger.debug(f"Running: '{task}'")
             task.set_context(self.lab.context)
-            result = task.run()
+            if task._lt.mlflow_run:
+                result = self.run_task_with_mlflow(task)
+            else:
+                result = task.run()
             task._lt.cache.save(self.lab._storage, task, result)
             logger.debug(f"Completed: '{task}'")
             return result, None

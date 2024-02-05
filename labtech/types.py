@@ -12,6 +12,7 @@ class TaskInfo:
     orig_post_init: Optional[Callable]
     cache: 'Cache'
     max_parallel: Optional[int]
+    mlflow_run: bool
 
 
 ResultsMap = Dict['Task', Any]
