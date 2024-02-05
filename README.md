@@ -150,7 +150,7 @@ with `labtech.task`, simply enable the labtech mypy plugin in your
 
 ```INI
 [mypy]
-plugins = labtech/mypy_plugin.py
+plugins = labtech.mypy_plugin
 ```
 
 ## Contributing
