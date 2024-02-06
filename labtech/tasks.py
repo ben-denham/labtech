@@ -1,11 +1,10 @@
 """Utilities for defining tasks."""
 
 from dataclasses import dataclass, fields
-from datetime import datetime
 from inspect import isclass
 from typing import cast, Any, Dict, Optional, Union
 
-from .types import TaskInfo, ResultsMap, Cache, is_task_type
+from .types import TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type
 from .cache import PickleCache, NullCache
 from .exceptions import TaskError
 
@@ -22,7 +21,7 @@ def _task_post_init(self):
     object.__setattr__(self, 'cache_key', self._lt.cache.cache_key(self))
     object.__setattr__(self, '_results_map', None)
     object.__setattr__(self, 'context', None)
-    object.__setattr__(self, 'cache_timestamp', None)
+    object.__setattr__(self, 'result_meta', None)
     if self._lt.orig_post_init is not None:
         self._lt.orig_post_init(self)
 
@@ -31,8 +30,8 @@ def _task_set_results_map(self, results_map: ResultsMap):
     object.__setattr__(self, '_results_map', results_map)
 
 
-def _task_set_cache_timestamp(self, cache_timestamp: datetime):
-    object.__setattr__(self, 'cache_timestamp', cache_timestamp)
+def _task_set_result_meta(self, result_meta: ResultMeta):
+    object.__setattr__(self, 'result_meta', result_meta)
 
 
 def _task_set_context(self, context: dict[str, Any]):
@@ -142,7 +141,7 @@ def task(*args,
 
         reserved_attrs = [
             '_lt', '_is_task', 'cache_key', 'result', '_results_map', '_set_results_map',
-            'cache_timestamp', '_set_cache_timestamp', 'context', 'set_context',
+            'result_meta', '_set_result_meta', 'context', 'set_context',
         ]
         if not is_task_type(cls):
             for reserved_attr in reserved_attrs:
@@ -172,7 +171,7 @@ def task(*args,
         cls.__getstate__ = _task__getstate__
         cls.__setstate__ = _task__setstate__
         cls._set_results_map = _task_set_results_map
-        cls._set_cache_timestamp = _task_set_cache_timestamp
+        cls._set_result_meta = _task_set_result_meta
         cls.result = property(_task_result)
         cls.set_context = _task_set_context
         return cls

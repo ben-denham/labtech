@@ -2,6 +2,7 @@
 
 from collections import Counter, defaultdict
 import concurrent.futures
+from contextlib import contextmanager
 from dataclasses import fields
 from datetime import datetime
 from enum import Enum
@@ -12,16 +13,60 @@ import multiprocessing
 import signal
 import sys
 from threading import Thread
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
 
 from tqdm import tqdm
 from tqdm.notebook import tqdm as tqdm_notebook
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from .types import Task, ResultsMap, Storage, is_task
+from .types import Task, TaskResult, ResultMeta, ResultsMap, Storage, is_task
 from .exceptions import LabError, TaskNotFound
 from .utils import OrderedSet, LoggerFileProxy, logger
 from .storage import NullStorage, LocalStorage
+
+
+@contextmanager
+def optional_mlflow(task: Task):
+
+    def log_params(value: Any, *, path: str = ''):
+        prefix = path if path == '' else f'{path}.'
+        if is_task(value):
+            for field in fields(value):
+                log_params(getattr(value, field.name), path=f'{prefix}{field.name}')
+        elif isinstance(value, tuple) or isinstance(value, list):
+            for i, item in enumerate(value):
+                log_params(item, path=f'{prefix}{i}')
+        elif isinstance(value, dict):
+            for key, item in value.items():
+                log_params(item, path=f'{prefix}{key}')
+        elif isinstance(value, Enum):
+            mlflow.log_param(path, f'{type(value).__qualname__}.{value.name}')
+        elif ((value is None)
+              or isinstance(value, str)
+              or isinstance(value, bool)
+              or isinstance(value, float)
+              or isinstance(value, int)):
+            mlflow.log_param(path, value)
+        else:
+            raise LabError(
+                (f"Unable to mlflow log parameter '{path}' of type '{type(value).__qualname__}' "
+                 f"in task of type '{type(task).__qualname__}'.")
+            )
+
+    if task._lt.mlflow_run:
+        try:
+            import mlflow
+        except ImportError:
+            raise LabError(
+                (f"Task type '{type(task).__qualname__}' is configured with mlflow_run=True, but "
+                 "mlflow cannot be imported. You can install mlflow with `pip install mlflow`.")
+            )
+        with mlflow.start_run():
+            mlflow.set_tag('labtech_task_type', type(task).__qualname__)
+            log_params(task)
+            yield
+    else:
+        yield
 
 
 class TaskState:
@@ -200,62 +245,29 @@ class TaskRunner:
     def use_cache(self, task: Task) -> bool:
         return (not self.bust_cache) and self.lab.is_cached(task)
 
-    def run_task_with_mlflow(self, task: Task) -> Any:
-
-        def log_params(value: Any, *, path: str = ''):
-            prefix = path if path == '' else f'{path}.'
-            if is_task(value):
-                for field in fields(value):
-                    log_params(getattr(value, field.name), path=f'{prefix}{field.name}')
-            elif isinstance(value, tuple) or isinstance(value, list):
-                for i, item in enumerate(value):
-                    log_params(item, path=f'{prefix}{i}')
-            elif isinstance(value, dict):
-                for key, item in value.items():
-                    log_params(item, path=f'{prefix}{key}')
-            elif isinstance(value, Enum):
-                mlflow.log_param(path, f'{type(value).__qualname__}.{value.name}')
-            elif ((value is None)
-              or isinstance(value, str)
-              or isinstance(value, bool)
-              or isinstance(value, float)
-              or isinstance(value, int)):
-                mlflow.log_param(path, value)
-            else:
-                raise LabError(
-                    (f"Unable to mlflow log parameter '{path}' of type '{type(value).__qualname__}' "
-                     f"in task of type '{type(task).__qualname__}'.")
-                )
-
-        try:
-            import mlflow
-        except ImportError:
-            raise LabError(
-                (f"Task type '{type(task).__qualname__}' is configured with mlflow_run=True, but "
-                 "mlflow cannot be imported. You can install mlflow with `pip install mlflow`.")
-            )
-        with mlflow.start_run():
-            mlflow.set_tag('labtech_task_type', type(task).__qualname__)
-            log_params(task)
-            return task.run()
-
-    def run_or_load_task(self, process_name: str, task: Task) -> Tuple[Any, Optional[datetime]]:
+    def run_or_load_task(self, process_name: str, task: Task) -> TaskResult:
         multiprocessing.current_process().name = process_name
         if self.use_cache(task):
             logger.debug(f"Loading from cache: '{task}'")
-            result = task._lt.cache.load_result(self.lab._storage, task)
-            cache_timestamp = task._lt.cache.load_cache_timestamp(self.lab._storage, task)
-            return result, cache_timestamp
+            task_result = task._lt.cache.load_result_with_meta(self.lab._storage, task)
+            return task_result
         else:
             logger.debug(f"Running: '{task}'")
             task.set_context(self.lab.context)
-            if task._lt.mlflow_run:
-                result = self.run_task_with_mlflow(task)
-            else:
+            with optional_mlflow(task):
+                start = datetime.now()
                 result = task.run()
-            task._lt.cache.save(self.lab._storage, task, result)
+                end = datetime.now()
+            task_result = TaskResult(
+                value=result,
+                meta=ResultMeta(
+                    start=start,
+                    duration=(end - start),
+                ),
+            )
+            task._lt.cache.save(self.lab._storage, task, task_result)
             logger.debug(f"Completed: '{task}'")
-            return result, None
+            return task_result
 
     def logger_thread(self):
         # See: https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes
@@ -310,15 +322,15 @@ class TaskRunner:
                         for future in done:
                             task = future_to_task[future]
                             try:
-                                result, cache_timestamp = future.result()
+                                task_result = future.result()
                             except Exception as ex:
                                 state.complete_task(task, success=False, result=None)
                                 self.handle_failure(ex=ex, message=f"Task '{task}' failed.")
                             else:
                                 if task in tasks:
-                                    task_results[task] = result
-                                state.complete_task(task, success=True, result=result)
-                                task._set_cache_timestamp(cache_timestamp)
+                                    task_results[task] = task_result.value
+                                state.complete_task(task, success=True, result=task_result.value)
+                                task._set_result_meta(task_result.meta)
                                 pbars[type(task)].update(1)
                         future_to_task = {future: future_to_task[future]
                                           for future in future_to_task

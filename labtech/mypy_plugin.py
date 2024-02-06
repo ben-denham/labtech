@@ -92,11 +92,11 @@ def task_tag_callback(ctx: ClassDefContext):
     add_attribute_to_class(
         api=ctx.api,
         cls=ctx.cls,
-        name='_set_cache_timestamp',
+        name='_set_result_meta',
         typ=CallableType(
-            arg_types=[ctx.api.named_type('datetime.datetime')],
+            arg_types=[ctx.api.named_type('labtech.types.ResultMeta')],
             arg_kinds=[ArgKind.ARG_POS],
-            arg_names=['cache_timestamp'],
+            arg_names=['result_meta'],
             ret_type=NoneType(),
             fallback=ctx.api.named_type('builtins.function'),
         ),
@@ -104,8 +104,8 @@ def task_tag_callback(ctx: ClassDefContext):
     add_attribute_to_class(
         api=ctx.api,
         cls=ctx.cls,
-        name='cache_timestamp',
-        typ=UnionType([NoneType(), ctx.api.named_type('datetime.datetime')])
+        name='result_meta',
+        typ=UnionType([NoneType(), ctx.api.named_type('labtech.types.ResultMeta')])
     )
 
 

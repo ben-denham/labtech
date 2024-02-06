@@ -2,14 +2,14 @@
 
 
 from abc import abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import json
 import pickle
 from typing import Any, Optional, Type
 
 from . import __version__ as labtech_version
-from .types import Task, Cache, Storage
+from .types import Task, TaskResult, ResultMeta, Cache, Storage
 from .exceptions import CacheError, TaskNotFound
 from .serialization import Serializer
 
@@ -29,7 +29,7 @@ class NullCache(Cache):
     def load_task(self, storage: Storage, task_type: Type[Task], key: str) -> Task:
         raise TaskNotFound
 
-    def load_result(self, storage: Storage, task: Task) -> Any:
+    def load_result_with_meta(self, storage: Storage, task: Task) -> TaskResult:
         raise CacheError('Loading a result from a NullCache is not supported.')
 
     def load_cache_timestamp(self, storage: Storage, task: Task) -> Any:
@@ -63,18 +63,27 @@ class BaseCache(Cache):
     def is_cached(self, storage: Storage, task: Task) -> bool:
         return storage.exists(task.cache_key)
 
-    def save(self, storage: Storage, task: Task, result: Any):
+    def save(self, storage: Storage, task: Task, task_result: TaskResult):
+        start_timestamp = None
+        if task_result.meta.start is not None:
+            start_timestamp = task_result.meta.start.isoformat()
+
+        duration_seconds = None
+        if task_result.meta.duration is not None:
+            duration_seconds = task_result.meta.duration.total_seconds()
+
         metadata = {
             'labtech_version': labtech_version,
             'cache': self.__class__.__qualname__,
             'cache_key': task.cache_key,
-            'datetime': datetime.now().isoformat(),
             'task': self.serializer.serialize_task(task),
+            'start_timestamp': start_timestamp,
+            'duration_seconds': duration_seconds,
         }
         metadata_file = storage.file_handle(task.cache_key, self.METADATA_FILENAME, mode='w')
         with metadata_file:
             json.dump(metadata, metadata_file, indent=2)
-        self.save_result(storage, task, result)
+        self.save_result(storage, task, task_result.value)
 
     def load_metadata(self, storage: Storage, task_type: Type[Task], key: str) -> dict[str, Any]:
         if not key.startswith(f'{self.KEY_PREFIX}{task_type.__qualname__}'):
@@ -85,19 +94,48 @@ class BaseCache(Cache):
             raise TaskNotFound
         return metadata
 
+    def build_result_meta(self, metadata: dict[str, Any]) -> ResultMeta:
+        start = None
+        if 'start_timestamp' in metadata:
+            start = datetime.fromisoformat(metadata['start_timestamp'])
+
+        duration = None
+        if 'duration_seconds' in metadata:
+            duration = timedelta(seconds=metadata['duration_seconds'])
+
+        return ResultMeta(
+            start=start,
+            duration=duration,
+        )
+
     def load_task(self, storage: Storage, task_type: Type[Task], key: str) -> Task:
         metadata = self.load_metadata(storage, task_type, key)
-        task = self.serializer.deserialize_task(metadata['task'], cache_timestamp=metadata['datetime'])
+        result_meta = self.build_result_meta(metadata)
+        task = self.serializer.deserialize_task(metadata['task'], result_meta=result_meta)
         if not isinstance(task, task_type):
             raise TaskNotFound
         return task
 
-    def load_cache_timestamp(self, storage: Storage, task: Task):
+    def load_result_with_meta(self, storage: Storage, task: Task) -> TaskResult:
+        result = self.load_result(storage, task)
         metadata = self.load_metadata(storage, type(task), task.cache_key)
-        return metadata['datetime']
+        return TaskResult(
+            value=result,
+            meta=self.build_result_meta(metadata),
+        )
 
     def delete(self, storage: Storage, task: Task):
         storage.delete(task.cache_key)
+
+    @abstractmethod
+    def load_result(self, storage: Storage, task: Task) -> Any:
+        """Loads the result for the given task from the storage provider.
+
+        Args:
+            storage: Storage provider to load the result from
+            task: task instance to load the result for
+
+        """
 
     @abstractmethod
     def save_result(self, storage: Storage, task: Task, result: Any):
