@@ -1,4 +1,4 @@
-.PHONY: deps example lint mypy test check docs-serve docs-build docs-github
+.PHONY: deps example lint mypy test check docs-serve docs-build docs-github cookbook-notebook
 
 deps:
 	poetry install
@@ -27,3 +27,6 @@ docs-build:
 	poetry run mkdocs build
 docs-github:
 	poetry run mkdocs gh-deploy
+
+cookbook-notebook:
+	pandoc -o examples/cookbook.ipynb docs/cookbook.md

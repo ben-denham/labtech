@@ -7,7 +7,7 @@ from typing import cast, Any, Dict, Optional, Union
 
 from frozendict import frozendict
 
-from .types import TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type
+from .types import TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type, is_task
 from .cache import PickleCache, NullCache
 from .exceptions import TaskError
 from .utils import ensure_dict_key_str
@@ -37,7 +37,7 @@ def immutable_param_value(key: str, value: Any) -> Any:
         or isinstance(value, int)
         or isinstance(value, Enum)
     )
-    if is_scalar:
+    if is_scalar or is_task(value):
         return value
     raise TaskError(f"Unsupported type '{type(value).__qualname__}' in parameter value '{key}'.")
 
@@ -114,16 +114,16 @@ def task(*args,
     task type. Parameter attributes can be any of the following types:
 
     * Simple scalar types: `str`, `bool`, `float`, `int`, `None`
+    * Any member of an `Enum` type. Referring to members of an `Enum` can be
+      used to parameterise a task with a value that does not have one of the
+      types above (e.g. a Pandas/Numpy dataset).
+    * Task types: A task parameter is a "nested task" that will be executed
+      before its parent so that it may make use of the nested result.
     * Collections of any of these types: `list`, `tuple`,
       `dict`, [`frozendict`](https://pypi.org/project/frozendict/)
       * Note: Mutable `list` and `dict` collections will be converted to
         immutable `tuple` and [`frozendict`](https://pypi.org/project/frozendict/)
         collections.
-    * Task types: A task parameter is a "nested task" that will be executed
-      before its parent so that it may make use of the nested result.
-    * Any member of an `Enum` type. Referring to members of an `Enum` can be
-      used to parameterise a task with a value that does not have one of the
-      types above (e.g. a Pandas/Numpy dataset).
 
     The task type is expected to define a `run()` method that takes no
     arguments (other than `self`). The `run()` method should execute

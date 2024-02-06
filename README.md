@@ -137,6 +137,7 @@ print([results[task] for task in dependent_tasks])
 
 To learn more, see:
 
+* [Cookbook of common patterns](https://ben-denham.github.io/labtech/cookbook) ([as an interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb))
 * [The API reference for Labs and Tasks](https://ben-denham.github.io/labtech/core)
 * [More options for cache formats and storage providers](https://ben-denham.github.io/labtech/caching)
 * [More examples](https://github.com/ben-denham/labtech/tree/main/examples)
