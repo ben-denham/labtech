@@ -307,7 +307,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import GaussianNB
 
 
-@labtech.task
+@labtech.task(max_parallel=1)
 class CVExperiment:
     cv_folds: int
 
@@ -331,7 +331,6 @@ experiments = [
 lab = labtech.Lab(
     storage=None,
     notebook=True,
-    max_workers=1,
     context={
         'within_task_workers': 4,
     },
@@ -339,13 +338,15 @@ lab = labtech.Lab(
 results = lab.run_tasks(experiments)
 ```
 
-> Note: Instead of limiting parallelism across all tasks with
-> `max_workers` when constructing a `labtech.Lab`, you can limit
-> parallelism for a single task type by specifying `max_parallel` in
-> the `@labtech.task` decorator. However, the `joblib` library used by
-> `sklearn` does not behave correctly when run from within a
-> sub-process, and only setting `max_workers=1` ensures all tasks run
-> inside the main process.
+> Note: Instead of limiting parallelism for a single task type by
+> specifying `max_parallel` in the `@labtech.task` decorator, you can
+> limit parallelism across all tasks with `max_workers` when
+> constructing a `labtech.Lab`.
+
+> Note: The `joblib` library used by `sklearn` does not behave
+> correctly when run from within a sub-process, but setting
+> `max_parallel=1` or `max_workers=1` ensures tasks are run inside the
+> main process.
 
 
 ### What happens if I move or change the definition of a task?

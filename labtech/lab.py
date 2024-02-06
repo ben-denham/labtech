@@ -24,6 +24,7 @@ from .types import Task, TaskResult, ResultMeta, ResultsMap, Storage, is_task
 from .exceptions import LabError, TaskNotFound
 from .utils import OrderedSet, LoggerFileProxy, logger
 from .storage import NullStorage, LocalStorage
+from .executors import SerialExecutor, wait_for_first_future
 
 
 @contextmanager
@@ -205,7 +206,12 @@ class TaskRunner:
         self.disable_progress = disable_progress
         self.log_queue = multiprocessing.Manager().Queue(-1)
 
-    def get_executor(self):
+    def get_executor(self, serial: bool = False):
+        if (self.lab.max_workers is not None and self.lab.max_workers == 1):
+            serial = True
+
+        if serial:
+            return SerialExecutor()
 
         def init_worker():
             signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -301,6 +307,7 @@ class TaskRunner:
             for task_type, task_count in task_type_counts.items()
         }
         executor = self.get_executor()
+        serial_executor = self.get_executor(serial=True)
         future_to_task: Dict[concurrent.futures.Future, Task] = {}
         redirected_loggers = [] if self.lab.notebook else [logger]
         with logging_redirect_tqdm(loggers=redirected_loggers):
@@ -314,12 +321,16 @@ class TaskRunner:
                             process_id = (str(task_type_process_counts[type(task)])
                                           .zfill(task_type_max_digits[type(task)]))
                             process_name = f'{type(task).__name__}[{process_id}]'
-                            future = executor.submit(self.run_or_load_task, process_name, task)
+                            # Always use a serial executor to run tasks on the
+                            # main process if max_parallel=1
+                            future_executor = (
+                                serial_executor
+                                if task._lt.max_parallel is not None and task._lt.max_parallel == 1
+                                else executor
+                            )
+                            future = future_executor.submit(self.run_or_load_task, process_name, task)
                             future_to_task[future] = task
-                        done, _ = concurrent.futures.wait(
-                            future_to_task,
-                            return_when=concurrent.futures.FIRST_COMPLETED,
-                        )
+                        done, _ = wait_for_first_future(list(future_to_task.keys()))
                         for future in done:
                             task = future_to_task[future]
                             try:
@@ -389,7 +400,8 @@ class Lab:
             max_workers: The maximum number of parallel worker processes for
                 running tasks. Uses the same default as
                 `concurrent.futures.ProcessPoolExecutor`: the number of
-                processors on the machine.
+                processors on the machine. When `max_workers=1`, all tasks will
+                be run in the main process, without multi-processing.
             notebook: Should be set to `True` if run from a Jupyter notebook
                 for graphical progress bars.
             context: A dictionary of additional variables to make available to
