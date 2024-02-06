@@ -1,12 +1,16 @@
 """Utilities for defining tasks."""
 
 from dataclasses import dataclass, fields
+from enum import Enum
 from inspect import isclass
 from typing import cast, Any, Dict, Optional, Union
+
+from frozendict import frozendict
 
 from .types import TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type
 from .cache import PickleCache, NullCache
 from .exceptions import TaskError
+from .utils import ensure_dict_key_str
 
 
 class CacheDefault:
@@ -16,7 +20,33 @@ class CacheDefault:
 CACHE_DEFAULT = CacheDefault()
 
 
+def immutable_param_value(key: str, value: Any) -> Any:
+    """Converts a parameter value to an immutable equivalent that is hashable."""
+    if isinstance(value, list) or isinstance(value, tuple):
+        return tuple(immutable_param_value(f'{key}.{i}', item) for i, item in enumerate(value))
+    if isinstance(value, dict) or isinstance(value, frozendict):
+        return frozendict({
+            ensure_dict_key_str(dict_key, exception_type=TaskError): immutable_param_value(f'{key}.{dict_key}', dict_value)
+            for dict_key, dict_value in value.items()
+        })
+    is_scalar = (
+        (value is None)
+        or isinstance(value, str)
+        or isinstance(value, bool)
+        or isinstance(value, float)
+        or isinstance(value, int)
+        or isinstance(value, Enum)
+    )
+    if is_scalar:
+        return value
+    raise TaskError(f"Unsupported type '{type(value).__qualname__}' in parameter value '{key}'.")
+
+
 def _task_post_init(self):
+    # Ensure parameter values are immutable.
+    for f in fields(self):
+        object.__setattr__(self, f.name, immutable_param_value(f.name, getattr(self, f.name)))
+
     object.__setattr__(self, '_is_task', True)
     object.__setattr__(self, 'cache_key', self._lt.cache.cache_key(self))
     object.__setattr__(self, '_results_map', None)
@@ -67,7 +97,9 @@ def _task__getstate__(self) -> Dict[str, Any]:
 
 
 def _task__setstate__(self, state: Dict[str, Any]) -> None:
+    field_set = set(f.name for f in fields(self))
     for key, value in state.items():
+        value = immutable_param_value(key, value) if key in field_set else value
         object.__setattr__(self, key, value)
 
 
@@ -82,9 +114,16 @@ def task(*args,
     task type. Parameter attributes can be any of the following types:
 
     * Simple scalar types: `str`, `bool`, `float`, `int`, `None`
-    * Collections of any of these types: `list`, `tuple`, `dict`, `Enum`
+    * Collections of any of these types: `list`, `tuple`,
+      `dict`, [`frozendict`](https://pypi.org/project/frozendict/)
+      * Note: Mutable `list` and `dict` collections will be converted to
+        immutable `tuple` and [`frozendict`](https://pypi.org/project/frozendict/)
+        collections.
     * Task types: A task parameter is a "nested task" that will be executed
       before its parent so that it may make use of the nested result.
+    * Any member of an `Enum` type. Referring to members of an `Enum` can be
+      used to parameterise a task with a value that does not have one of the
+      types above (e.g. a Pandas/Numpy dataset).
 
     The task type is expected to define a `run()` method that takes no
     arguments (other than `self`). The `run()` method should execute

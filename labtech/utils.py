@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import Dict, Generic, Optional, Sequence, TypeVar
+from typing import cast, Dict, Generic, Optional, Sequence, TypeVar, Type
 
 
 def get_logger():
@@ -102,8 +102,16 @@ class LoggerFileProxy:
             self.logger_func('\n'.join([f'{self.prefix}{buf}' for buf in self.bufs]))
 
 
+def ensure_dict_key_str(value, *, exception_type: Type[Exception]) -> str:
+    if not isinstance(value, str):
+        raise exception_type(("Parameter dictionary keys must be strings, "
+                              f"found: '{value}'"))
+    return cast(str, value)
+
+
 __all__ = [
     'logger',
     'OrderedSet',
     'LoggerFileProxy',
+    'ensure_dict_key_str',
 ]

@@ -15,6 +15,7 @@ import sys
 from threading import Thread
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
 
+from frozendict import frozendict
 from tqdm import tqdm
 from tqdm.notebook import tqdm as tqdm_notebook
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -33,10 +34,10 @@ def optional_mlflow(task: Task):
         if is_task(value):
             for field in fields(value):
                 log_params(getattr(value, field.name), path=f'{prefix}{field.name}')
-        elif isinstance(value, tuple) or isinstance(value, list):
+        elif isinstance(value, tuple):
             for i, item in enumerate(value):
                 log_params(item, path=f'{prefix}{i}')
-        elif isinstance(value, dict):
+        elif isinstance(value, frozendict):
             for key, item in value.items():
                 log_params(item, path=f'{prefix}{key}')
         elif isinstance(value, Enum):

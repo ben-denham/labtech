@@ -4,20 +4,16 @@ from dataclasses import fields
 from enum import Enum
 from typing import cast, Dict, List, Optional, Type, Union
 
+from frozendict import frozendict
+
 from .types import Task, ResultMeta, is_task
 from .exceptions import SerializationError
+from .utils import ensure_dict_key_str
 
 # Type to represent any value that can be handled by Python's default
 # json encoder and decoder.
 jsonable = Union[None, str, bool, float, int,
                  Dict[str, 'jsonable'], List['jsonable']]
-
-
-def ensure_dict_key_str(value) -> str:
-    if not isinstance(value, str):
-        raise SerializationError(("Dictionary keys must be strings in order "
-                                  f"to be serialized, found: '{value}'"))
-    return cast(str, value)
 
 
 class Serializer:
@@ -70,11 +66,13 @@ class Serializer:
     def serialize_value(self, value) -> jsonable:
         if is_task(value):
             return self.serialize_task(value)
-        elif isinstance(value, tuple) or isinstance(value, list):
+        elif isinstance(value, tuple):
             return [self.serialize_value(item) for item in value]
-        elif isinstance(value, dict):
-            return {ensure_dict_key_str(key): self.serialize_value(value)
-                    for key, value in value.items()}
+        elif isinstance(value, frozendict):
+            return {
+                ensure_dict_key_str(key, exception_type=SerializationError): self.serialize_value(value)
+                for key, value in value.items()
+            }
         elif isinstance(value, Enum):
             return self.serialize_enum(value)
         elif ((value is None)
