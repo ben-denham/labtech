@@ -26,6 +26,8 @@ from .utils import OrderedSet, LoggerFileProxy, logger
 from .storage import NullStorage, LocalStorage
 from .executors import SerialExecutor, wait_for_first_future
 
+_IN_TASK_SUBPROCESS = False
+
 
 @contextmanager
 def optional_mlflow(task: Task):
@@ -214,6 +216,8 @@ class TaskRunner:
             return SerialExecutor()
 
         def init_worker():
+            global _IN_TASK_SUBPROCESS
+            _IN_TASK_SUBPROCESS = True
             signal.signal(signal.SIGINT, signal.SIG_IGN)
             # Sub-processes should log onto the queue in order to printed
             # in serial by the main process.
@@ -246,35 +250,43 @@ class TaskRunner:
             logger.error(f"{message} Skipping: {ex}")
         else:
             logger.error(message)
-        # Simplify traceback by clearing the exception chain.
-        raise LabError(str(ex)) from None
+
+        lab_error = LabError(str(ex))
+        if _IN_TASK_SUBPROCESS:
+            # Simplify traceback by clearing the exception chain.
+            raise lab_error from None
+        raise lab_error from ex
 
     def use_cache(self, task: Task) -> bool:
         return (not self.bust_cache) and self.lab.is_cached(task)
 
     def run_or_load_task(self, process_name: str, task: Task) -> TaskResult:
-        multiprocessing.current_process().name = process_name
-        if self.use_cache(task):
-            logger.debug(f"Loading from cache: '{task}'")
-            task_result = task._lt.cache.load_result_with_meta(self.lab._storage, task)
-            return task_result
-        else:
-            logger.debug(f"Running: '{task}'")
-            task.set_context(self.lab.context)
-            with optional_mlflow(task):
-                start = datetime.now()
-                result = task.run()
-                end = datetime.now()
-            task_result = TaskResult(
-                value=result,
-                meta=ResultMeta(
-                    start=start,
-                    duration=(end - start),
-                ),
-            )
-            task._lt.cache.save(self.lab._storage, task, task_result)
-            logger.debug(f"Completed: '{task}'")
-            return task_result
+        orig_process_name = multiprocessing.current_process().name
+        try:
+            multiprocessing.current_process().name = process_name
+            if self.use_cache(task):
+                logger.debug(f"Loading from cache: '{task}'")
+                task_result = task._lt.cache.load_result_with_meta(self.lab._storage, task)
+                return task_result
+            else:
+                logger.debug(f"Running: '{task}'")
+                task.set_context(self.lab.context)
+                with optional_mlflow(task):
+                    start = datetime.now()
+                    result = task.run()
+                    end = datetime.now()
+                task_result = TaskResult(
+                    value=result,
+                    meta=ResultMeta(
+                        start=start,
+                        duration=(end - start),
+                    ),
+                )
+                task._lt.cache.save(self.lab._storage, task, task_result)
+                logger.debug(f"Completed: '{task}'")
+                return task_result
+        finally:
+            multiprocessing.current_process().name = orig_process_name
 
     def logger_thread(self):
         # See: https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes

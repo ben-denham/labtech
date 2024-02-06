@@ -344,19 +344,25 @@ results = lab.run_tasks(experiments)
 > constructing a `labtech.Lab`.
 
 > Note: The `joblib` library used by `sklearn` does not behave
-> correctly when run from within a sub-process, but setting
+> correctly when run from within a task sub-process, but setting
 > `max_parallel=1` or `max_workers=1` ensures tasks are run inside the
 > main process.
 
 
-### What happens if I move or change the definition of a task?
+### What happens to my cached results if I change or move the definition of a task?
+
+* Try keep behaviour, fields, and location fixed before you start to seriously run experiments
+* New field or behaviour -> Use a child class?
+* Moved -> use jq
+
+### How can I find what results I have cached? How can I clear them?
 
 ### How can I cache task results in a format other than pickle?
 
 ### How can I cache task results somewhere other than my filesystem?
 
+### How can I construct a multi-step experiment pipeline?
+
 ### Loading lots of cached results is slow, how can I make it faster?
 
 ### How can I use labtech with mlflow?
-
-### How can I construct a multi-step experiment pipeline?
