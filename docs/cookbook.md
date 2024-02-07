@@ -5,7 +5,7 @@ The following cookbook presents labtech patterns for common use cases.
 You can also run this cookbook as an ([interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb)).
 
 ``` {.code}
-%pip install labtech mlflow scikit-learn
+%pip install labtech mlflow scikit-learn setuptools
 ```
 
 ``` {.python .code}
@@ -348,6 +348,21 @@ results = lab.run_tasks(experiments)
 > `max_parallel=1` or `max_workers=1` ensures tasks are run inside the
 > main process.
 
+### How can I make labtech continue executing tasks even when one or more fail?
+
+Labtech's default behaviour is to stop executing any new tasks as soon
+as any individual task fails. However, when executing tasks over a
+long period of time (e.g. a large number of tasks, or even a few long
+running tasks), it is sometimes helpful to have labtech continue to
+execute tasks even if one or more fail.
+
+If you set `continue_on_failure=True` when creating your lab,
+exceptions raised during the execution of a task will be logged, but
+the execution of other tasks will continue:
+
+``` {.python .code}
+results = lab = labtech.Lab(continue_on_failure=True)
+```
 
 ### What happens to my cached results if I change or move the definition of a task?
 
@@ -355,14 +370,85 @@ results = lab.run_tasks(experiments)
 * New field or behaviour -> Use a child class?
 * Moved -> use jq
 
-### How can I find what results I have cached? How can I clear them?
+### How can I find what results I have cached?
+
+### How can I clear cached results?
+
+* uncache_tasks
+* bust_cache
 
 ### How can I cache task results in a format other than pickle?
 
 ### How can I cache task results somewhere other than my filesystem?
 
-### How can I construct a multi-step experiment pipeline?
-
 ### Loading lots of cached results is slow, how can I make it faster?
 
+### How can I construct a multi-step experiment pipeline?
+
+### How can I access the results of intermediate/dependency tasks?
+
+### How can I see when a task was run and how long it took to execute?
+
 ### How can I use labtech with mlflow?
+
+If you want to log a task type as an mlflow "run", simply add
+`mlflow_run=True` to the call to `@labtech.task()`, which will:
+
+* Wrap each run of the task with `mlflow.start_run()`
+* Tag the run with `labtech_task_type` equal to the task class name
+* Log all task parameters with `mlflow.log_param()`
+
+The following example demonstrates using labtech with mlflow. Note
+that you can still make any configuration changes (such as
+`mlflow.set_experiment()`) before the tasks are run, and you can make
+additional tracking calls (such as `mlflow.log_metric()` or
+`mlflow.log_model()`) in the body of your task's `run()` method:
+
+``` {.python .code}
+import mlflow
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+
+@labtech.task(mlflow_run=True)
+class MLRun:
+    penalty_norm: str | None
+
+    def run(self) -> np.ndarray:
+        clf = LogisticRegression(penalty=self.penalty_norm)
+        clf.fit(digits_X, digits_y)
+
+        labels = clf.predict(digits_X)
+
+        train_accuracy = accuracy_score(digits_y, labels)
+        mlflow.log_metric('train_accuracy', train_accuracy)
+
+        mlflow.sklearn.log_model(
+            sk_model=clf,
+            artifact_path='digits_model',
+            input_example=digits_X,
+            registered_model_name='digits-model',
+        )
+
+        return labels
+
+
+runs = [
+    MLRun(
+        penalty_norm=penalty_norm,
+    )
+    for penalty_norm in [None, 'l2']
+]
+
+mlflow.set_experiment('example_labtech_experiment')
+lab = labtech.Lab(
+    storage=None,
+    notebook=True
+)
+results = lab.run_tasks(runs)
+```
+
+> Note: While the [mlflow documentation](https://mlflow.org/docs/latest/getting-started/intro-quickstart/index.html#step-4-log-the-model-and-its-metadata-to-mlflow)
+> recommends wrapping only your tracking code with
+> `mlflow.start_run()`, labtech wraps the entire call to the `run()`
+> method of your task in order to track execution times in mlflow.
