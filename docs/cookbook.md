@@ -366,28 +366,46 @@ results = lab = labtech.Lab(continue_on_failure=True)
 
 ### What happens to my cached results if I change or move the definition of a task?
 
-* Try keep behaviour, fields, and location fixed before you start to seriously run experiments
-* New field or behaviour -> Use a child class?
-* Moved -> use jq
+TODO:
+
+* It is easiest to keep behaviour, fields, and location fixed once you start to seriously run experiments
+* New field or behaviour -> create a child class
+* Moved class -> use jq to manually update cache
 
 ### How can I find what results I have cached?
 
+TODO
+
 ### How can I clear cached results?
 
-* uncache_tasks
-* bust_cache
+TODO:
+
+* `uncache_tasks`
+* `bust_cache`
 
 ### How can I cache task results in a format other than pickle?
 
+TODO
+
 ### How can I cache task results somewhere other than my filesystem?
+
+TODO
 
 ### Loading lots of cached results is slow, how can I make it faster?
 
+TODO
+
 ### How can I construct a multi-step experiment pipeline?
+
+TODO
 
 ### How can I access the results of intermediate/dependency tasks?
 
+TODO
+
 ### How can I see when a task was run and how long it took to execute?
+
+TODO
 
 ### How can I use labtech with mlflow?
 
