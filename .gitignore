@@ -12,6 +12,7 @@ site/
 
 # Examples
 examples/.ipynb_checkpoints/
+examples/mlruns/
 
 # Build
 dist/

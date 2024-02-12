@@ -89,7 +89,8 @@ of that type a parameter for your primary experiment task:
 from sklearn.linear_model import LogisticRegression
 
 
-# Constructing a classifier object is inexpensive, so we don't need to cache the result
+# Constructing a classifier object is inexpensive, so we don't need to
+# cache the result
 @labtech.task(cache=None)
 class LRClassifierTask:
     random_state: int
@@ -123,8 +124,9 @@ results = lab.run_tasks([experiment])
 ```
 
 We can extend this example with additional task types to cater for
-different types of classifiers with a Protocol that defines their
-common result type:
+different types of classifiers with a
+[Protocol](https://docs.python.org/3/library/typing.html#typing.Protocol)
+that defines their common result type:
 
 ``` {.python .code}
 from typing import Protocol
@@ -247,13 +249,15 @@ results = lab.run_tasks(experiments)
 
 If an object cannot be conveniently defined in an `Enum` (such as
 types like Numpy arrays or Pandas DataFrames that cannot be directly
-specified as an `Enum` value, or large values that cannot be loaded
-into memory all at once), then the lab context can be used to pass the
-object to a task.
+specified as an `Enum` value, or large values that cannot all be
+loaded into memory every time the `Enum` is loaded), then the lab
+context can be used to pass the object to a task.
 
-> Note: Because values provided in the lab context are not cached,
+> Warning: Because values provided in the lab context are not cached,
 > they should be kept constant between runs or should not affect task
-> results (e.g. parallel worker counts, log levels).
+> results (e.g. parallel worker counts, log levels). If changing
+> context values cause task results to change, then cached results may
+> no longer be valid.
 
 The following example demonstrates specifying a `dataset_key`
 parameter to a task that is used to look up a dataset from the lab
@@ -295,7 +299,9 @@ results = lab.run_tasks(experiments)
 ### How can I control multi-processing myself within a task?
 
 By default, Labtech executes tasks in parallel on all available CPU
-cores. However, if you wish to control multi-processing yourself
+cores. However, you can control multi-processing yourself by disabling
+task parallelism and performing your own parallelism within a task's
+`run()` method.
 
 The following example uses `max_parallel` to allow only one
 `CVExperiment` to be executed at a time, and then performs
@@ -361,7 +367,10 @@ exceptions raised during the execution of a task will be logged, but
 the execution of other tasks will continue:
 
 ``` {.python .code}
-results = lab = labtech.Lab(continue_on_failure=True)
+results = lab = labtech.Lab(
+    storage=None,
+    continue_on_failure=True,
+)
 ```
 
 ### What happens to my cached results if I change or move the definition of a task?
