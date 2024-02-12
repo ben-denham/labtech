@@ -1,0 +1,1116 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for labtech">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../core/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.3.1">
+    
+    
+      
+        <title>Cookbook - labtech</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.046329b4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cookbook" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="labtech" class="md-header__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            labtech
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cookbook
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="labtech" class="md-nav__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    labtech
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    README
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Cookbook
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Cookbook
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cookbook" class="md-nav__link">
+    Cookbook
+  </a>
+  
+    <nav class="md-nav" aria-label="Cookbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-print-log-messages-from-my-task" class="md-nav__link">
+    How can I print log messages from my task?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-specify-a-complex-object-like-a-model-or-dataset-as-a-task-parameter" class="md-nav__link">
+    How do I specify a complex object, like a model or dataset, as a task parameter?
+  </a>
+  
+    <nav class="md-nav" aria-label="How do I specify a complex object, like a model or dataset, as a task parameter?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructing-objects-in-dependent-tasks" class="md-nav__link">
+    Constructing objects in dependent tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#passing-objects-in-enum-parameters" class="md-nav__link">
+    Passing objects in Enum parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#passing-objects-in-the-lab-context" class="md-nav__link">
+    Passing objects in the lab context
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-control-multi-processing-myself-within-a-task" class="md-nav__link">
+    How can I control multi-processing myself within a task?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-make-labtech-continue-executing-tasks-even-when-one-or-more-fail" class="md-nav__link">
+    How can I make labtech continue executing tasks even when one or more fail?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-happens-to-my-cached-results-if-i-change-or-move-the-definition-of-a-task" class="md-nav__link">
+    What happens to my cached results if I change or move the definition of a task?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-find-what-results-i-have-cached" class="md-nav__link">
+    How can I find what results I have cached?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-clear-cached-results" class="md-nav__link">
+    How can I clear cached results?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-cache-task-results-in-a-format-other-than-pickle" class="md-nav__link">
+    How can I cache task results in a format other than pickle?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-cache-task-results-somewhere-other-than-my-filesystem" class="md-nav__link">
+    How can I cache task results somewhere other than my filesystem?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-lots-of-cached-results-is-slow-how-can-i-make-it-faster" class="md-nav__link">
+    Loading lots of cached results is slow, how can I make it faster?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-construct-a-multi-step-experiment-pipeline" class="md-nav__link">
+    How can I construct a multi-step experiment pipeline?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-access-the-results-of-intermediatedependency-tasks" class="md-nav__link">
+    How can I access the results of intermediate/dependency tasks?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute" class="md-nav__link">
+    How can I see when a task was run and how long it took to execute?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-use-labtech-with-mlflow" class="md-nav__link">
+    How can I use labtech with mlflow?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Labs and Tasks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../caching/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Caches and Storage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cookbook" class="md-nav__link">
+    Cookbook
+  </a>
+  
+    <nav class="md-nav" aria-label="Cookbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-print-log-messages-from-my-task" class="md-nav__link">
+    How can I print log messages from my task?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-specify-a-complex-object-like-a-model-or-dataset-as-a-task-parameter" class="md-nav__link">
+    How do I specify a complex object, like a model or dataset, as a task parameter?
+  </a>
+  
+    <nav class="md-nav" aria-label="How do I specify a complex object, like a model or dataset, as a task parameter?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructing-objects-in-dependent-tasks" class="md-nav__link">
+    Constructing objects in dependent tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#passing-objects-in-enum-parameters" class="md-nav__link">
+    Passing objects in Enum parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#passing-objects-in-the-lab-context" class="md-nav__link">
+    Passing objects in the lab context
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-control-multi-processing-myself-within-a-task" class="md-nav__link">
+    How can I control multi-processing myself within a task?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-make-labtech-continue-executing-tasks-even-when-one-or-more-fail" class="md-nav__link">
+    How can I make labtech continue executing tasks even when one or more fail?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-happens-to-my-cached-results-if-i-change-or-move-the-definition-of-a-task" class="md-nav__link">
+    What happens to my cached results if I change or move the definition of a task?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-find-what-results-i-have-cached" class="md-nav__link">
+    How can I find what results I have cached?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-clear-cached-results" class="md-nav__link">
+    How can I clear cached results?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-cache-task-results-in-a-format-other-than-pickle" class="md-nav__link">
+    How can I cache task results in a format other than pickle?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-cache-task-results-somewhere-other-than-my-filesystem" class="md-nav__link">
+    How can I cache task results somewhere other than my filesystem?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-lots-of-cached-results-is-slow-how-can-i-make-it-faster" class="md-nav__link">
+    Loading lots of cached results is slow, how can I make it faster?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-construct-a-multi-step-experiment-pipeline" class="md-nav__link">
+    How can I construct a multi-step experiment pipeline?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-access-the-results-of-intermediatedependency-tasks" class="md-nav__link">
+    How can I access the results of intermediate/dependency tasks?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute" class="md-nav__link">
+    How can I see when a task was run and how long it took to execute?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-use-labtech-with-mlflow" class="md-nav__link">
+    How can I use labtech with mlflow?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Cookbook</h1>
+
+<h2 id="cookbook">Cookbook</h2>
+<p>The following cookbook presents labtech patterns for common use cases.</p>
+<p>You can also run this cookbook as an (<a href="https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb">interactive notebook</a>).</p>
+<div class="highlight"><pre><span></span><code>%pip install labtech mlflow scikit-learn setuptools
+</code></pre></div>
+<div class="code highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">labtech</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">clone</span><span class="p">,</span> <span class="n">ClassifierMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="c1"># Prepare a dataset for examples</span>
+<span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_digits</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">digits_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="how-can-i-print-log-messages-from-my-task">How can I print log messages from my task?</h3>
+<p>Using <code>labtech.logger</code> (a standard <a href="https://docs.python.org/3/library/logging.html#logger-objects">Python logger
+object</a>)
+is the recommended approach for logging from a task, but all output
+that is sent to <code>STDOUT</code> (e.g. calls to <code>print()</code>) or <code>STDERR</code> (e.g.
+uncaught exceptions) will also be captured and logged:</p>
+<div class="code highlight"><pre><span></span><code><span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">PrintingExperiment</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">labtech</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning, the seed is: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The seed is: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+
+
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">PrintingExperiment</span><span class="p">(</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="how-do-i-specify-a-complex-object-like-a-model-or-dataset-as-a-task-parameter">How do I specify a complex object, like a model or dataset, as a task parameter?</h3>
+<p>Because labtech needs to be able to reconstitute <code>Task</code> objects from
+caches, task parameters can only be:</p>
+<ul>
+<li>Simple scalar types: <code>str</code>, <code>bool</code>, <code>float</code>, <code>int</code>, <code>None</code></li>
+<li>Any member of an <code>Enum</code> type.</li>
+<li>Task types: A task parameter is a "nested task" that will be executed
+  before its parent so that it may make use of the nested result.</li>
+<li>Collections of any of these types: <code>list</code>, <code>tuple</code>,
+  <code>dict</code>, <a href="https://pypi.org/project/frozendict/"><code>frozendict</code></a></li>
+<li>Note: Mutable <code>list</code> and <code>dict</code> collections will be converted to
+    immutable <code>tuple</code> and <a href="https://pypi.org/project/frozendict/"><code>frozendict</code></a>
+    collections.</li>
+</ul>
+<p>The are three primary patterns you can use to provide a more complex
+object as a parameter to a task:</p>
+<ul>
+<li>Constructing the object in a dependent task</li>
+<li>Passing the object in an <code>Enum</code> parameter</li>
+<li>Passing the object in the lab context</li>
+</ul>
+<h4 id="constructing-objects-in-dependent-tasks">Constructing objects in dependent tasks</h4>
+<p>If your object can be constructed from its own set of parameters, then
+you can use a dependent task as a "factory" to construct your object.</p>
+<p>For example, you could define a task type to construct a machine
+learning model (like <code>LRClassifierTask</code> below), and then make a task
+of that type a parameter for your primary experiment task:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+
+<span class="c1"># Constructing a classifier object is inexpensive, so we don&#39;t need to</span>
+<span class="c1"># cache the result</span>
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LRClassifierTask</span><span class="p">:</span>
+    <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LogisticRegression</span><span class="p">(</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ClassifierExperiment</span><span class="p">:</span>
+    <span class="n">classifier_task</span><span class="p">:</span> <span class="n">LRClassifierTask</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="c1"># Because the classifier task result may be shared between experiments,</span>
+        <span class="c1"># we clone it before fitting.</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier_task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">ClassifierExperiment</span><span class="p">(</span>
+    <span class="n">classifier_task</span><span class="o">=</span><span class="n">LRClassifierTask</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">([</span><span class="n">experiment</span><span class="p">])</span>
+</code></pre></div>
+<p>We can extend this example with additional task types to cater for
+different types of classifiers with a
+<a href="https://docs.python.org/3/library/typing.html#typing.Protocol">Protocol</a>
+that defines their common result type:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Protocol</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">GaussianNB</span>
+
+
+<span class="k">class</span> <span class="nc">ClassifierTask</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LRClassifierTask</span><span class="p">:</span>
+    <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LogisticRegression</span><span class="p">(</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">NBClassifierTask</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">GaussianNB</span><span class="p">()</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ClassifierExperiment</span><span class="p">:</span>
+    <span class="n">classifier_task</span><span class="p">:</span> <span class="n">ClassifierTask</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="c1"># Because the classifier task result may be shared between experiments,</span>
+        <span class="c1"># we clone it before fitting.</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier_task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+
+<span class="n">classifier_tasks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LRClassifierTask</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+    <span class="n">NBClassifierTask</span><span class="p">(),</span>
+<span class="p">]</span>
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ClassifierExperiment</span><span class="p">(</span><span class="n">classifier_task</span><span class="o">=</span><span class="n">classifier_task</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">classifier_task</span> <span class="ow">in</span> <span class="n">classifier_tasks</span>
+<span class="p">]</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="passing-objects-in-enum-parameters">Passing objects in <code>Enum</code> parameters</h4>
+<p>For simple object parameters that have a fixed set of known values, an
+<code>Enum</code> of possible values can be used to provide parameter values.</p>
+<p>The following example shows how an <code>Enum</code> of functions can be used for
+a parameter to specify the operation that an experiment performs:</p>
+<blockquote>
+<p>Note: Because parameter values will be
+<a href="https://docs.python.org/3/library/pickle.html">pickled</a> when they
+are copied to parallel task sub-processes, the type used in a
+parameter <code>Enum</code> must support equality between identical (but
+distinct) object instances.</p>
+</blockquote>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+
+<span class="c1"># The custom class we want to provide objects of as parameters.</span>
+<span class="k">class</span> <span class="nc">Dataset</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">fetch_openml</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">parser</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># Support equality check to allow pickling of Enum values</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">key</span>
+
+
+<span class="k">class</span> <span class="nc">DatasetOption</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">TIC_TAC_TOE</span><span class="o">=</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;tic-tac-toe&#39;</span><span class="p">)</span>
+    <span class="n">EEG_EYE_STATE</span><span class="o">=</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;eeg-eye-state&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">DatasetExperiment</span><span class="p">:</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetOption</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+
+
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">DatasetExperiment</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">DatasetOption</span>
+<span class="p">]</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="passing-objects-in-the-lab-context">Passing objects in the lab context</h4>
+<p>If an object cannot be conveniently defined in an <code>Enum</code> (such as
+types like Numpy arrays or Pandas DataFrames that cannot be directly
+specified as an <code>Enum</code> value, or large values that cannot all be
+loaded into memory every time the <code>Enum</code> is loaded), then the lab
+context can be used to pass the object to a task.</p>
+<blockquote>
+<p>Warning: Because values provided in the lab context are not cached,
+they should be kept constant between runs or should not affect task
+results (e.g. parallel worker counts, log levels). If changing
+context values cause task results to change, then cached results may
+no longer be valid.</p>
+</blockquote>
+<p>The following example demonstrates specifying a <code>dataset_key</code>
+parameter to a task that is used to look up a dataset from the lab
+context:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">DATASETS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;zeros&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>
+    <span class="s1">&#39;ones&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>
+<span class="p">}</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">SumExperiment</span><span class="p">:</span>
+    <span class="n">dataset_key</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;DATASETS&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">SumExperiment</span><span class="p">(</span>
+        <span class="n">dataset_key</span><span class="o">=</span><span class="n">dataset_key</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">dataset_key</span> <span class="ow">in</span> <span class="n">DATASETS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="p">]</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">context</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;DATASETS&#39;</span><span class="p">:</span> <span class="n">DATASETS</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="how-can-i-control-multi-processing-myself-within-a-task">How can I control multi-processing myself within a task?</h3>
+<p>By default, Labtech executes tasks in parallel on all available CPU
+cores. However, you can control multi-processing yourself by disabling
+task parallelism and performing your own parallelism within a task's
+<code>run()</code> method.</p>
+<p>The following example uses <code>max_parallel</code> to allow only one
+<code>CVExperiment</code> to be executed at a time, and then performs
+cross-validation within the task using a number of workers specified
+in the lab context as <code>within_task_workers</code>:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">GaussianNB</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">max_parallel</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CVExperiment</span><span class="p">:</span>
+    <span class="n">cv_folds</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">GaussianNB</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cross_val_score</span><span class="p">(</span>
+            <span class="n">clf</span><span class="p">,</span>
+            <span class="n">digits_X</span><span class="p">,</span>
+            <span class="n">digits_y</span><span class="p">,</span>
+            <span class="n">cv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cv_folds</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;within_task_workers&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">CVExperiment</span><span class="p">(</span>
+        <span class="n">cv_folds</span><span class="o">=</span><span class="n">cv_folds</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">cv_folds</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+<span class="p">]</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">context</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;within_task_workers&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>Note: Instead of limiting parallelism for a single task type by
+specifying <code>max_parallel</code> in the <code>@labtech.task</code> decorator, you can
+limit parallelism across all tasks with <code>max_workers</code> when
+constructing a <code>labtech.Lab</code>.</p>
+<p>Note: The <code>joblib</code> library used by <code>sklearn</code> does not behave
+correctly when run from within a task sub-process, but setting
+<code>max_parallel=1</code> or <code>max_workers=1</code> ensures tasks are run inside the
+main process.</p>
+</blockquote>
+<h3 id="how-can-i-make-labtech-continue-executing-tasks-even-when-one-or-more-fail">How can I make labtech continue executing tasks even when one or more fail?</h3>
+<p>Labtech's default behaviour is to stop executing any new tasks as soon
+as any individual task fails. However, when executing tasks over a
+long period of time (e.g. a large number of tasks, or even a few long
+running tasks), it is sometimes helpful to have labtech continue to
+execute tasks even if one or more fail.</p>
+<p>If you set <code>continue_on_failure=True</code> when creating your lab,
+exceptions raised during the execution of a task will be logged, but
+the execution of other tasks will continue:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">results</span> <span class="o">=</span> <span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">continue_on_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="what-happens-to-my-cached-results-if-i-change-or-move-the-definition-of-a-task">What happens to my cached results if I change or move the definition of a task?</h3>
+<p>TODO:</p>
+<ul>
+<li>It is easiest to keep behaviour, fields, and location fixed once you start to seriously run experiments</li>
+<li>New field or behaviour -&gt; create a child class</li>
+<li>Moved class -&gt; use jq to manually update cache</li>
+</ul>
+<h3 id="how-can-i-find-what-results-i-have-cached">How can I find what results I have cached?</h3>
+<p>TODO</p>
+<h3 id="how-can-i-clear-cached-results">How can I clear cached results?</h3>
+<p>TODO:</p>
+<ul>
+<li><code>uncache_tasks</code></li>
+<li><code>bust_cache</code></li>
+</ul>
+<h3 id="how-can-i-cache-task-results-in-a-format-other-than-pickle">How can I cache task results in a format other than pickle?</h3>
+<p>TODO</p>
+<h3 id="how-can-i-cache-task-results-somewhere-other-than-my-filesystem">How can I cache task results somewhere other than my filesystem?</h3>
+<p>TODO</p>
+<h3 id="loading-lots-of-cached-results-is-slow-how-can-i-make-it-faster">Loading lots of cached results is slow, how can I make it faster?</h3>
+<p>TODO</p>
+<h3 id="how-can-i-construct-a-multi-step-experiment-pipeline">How can I construct a multi-step experiment pipeline?</h3>
+<p>TODO</p>
+<h3 id="how-can-i-access-the-results-of-intermediatedependency-tasks">How can I access the results of intermediate/dependency tasks?</h3>
+<p>TODO</p>
+<h3 id="how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute">How can I see when a task was run and how long it took to execute?</h3>
+<p>TODO</p>
+<h3 id="how-can-i-use-labtech-with-mlflow">How can I use labtech with mlflow?</h3>
+<p>If you want to log a task type as an mlflow "run", simply add
+<code>mlflow_run=True</code> to the call to <code>@labtech.task()</code>, which will:</p>
+<ul>
+<li>Wrap each run of the task with <code>mlflow.start_run()</code></li>
+<li>Tag the run with <code>labtech_task_type</code> equal to the task class name</li>
+<li>Log all task parameters with <code>mlflow.log_param()</code></li>
+</ul>
+<p>The following example demonstrates using labtech with mlflow. Note
+that you can still make any configuration changes (such as
+<code>mlflow.set_experiment()</code>) before the tasks are run, and you can make
+additional tracking calls (such as <code>mlflow.log_metric()</code> or
+<code>mlflow.log_model()</code>) in the body of your task's <code>run()</code> method:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">mlflow</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">mlflow_run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MLRun</span><span class="p">:</span>
+    <span class="n">penalty_norm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">penalty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">penalty_norm</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span><span class="p">)</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+        <span class="n">train_accuracy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">digits_y</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s1">&#39;train_accuracy&#39;</span><span class="p">,</span> <span class="n">train_accuracy</span><span class="p">)</span>
+
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span>
+            <span class="n">sk_model</span><span class="o">=</span><span class="n">clf</span><span class="p">,</span>
+            <span class="n">artifact_path</span><span class="o">=</span><span class="s1">&#39;digits_model&#39;</span><span class="p">,</span>
+            <span class="n">input_example</span><span class="o">=</span><span class="n">digits_X</span><span class="p">,</span>
+            <span class="n">registered_model_name</span><span class="o">=</span><span class="s1">&#39;digits-model&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">labels</span>
+
+
+<span class="n">runs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">MLRun</span><span class="p">(</span>
+        <span class="n">penalty_norm</span><span class="o">=</span><span class="n">penalty_norm</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">penalty_norm</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">]</span>
+<span class="p">]</span>
+
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s1">&#39;example_labtech_experiment&#39;</span><span class="p">)</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>Note: While the <a href="https://mlflow.org/docs/latest/getting-started/intro-quickstart/index.html#step-4-log-the-model-and-its-metadata-to-mlflow">mlflow documentation</a>
+recommends wrapping only your tracking code with
+<code>mlflow.start_run()</code>, labtech wraps the entire call to the <code>run()</code>
+method of your task in order to track execution times in mlflow.</p>
+</blockquote>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tracking", "navigation.sections"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.dff1b7c8.min.js"></script>
+      
+    
+  </body>
+</html>

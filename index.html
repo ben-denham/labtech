@@ -12,7 +12,7 @@
       
       
       
-        <link rel="next" href="core/">
+        <link rel="next" href="cookbook/">
       
       
       <link rel="icon" href="assets/images/favicon.png">
@@ -308,6 +308,25 @@
   
   
     <li class="md-nav__item">
+      <a href="cookbook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cookbook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
       <a href="core/" class="md-nav__link">
         
   
@@ -445,6 +464,8 @@ run them with maximal parallelism and result caching:</p>
   runs tasks in sub-processes with as much parallelism as possible.</li>
 <li><strong>Implicit caching and loading of task results</strong>; configurable and
   extensible options for how and where task results are cached.</li>
+<li><strong>Integration with <a href="https://mlflow.org/">mlflow</a></strong>; Automatically
+  log task runs to mlflow with all of their parameters.</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <div class="highlight"><pre><span></span><code>pip install labtech
@@ -540,6 +561,7 @@ result for a large number of dependent tasks:</p>
 </code></pre></div>
 <p>To learn more, see:</p>
 <ul>
+<li><a href="https://ben-denham.github.io/labtech/cookbook">Cookbook of common patterns</a> (<a href="https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb">as an interactive notebook</a>)</li>
 <li><a href="https://ben-denham.github.io/labtech/core">The API reference for Labs and Tasks</a></li>
 <li><a href="https://ben-denham.github.io/labtech/caching">More options for cache formats and storage providers</a></li>
 <li><a href="https://github.com/ben-denham/labtech/tree/main/examples">More examples</a></li>
@@ -549,7 +571,7 @@ result for a large number of dependent tasks:</p>
 with <code>labtech.task</code>, simply enable the labtech mypy plugin in your
 <code>mypy.ini</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="k">[mypy]</span>
-<span class="na">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">labtech/mypy_plugin.py</span>
+<span class="na">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">labtech.mypy_plugin</span>
 </code></pre></div>
 <h2 id="contributing">Contributing</h2>
 <ul>
