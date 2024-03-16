@@ -109,9 +109,9 @@ def task(*args,
          mlflow_run: bool = False):
     """Class decorator for defining task type classes.
 
-    Attribute definitions in task types are handled in the same way as
-    [`dataclasses`], and they should capture all parameters of the
-    task type. Parameter attributes can be any of the following types:
+    Task types are frozen [`dataclasses`], and attribute definitions
+    should capture all parameters of the task type. Parameter
+    attributes can be any of the following types:
 
     * Simple scalar types: `str`, `bool`, `float`, `int`, `None`
     * Any member of an `Enum` type. Referring to members of an `Enum` can be
@@ -157,6 +157,12 @@ def task(*args,
             ...
     ```
 
+    If a `post_init(self)` method is defined, it will be called after
+    the task object is initialised (analagously to the `__post_init__`
+    method of a dataclass). Because task types are frozen dataclasses,
+    attributes can only be assigned to the task with
+    `object.__setattr__(self, attribute_name, attribute_value)`.
+
     Args:
         cache: The Cache that controls how task results are formatted for
             caching. Can be set to an instance of any
@@ -189,7 +195,7 @@ def task(*args,
                 if hasattr(cls, reserved_attr):
                     raise AttributeError(f"Task type already defines reserved attribute '{reserved_attr}'.")
 
-        orig_post_init = getattr(cls, '__post_init__', None)
+        post_init = getattr(cls, 'post_init', None)
         cls.__post_init__ = _task_post_init
 
         cls = dataclass(frozen=True, eq=True, order=True)(cls)
@@ -205,7 +211,7 @@ def task(*args,
 
         cls._lt = TaskInfo(
             cache=cast(Cache, cache),
-            orig_post_init=orig_post_init,
+            orig_post_init=post_init,
             max_parallel=max_parallel,
             mlflow_run=mlflow_run,
         )
