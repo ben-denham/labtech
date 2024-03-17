@@ -322,6 +322,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#labtech.Lab.run_task" class="md-nav__link">
+    run_task()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#labtech.Lab.cached_tasks" class="md-nav__link">
     cached_tasks()
   </a>
@@ -526,6 +533,13 @@
           <li class="md-nav__item">
   <a href="#labtech.Lab.run_tasks" class="md-nav__link">
     run_tasks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.Lab.run_task" class="md-nav__link">
+    run_task()
   </a>
   
 </li>
@@ -841,7 +855,21 @@ or be removed from the cache storage with
 <span class="normal">507</span>
 <span class="normal">508</span>
 <span class="normal">509</span>
-<span class="normal">510</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Lab</span><span class="p">:</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Lab</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Primary interface for configuring, running, and getting results of tasks.</span>
 
 <span class="sd">    A Lab can be used to run tasks with [`run_tasks()`][labtech.Lab.run_tasks].</span>
@@ -931,6 +959,20 @@ or be removed from the cache storage with
                             <span class="n">keep_nested_results</span><span class="o">=</span><span class="n">keep_nested_results</span><span class="p">,</span>
                             <span class="n">disable_progress</span><span class="o">=</span><span class="n">disable_progress</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a single task and return its result. Supports the same keyword</span>
+<span class="sd">        arguments as `run_tasks`.</span>
+
+<span class="sd">        NOTE: If you have many tasks to run, you should use</span>
+<span class="sd">        `run_tasks` instead to parallelise their execution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The result of the given task.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">([</span><span class="n">task</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="n">task</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns all task instances present in the Lab&#39;s cache storage for</span>
@@ -1324,6 +1366,71 @@ corresponding result.</p>
 
 
 
+<h3 id="labtech.Lab.run_task" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run_task</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Run a single task and return its result. Supports the same keyword
+arguments as <code>run_tasks</code>.</p>
+<p>NOTE: If you have many tasks to run, you should use
+<code>run_tasks</code> instead to parallelise their execution.</p>
+
+
+
+  <p>Returns:</p>
+  <ul>
+      <li class="field-body">
+            <code><span title="typing.Any">Any</span></code>
+        –
+        <div class="doc-md-description">
+          <p>The result of the given task.</p>
+      </div>
+      </li>
+  </ul>
+
+          <details class="quote">
+            <summary>Source code in <code>labtech/lab.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a single task and return its result. Supports the same keyword</span>
+<span class="sd">    arguments as `run_tasks`.</span>
+
+<span class="sd">    NOTE: If you have many tasks to run, you should use</span>
+<span class="sd">    `run_tasks` instead to parallelise their execution.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The result of the given task.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">([</span><span class="n">task</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="n">task</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
 <h3 id="labtech.Lab.cached_tasks" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">cached_tasks</span><span class="p">(</span><span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]</span></code>
 
@@ -1342,21 +1449,7 @@ instances.</p>
 
           <details class="quote">
             <summary>Source code in <code>labtech/lab.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">476</span>
-<span class="normal">477</span>
-<span class="normal">478</span>
-<span class="normal">479</span>
-<span class="normal">480</span>
-<span class="normal">481</span>
-<span class="normal">482</span>
-<span class="normal">483</span>
-<span class="normal">484</span>
-<span class="normal">485</span>
-<span class="normal">486</span>
-<span class="normal">487</span>
-<span class="normal">488</span>
-<span class="normal">489</span>
-<span class="normal">490</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">490</span>
 <span class="normal">491</span>
 <span class="normal">492</span>
 <span class="normal">493</span>
@@ -1364,7 +1457,21 @@ instances.</p>
 <span class="normal">495</span>
 <span class="normal">496</span>
 <span class="normal">497</span>
-<span class="normal">498</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns all task instances present in the Lab&#39;s cache storage for</span>
 <span class="sd">    the given `task_types`, each of which should be a task class</span>
 <span class="sd">    decorated with [`labtech.task`][labtech.task].</span>
@@ -1412,10 +1519,10 @@ storage.</p>
 
           <details class="quote">
             <summary>Source code in <code>labtech/lab.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">500</span>
-<span class="normal">501</span>
-<span class="normal">502</span>
-<span class="normal">503</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if a result is present for given task in the Lab&#39;s cache</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">_lt</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">,</span> <span class="n">task</span><span class="p">)</span>
@@ -1444,12 +1551,12 @@ storage.</p>
 
           <details class="quote">
             <summary>Source code in <code>labtech/lab.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">505</span>
-<span class="normal">506</span>
-<span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes cached results for the given tasks from the Lab&#39;s cache</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
@@ -1484,9 +1591,9 @@ storage.</p>
   <div class="doc doc-contents first">
   
       <p>Class decorator for defining task type classes.</p>
-<p>Attribute definitions in task types are handled in the same way as
-[<code>dataclasses</code>], and they should capture all parameters of the
-task type. Parameter attributes can be any of the following types:</p>
+<p>Task types are frozen [<code>dataclasses</code>], and attribute definitions
+should capture all parameters of the task type. Parameter
+attributes can be any of the following types:</p>
 <ul>
 <li>Simple scalar types: <code>str</code>, <code>bool</code>, <code>float</code>, <code>int</code>, <code>None</code></li>
 <li>Any member of an <code>Enum</code> type. Referring to members of an <code>Enum</code> can be
@@ -1525,6 +1632,11 @@ tracking:</p>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="o">...</span>
 </code></pre></div>
+<p>If a <code>post_init(self)</code> method is defined, it will be called after
+the task object is initialised (analagously to the <code>__post_init__</code>
+method of a dataclass). Because task types are frozen dataclasses,
+attributes can only be assigned to the task with
+<code>object.__setattr__(self, attribute_name, attribute_value)</code>.</p>
 
 
 
@@ -1694,15 +1806,21 @@ mlflow logging calls from the task's <code>run()</code> method.</p>
 <span class="normal">220</span>
 <span class="normal">221</span>
 <span class="normal">222</span>
-<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
          <span class="n">cache</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">CacheDefault</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="n">CACHE_DEFAULT</span><span class="p">,</span>
          <span class="n">max_parallel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
          <span class="n">mlflow_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class decorator for defining task type classes.</span>
 
-<span class="sd">    Attribute definitions in task types are handled in the same way as</span>
-<span class="sd">    [`dataclasses`], and they should capture all parameters of the</span>
-<span class="sd">    task type. Parameter attributes can be any of the following types:</span>
+<span class="sd">    Task types are frozen [`dataclasses`], and attribute definitions</span>
+<span class="sd">    should capture all parameters of the task type. Parameter</span>
+<span class="sd">    attributes can be any of the following types:</span>
 
 <span class="sd">    * Simple scalar types: `str`, `bool`, `float`, `int`, `None`</span>
 <span class="sd">    * Any member of an `Enum` type. Referring to members of an `Enum` can be</span>
@@ -1748,6 +1866,12 @@ mlflow logging calls from the task's <code>run()</code> method.</p>
 <span class="sd">            ...</span>
 <span class="sd">    ```</span>
 
+<span class="sd">    If a `post_init(self)` method is defined, it will be called after</span>
+<span class="sd">    the task object is initialised (analagously to the `__post_init__`</span>
+<span class="sd">    method of a dataclass). Because task types are frozen dataclasses,</span>
+<span class="sd">    attributes can only be assigned to the task with</span>
+<span class="sd">    `object.__setattr__(self, attribute_name, attribute_value)`.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        cache: The Cache that controls how task results are formatted for</span>
 <span class="sd">            caching. Can be set to an instance of any</span>
@@ -1780,7 +1904,7 @@ mlflow logging calls from the task's <code>run()</code> method.</p>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">reserved_attr</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task type already defines reserved attribute &#39;</span><span class="si">{</span><span class="n">reserved_attr</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
 
-        <span class="n">orig_post_init</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;__post_init__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">post_init</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;post_init&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__post_init__</span> <span class="o">=</span> <span class="n">_task_post_init</span>
 
         <span class="bp">cls</span> <span class="o">=</span> <span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)(</span><span class="bp">cls</span><span class="p">)</span>
@@ -1796,7 +1920,7 @@ mlflow logging calls from the task's <code>run()</code> method.</p>
 
         <span class="bp">cls</span><span class="o">.</span><span class="n">_lt</span> <span class="o">=</span> <span class="n">TaskInfo</span><span class="p">(</span>
             <span class="n">cache</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Cache</span><span class="p">,</span> <span class="n">cache</span><span class="p">),</span>
-            <span class="n">orig_post_init</span><span class="o">=</span><span class="n">orig_post_init</span><span class="p">,</span>
+            <span class="n">orig_post_init</span><span class="o">=</span><span class="n">post_init</span><span class="p">,</span>
             <span class="n">max_parallel</span><span class="o">=</span><span class="n">max_parallel</span><span class="p">,</span>
             <span class="n">mlflow_run</span><span class="o">=</span><span class="n">mlflow_run</span><span class="p">,</span>
         <span class="p">)</span>

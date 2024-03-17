@@ -386,8 +386,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#how-can-i-construct-a-multi-step-experiment-pipeline" class="md-nav__link">
-    How can I construct a multi-step experiment pipeline?
+  <a href="#how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute" class="md-nav__link">
+    How can I see when a task was run and how long it took to execute?
   </a>
   
 </li>
@@ -400,8 +400,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute" class="md-nav__link">
-    How can I see when a task was run and how long it took to execute?
+  <a href="#how-can-i-construct-a-multi-step-experiment-pipeline" class="md-nav__link">
+    How can I construct a multi-step experiment pipeline?
   </a>
   
 </li>
@@ -594,8 +594,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#how-can-i-construct-a-multi-step-experiment-pipeline" class="md-nav__link">
-    How can I construct a multi-step experiment pipeline?
+  <a href="#how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute" class="md-nav__link">
+    How can I see when a task was run and how long it took to execute?
   </a>
   
 </li>
@@ -608,8 +608,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute" class="md-nav__link">
-    How can I see when a task was run and how long it took to execute?
+  <a href="#how-can-i-construct-a-multi-step-experiment-pipeline" class="md-nav__link">
+    How can I construct a multi-step experiment pipeline?
   </a>
   
 </li>
@@ -649,7 +649,7 @@
 <h2 id="cookbook">Cookbook</h2>
 <p>The following cookbook presents labtech patterns for common use cases.</p>
 <p>You can also run this cookbook as an (<a href="https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb">interactive notebook</a>).</p>
-<div class="highlight"><pre><span></span><code>%pip install labtech mlflow scikit-learn setuptools
+<div class="highlight"><pre><span></span><code>%pip install labtech fsspec mlflow pandas scikit-learn setuptools
 </code></pre></div>
 <div class="code highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">labtech</span>
 
@@ -976,38 +976,366 @@ execute tasks even if one or more fail.</p>
 <p>If you set <code>continue_on_failure=True</code> when creating your lab,
 exceptions raised during the execution of a task will be logged, but
 the execution of other tasks will continue:</p>
-<div class="code highlight"><pre><span></span><code><span class="n">results</span> <span class="o">=</span> <span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+<div class="code highlight"><pre><span></span><code><span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
     <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">continue_on_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
 <h3 id="what-happens-to-my-cached-results-if-i-change-or-move-the-definition-of-a-task">What happens to my cached results if I change or move the definition of a task?</h3>
-<p>TODO:</p>
-<ul>
-<li>It is easiest to keep behaviour, fields, and location fixed once you start to seriously run experiments</li>
-<li>New field or behaviour -&gt; create a child class</li>
-<li>Moved class -&gt; use jq to manually update cache</li>
-</ul>
+<p>A task's cache will store all details necessary to reinstantiate the
+task object, including the qualified name of the task's class and all
+of the task's parameters. Because of this, it is best not to change
+the parameters and location of a task's definition once you are
+seriously relying on cached results.</p>
+<p>If you need to add a new parameter or behaviour to an existing task
+type for which you have previously cached results, consider defining a
+sub-class for that extension so that you can continue using caches for
+the base class:</p>
+<div class="code highlight"><pre><span></span><code><span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ExtendedExperiment</span><span class="p">(</span><span class="n">Experiment</span><span class="p">):</span>
+    <span class="n">multiplier</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base_result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">base_result</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplier</span>
+</code></pre></div>
 <h3 id="how-can-i-find-what-results-i-have-cached">How can I find what results I have cached?</h3>
-<p>TODO</p>
+<p>You can use the <code>cached_task()</code> method of a <code>Lab</code> instance to retrieve
+all cached task instances for a list of task types. You can then "run"
+the tasks to load their cached results:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">cached_cvexperiment_tasks</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">cached_tasks</span><span class="p">([</span><span class="n">CVExperiment</span><span class="p">])</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">cached_cvexperiment_tasks</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="how-can-i-clear-cached-results">How can I clear cached results?</h3>
-<p>TODO:</p>
-<ul>
-<li><code>uncache_tasks</code></li>
-<li><code>bust_cache</code></li>
-</ul>
+<p>You can clear the cache for a list of tasks using the
+<code>uncache_tasks()</code> method of a <code>Lab</code> instance:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">lab</span><span class="o">.</span><span class="n">uncache_tasks</span><span class="p">(</span><span class="n">cached_cvexperiment_tasks</span><span class="p">)</span>
+</code></pre></div>
+<p>You can also ignore all previously cached results when running a list
+of tasks by passing the <code>bust_cache</code> option to <code>run_tasks()</code>:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">cached_cvexperiment_tasks</span><span class="p">,</span> <span class="n">bust_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="how-can-i-cache-task-results-in-a-format-other-than-pickle">How can I cache task results in a format other than pickle?</h3>
-<p>TODO</p>
+<p>You can define your own cache type to support storing cached results
+in a format other than pickle. To do so, you must define a class that
+extends <code>labtech.cache.BaseCache</code> and defines <code>KEY_PREFIX</code>,
+<code>save_result()</code>, and <code>load_result()</code>. You can then configure any task
+type by passing an instance of your new cache type for the <code>cache</code>
+option of the <code>@labtech.task</code> decorator.</p>
+<p>The following example demonstrates defining and using a custom cache
+type to store Pandas DataFrames as parquet files:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">labtech.cache</span> <span class="kn">import</span> <span class="n">BaseCache</span>
+<span class="kn">from</span> <span class="nn">labtech.tasks</span> <span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span> <span class="nn">labtech.storage</span> <span class="kn">import</span> <span class="n">Storage</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<span class="k">class</span> <span class="nc">ParquetCache</span><span class="p">(</span><span class="n">BaseCache</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Caches a Pandas DataFrame result as a parquet file.&quot;&quot;&quot;</span>
+    <span class="n">KEY_PREFIX</span> <span class="o">=</span> <span class="s1">&#39;parquet__&#39;</span>
+
+    <span class="k">def</span> <span class="nf">save_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage</span><span class="p">:</span> <span class="n">Storage</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ParquetCache can only cache DataFrames&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">storage</span><span class="o">.</span><span class="n">file_handle</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">cache_key</span><span class="p">,</span> <span class="s1">&#39;result.parquet&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage</span><span class="p">:</span> <span class="n">Storage</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">storage</span><span class="o">.</span><span class="n">file_handle</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">cache_key</span><span class="p">,</span> <span class="s1">&#39;result.parquet&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="n">ParquetCache</span><span class="p">())</span>
+<span class="k">class</span> <span class="nc">TabularTask</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+        <span class="p">})</span>
+
+
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/parquet_example&#39;</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">([</span><span class="n">TabularTask</span><span class="p">()])</span>
+</code></pre></div>
 <h3 id="how-can-i-cache-task-results-somewhere-other-than-my-filesystem">How can I cache task results somewhere other than my filesystem?</h3>
-<p>TODO</p>
+<p>You can cache results in a location other than the local filesystem by
+defining your own storage type that extends <code>labtech.storage.Storage</code>
+and defines <code>find_keys()</code>, <code>exists()</code>, <code>file_handle()</code> and <code>delete()</code>.
+You can then pass an instance of your new storage backend for the
+<code>storage</code> option when constructing a <code>Lab</code> instance.</p>
+<p>The following example demonstrates constructing a storage backend to
+interface to the <code>LocalFileSystem</code> provided by the
+<a href="https://filesystem-spec.readthedocs.io"><code>fsspec</code></a> library. This
+example could be adapted for other <code>fsspec</code> implementations, such as
+cloud storage providers like <a href="https://s3fs.readthedocs.io/en/latest/">Amazon S3</a>
+and <a href="https://github.com/fsspec/adlfs">Azure Blob Storage</a>:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">labtech.storage</span> <span class="kn">import</span> <span class="n">Storage</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">fsspec.implementations.local</span> <span class="kn">import</span> <span class="n">LocalFileSystem</span>
+
+
+<span class="k">class</span> <span class="nc">LocalFsspecStorage</span><span class="p">(</span><span class="n">Storage</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Store results in the local file filesystem.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storage_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">LocalFileSystem</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_key_to_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage_dir</span> <span class="o">/</span> <span class="n">key</span>
+
+    <span class="k">def</span> <span class="nf">find_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">storage_dir</span><span class="p">))</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ls</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">storage_dir</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_to_path</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">file_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IO</span><span class="p">:</span>
+        <span class="n">fs_mode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span> <span class="k">if</span> <span class="s1">&#39;w&#39;</span> <span class="ow">in</span> <span class="n">mode</span> <span class="k">else</span> <span class="s1">&#39;r&#39;</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">(</span><span class="n">fs_mode</span><span class="p">)</span>
+        <span class="n">key_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_to_path</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">key_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">key_path</span> <span class="o">/</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">!=</span> <span class="n">key_path</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot;Filename &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; should only reference a directory directly &quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot;under the storage key directory &#39;</span><span class="si">{</span><span class="n">key_path</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">fs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_to_path</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">fs</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+
+
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Experiment</span><span class="p">(</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="n">LocalFsspecStorage</span><span class="p">(</span><span class="s1">&#39;storage/fsspec_example&#39;</span><span class="p">),</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+</code></pre></div>
+<!--
+
+# Simple testing of LocalFsspecStorage
+storage = LocalFsspecStorage('storage/lab_example')
+key = 'key1'
+print(storage.exists(key))
+storage.delete(key)
+with storage.file_handle(key, 'example.txt', mode='w') as file:
+    file.write('content')
+with storage.file_handle(key, 'example.txt', mode='r') as file:
+    print(file.read())
+print(storage.find_keys())
+print(storage.exists(key))
+storage.delete(key)
+print(storage.find_keys())
+
+-->
+
 <h3 id="loading-lots-of-cached-results-is-slow-how-can-i-make-it-faster">Loading lots of cached results is slow, how can I make it faster?</h3>
-<p>TODO</p>
-<h3 id="how-can-i-construct-a-multi-step-experiment-pipeline">How can I construct a multi-step experiment pipeline?</h3>
-<p>TODO</p>
-<h3 id="how-can-i-access-the-results-of-intermediatedependency-tasks">How can I access the results of intermediate/dependency tasks?</h3>
-<p>TODO</p>
+<p>If you have a large number of tasks, you may find that the overhead of
+loading each individual task result from the cache is unacceptably
+slow when you need to frequently reload previous results for analysis.</p>
+<p>In such cases, you may find it helpful to create a final task that
+depends on all of your individual tasks and aggregates all of their
+results into a single cached result. Note that this final result cache
+will need to be rebuilt whenever any of its dependent tasks changes or
+new dependent tasks are added. Furthermore, this approach will require
+additional storage for the final cache in addition to the individual
+result caches.</p>
+<p>The following example demonstrates defining and using an
+<code>AggregationTask</code> to aggregate the results from many individual tasks
+to create an aggregated cache that can be loaded more efficiently:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">labtech.types</span> <span class="kn">import</span> <span class="n">Task</span>
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">AggregationTask</span><span class="p">:</span>
+    <span class="n">sub_tasks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Task</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">sub_task</span><span class="o">.</span><span class="n">result</span>
+            <span class="k">for</span> <span class="n">sub_task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_tasks</span>
+        <span class="p">]</span>
+
+
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Experiment</span><span class="p">(</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">aggregation_task</span> <span class="o">=</span> <span class="n">AggregationTask</span><span class="p">(</span>
+    <span class="n">sub_tasks</span><span class="o">=</span><span class="n">experiments</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/aggregation_lab&#39;</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">aggregation_task</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute">How can I see when a task was run and how long it took to execute?</h3>
-<p>TODO</p>
+<p>Once a task has been executed (or loaded from cache), you can see when
+it was originally executed and how long it took to execute from the
+task's <code>.result_meta</code> attribute:</p>
+<div class="code highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The task was executed at: </span><span class="si">{</span><span class="n">aggregation_task</span><span class="o">.</span><span class="n">result_meta</span><span class="o">.</span><span class="n">start</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The task execution took: </span><span class="si">{</span><span class="n">aggregation_task</span><span class="o">.</span><span class="n">result_meta</span><span class="o">.</span><span class="n">duration</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="how-can-i-access-the-results-of-intermediatedependency-tasks">How can I access the results of intermediate/dependency tasks?</h3>
+<p>To conserve memory, labtech's default behaviour is to unload the
+results of intermediate/dependency tasks once their directly dependent
+tasks have finished executing.</p>
+<p>A simple approach to access the results of an intermediate task may
+simply be to include it's results as part of the result of the task
+that depends on it - that way you only need to look at the results of
+the final task(s).</p>
+<p>Another approach is to include all of the intermediate tasks for which
+you wish to access the results for in the call to <code>run_tasks()</code>:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Experiment</span><span class="p">(</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">aggregation_task</span> <span class="o">=</span> <span class="n">AggregationTask</span><span class="p">(</span>
+    <span class="n">sub_tasks</span><span class="o">=</span><span class="n">experiments</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">([</span>
+    <span class="n">aggregation_task</span><span class="p">,</span>
+    <span class="c1"># Include intermediate tasks to access their results</span>
+    <span class="o">*</span><span class="n">experiments</span><span class="p">,</span>
+<span class="p">])</span>
+<span class="nb">print</span><span class="p">([</span>
+    <span class="n">results</span><span class="p">[</span><span class="n">experiment</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">experiment</span> <span class="ow">in</span> <span class="n">experiments</span>
+<span class="p">])</span>
+</code></pre></div>
+<p>You can also configure labtech to not remove intermediate results from
+memory by setting <code>keep_nested_results=True</code> when calling
+<code>run_tasks()</code>. Intermediate results can then be accessed from the
+<code>.result</code> attribute of all task objects. However, only results that
+needed to be executed or loaded from cache in order to produce the
+final result will be available, so you may need to set
+<code>bust_cache=True</code> to ensure all intermediate tasks are executed:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Experiment</span><span class="p">(</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">aggregation_task</span> <span class="o">=</span> <span class="n">AggregationTask</span><span class="p">(</span>
+    <span class="n">sub_tasks</span><span class="o">=</span><span class="n">experiments</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span>
+    <span class="n">aggregation_task</span><span class="p">,</span>
+    <span class="n">keep_nested_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">bust_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">([</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">result</span>
+    <span class="k">for</span> <span class="n">experiment</span> <span class="ow">in</span> <span class="n">experiments</span>
+<span class="p">])</span>
+</code></pre></div>
+<h3 id="how-can-i-construct-a-multi-step-experiment-pipeline">How can I construct a multi-step experiment pipeline?</h3>
+<p>Say you want to model a multi-step experiment pipeline, where <code>StepA</code>
+is run before <code>StepB</code>, which is run before <code>StepC</code>:</p>
+<div class="highlight"><pre><span></span><code>StepA -&gt; StepB -&gt; StepC
+</code></pre></div>
+<p>This is modeled in labtech by defining a task type for each step, and
+having each step depend on the result from the previous step:</p>
+<div class="highlight"><pre><span></span><code>@labtech.task
+class StepA:
+    seed_a: int
+
+    def run(self):
+        return self.seed_a
+
+
+@labtech.task
+class StepB:
+    task_a: StepA
+    seed_b: int
+
+    def run(self):
+        return self.task_a.result * self.seed_b
+
+
+@labtech.task
+class StepC:
+    task_b: StepB
+    seed_c: int
+
+    def run(self):
+        return self.task_b.result * self.seed_c
+
+
+task_a = StepA(
+    seed_a=2,
+)
+task_b = StepB(
+    seed_b=3,
+    task_a=task_a,
+)
+task_c = StepC(
+    seed_c=5,
+    task_b=task_b,
+)
+
+lab = labtech.Lab(
+    storage=None,
+    notebook=True,
+)
+result = lab.run_task(task_c)
+print(result)
+</code></pre></div>
 <h3 id="how-can-i-use-labtech-with-mlflow">How can I use labtech with mlflow?</h3>
 <p>If you want to log a task type as an mlflow "run", simply add
 <code>mlflow_run=True</code> to the call to <code>@labtech.task()</code>, which will:</p>
@@ -1059,7 +1387,7 @@ additional tracking calls (such as <code>mlflow.log_metric()</code> or
 <span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s1">&#39;example_labtech_experiment&#39;</span><span class="p">)</span>
 <span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
     <span class="n">storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span>
 </code></pre></div>
