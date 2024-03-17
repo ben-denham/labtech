@@ -28,5 +28,6 @@ docs-build:
 docs-github:
 	poetry run mkdocs gh-deploy
 
-cookbook-notebook:
+docs-notebooks:
 	pandoc -o examples/cookbook.ipynb docs/cookbook.md
+	pandoc -o examples/tutorial.ipynb docs/tutorial.md
