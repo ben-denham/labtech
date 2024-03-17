@@ -5,7 +5,7 @@ The following cookbook presents labtech patterns for common use cases.
 You can also run this cookbook as an ([interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb)).
 
 ``` {.code}
-%pip install labtech mlflow scikit-learn setuptools
+%pip install labtech fsspec mlflow pandas scikit-learn setuptools
 ```
 
 ``` {.python .code}
@@ -367,7 +367,7 @@ exceptions raised during the execution of a task will be logged, but
 the execution of other tasks will continue:
 
 ``` {.python .code}
-results = lab = labtech.Lab(
+lab = labtech.Lab(
     storage=None,
     continue_on_failure=True,
 )
@@ -375,46 +375,410 @@ results = lab = labtech.Lab(
 
 ### What happens to my cached results if I change or move the definition of a task?
 
-TODO:
+A task's cache will store all details necessary to reinstantiate the
+task object, including the qualified name of the task's class and all
+of the task's parameters. Because of this, it is best not to change
+the parameters and location of a task's definition once you are
+seriously relying on cached results.
 
-* It is easiest to keep behaviour, fields, and location fixed once you start to seriously run experiments
-* New field or behaviour -> create a child class
-* Moved class -> use jq to manually update cache
+If you need to add a new parameter or behaviour to an existing task
+type for which you have previously cached results, consider defining a
+sub-class for that extension so that you can continue using caches for
+the base class:
+
+``` {.python .code}
+@labtech.task
+class Experiment:
+    seed: int
+
+    def run(self):
+        return self.seed * self.seed
+
+
+@labtech.task
+class ExtendedExperiment(Experiment):
+    multiplier: int
+
+    def run(self):
+        base_result = super().run()
+        return base_result * self.multiplier
+```
 
 ### How can I find what results I have cached?
 
-TODO
+You can use the `cached_task()` method of a `Lab` instance to retrieve
+all cached task instances for a list of task types. You can then "run"
+the tasks to load their cached results:
+
+``` {.python .code}
+cached_cvexperiment_tasks = lab.cached_tasks([CVExperiment])
+results = lab.run_tasks(cached_cvexperiment_tasks)
+```
 
 ### How can I clear cached results?
 
-TODO:
+You can clear the cache for a list of tasks using the
+`uncache_tasks()` method of a `Lab` instance:
 
-* `uncache_tasks`
-* `bust_cache`
+``` {.python .code}
+lab.uncache_tasks(cached_cvexperiment_tasks)
+```
+
+You can also ignore all previously cached results when running a list
+of tasks by passing the `bust_cache` option to `run_tasks()`:
+
+``` {.python .code}
+lab.run_tasks(cached_cvexperiment_tasks, bust_cache=True)
+```
 
 ### How can I cache task results in a format other than pickle?
 
-TODO
+You can define your own cache type to support storing cached results
+in a format other than pickle. To do so, you must define a class that
+extends `labtech.cache.BaseCache` and defines `KEY_PREFIX`,
+`save_result()`, and `load_result()`. You can then configure any task
+type by passing an instance of your new cache type for the `cache`
+option of the `@labtech.task` decorator.
+
+The following example demonstrates defining and using a custom cache
+type to store Pandas DataFrames as parquet files:
+
+``` {.python .code}
+from labtech.cache import BaseCache
+from labtech.tasks import Task
+from labtech.storage import Storage
+from typing import Any
+import pandas as pd
+
+
+class ParquetCache(BaseCache):
+    """Caches a Pandas DataFrame result as a parquet file."""
+    KEY_PREFIX = 'parquet__'
+
+    def save_result(self, storage: Storage, task: Task, result: Any):
+        if not isinstance(result, pd.DataFrame):
+            raise ValueError('ParquetCache can only cache DataFrames')
+        with storage.file_handle(task.cache_key, 'result.parquet', mode='wb') as data_file:
+            result.to_parquet(data_file)
+
+    def load_result(self, storage: Storage, task: Task) -> Any:
+        with storage.file_handle(task.cache_key, 'result.parquet', mode='rb') as data_file:
+            return pd.read_parquet(data_file)
+
+
+@labtech.task(cache=ParquetCache())
+class TabularTask:
+
+    def run(self):
+        return pd.DataFrame({
+            'x': [1, 2, 3],
+            'y': [1, 4, 9],
+        })
+
+
+lab = labtech.Lab(
+    storage='storage/parquet_example',
+    notebook=True,
+)
+lab.run_tasks([TabularTask()])
+```
 
 ### How can I cache task results somewhere other than my filesystem?
 
-TODO
+You can cache results in a location other than the local filesystem by
+defining your own storage type that extends `labtech.storage.Storage`
+and defines `find_keys()`, `exists()`, `file_handle()` and `delete()`.
+You can then pass an instance of your new storage backend for the
+`storage` option when constructing a `Lab` instance.
+
+The following example demonstrates constructing a storage backend to
+interface to the `LocalFileSystem` provided by the
+[`fsspec`](https://filesystem-spec.readthedocs.io) library. This
+example could be adapted for other `fsspec` implementations, such as
+cloud storage providers like [Amazon S3](https://s3fs.readthedocs.io/en/latest/)
+and [Azure Blob Storage](https://github.com/fsspec/adlfs):
+
+``` {.python .code}
+from labtech.storage import Storage
+from typing import IO, Sequence
+from pathlib import Path
+from fsspec.implementations.local import LocalFileSystem
+
+
+class LocalFsspecStorage(Storage):
+    """Store results in the local file filesystem."""
+
+    def __init__(self, storage_dir):
+        self.storage_dir = Path(storage_dir).resolve()
+        fs = self._fs('w')
+        fs.mkdirs(self.storage_dir, exist_ok=True)
+
+    def _fs(self, mode):
+        return LocalFileSystem()
+
+    def _key_to_path(self, key):
+        return self.storage_dir / key
+
+    def find_keys(self) -> Sequence[str]:
+        return [str(Path(entry).relative_to(self.storage_dir)) for entry in self._fs('r').ls(self.storage_dir)]
+
+    def exists(self, key: str) -> bool:
+        return self._fs('r').exists(self._key_to_path(key))
+
+    def file_handle(self, key: str, filename: str, *, mode: str = 'r') -> IO:
+        fs_mode = 'w' if 'w' in mode else 'r'
+        fs = self._fs(fs_mode)
+        key_path = self._key_to_path(key)
+        fs.mkdirs(key_path, exist_ok=True)
+        file_path = (key_path / filename).resolve()
+        if file_path.parent != key_path:
+            raise ValueError((f"Filename '{filename}' should only reference a directory directly "
+                              f"under the storage key directory '{key_path}'"))
+        return fs.open(file_path, mode)
+
+    def delete(self, key: str):
+        fs = self._fs('w')
+        path = self._key_to_path(key)
+        if fs.exists(path):
+            fs.rm(path, recursive=True)
+
+
+@labtech.task
+class Experiment:
+    seed: int
+
+    def run(self):
+        return self.seed * self.seed
+
+
+experiments = [
+    Experiment(
+        seed=seed
+    )
+    for seed in range(100)
+]
+lab = labtech.Lab(
+    storage=LocalFsspecStorage('storage/fsspec_example'),
+    notebook=True,
+)
+results = lab.run_tasks(experiments)
+```
+
+<!--
+
+# Simple testing of LocalFsspecStorage
+storage = LocalFsspecStorage('storage/lab_example')
+key = 'key1'
+print(storage.exists(key))
+storage.delete(key)
+with storage.file_handle(key, 'example.txt', mode='w') as file:
+    file.write('content')
+with storage.file_handle(key, 'example.txt', mode='r') as file:
+    print(file.read())
+print(storage.find_keys())
+print(storage.exists(key))
+storage.delete(key)
+print(storage.find_keys())
+
+-->
 
 ### Loading lots of cached results is slow, how can I make it faster?
 
-TODO
+If you have a large number of tasks, you may find that the overhead of
+loading each individual task result from the cache is unacceptably
+slow when you need to frequently reload previous results for analysis.
 
-### How can I construct a multi-step experiment pipeline?
+In such cases, you may find it helpful to create a final task that
+depends on all of your individual tasks and aggregates all of their
+results into a single cached result. Note that this final result cache
+will need to be rebuilt whenever any of its dependent tasks changes or
+new dependent tasks are added. Furthermore, this approach will require
+additional storage for the final cache in addition to the individual
+result caches.
 
-TODO
+The following example demonstrates defining and using an
+`AggregationTask` to aggregate the results from many individual tasks
+to create an aggregated cache that can be loaded more efficiently:
 
-### How can I access the results of intermediate/dependency tasks?
+``` {.python .code}
+from labtech.types import Task
 
-TODO
+@labtech.task
+class Experiment:
+    seed: int
+
+    def run(self):
+        return self.seed * self.seed
+
+
+@labtech.task
+class AggregationTask:
+    sub_tasks: list[Task]
+
+    def run(self):
+        return [
+            sub_task.result
+            for sub_task in self.sub_tasks
+        ]
+
+
+experiments = [
+    Experiment(
+        seed=seed
+    )
+    for seed in range(1000)
+]
+aggregation_task = AggregationTask(
+    sub_tasks=experiments,
+)
+lab = labtech.Lab(
+    storage='storage/aggregation_lab',
+    notebook=True,
+)
+result = lab.run_task(aggregation_task)
+```
 
 ### How can I see when a task was run and how long it took to execute?
 
-TODO
+Once a task has been executed (or loaded from cache), you can see when
+it was originally executed and how long it took to execute from the
+task's `.result_meta` attribute:
+
+``` {.python .code}
+print(f'The task was executed at: {aggregation_task.result_meta.start}')
+print(f'The task execution took: {aggregation_task.result_meta.duration}')
+```
+
+### How can I access the results of intermediate/dependency tasks?
+
+To conserve memory, labtech's default behaviour is to unload the
+results of intermediate/dependency tasks once their directly dependent
+tasks have finished executing.
+
+A simple approach to access the results of an intermediate task may
+simply be to include it's results as part of the result of the task
+that depends on it - that way you only need to look at the results of
+the final task(s).
+
+Another approach is to include all of the intermediate tasks for which
+you wish to access the results for in the call to `run_tasks()`:
+
+``` {.python .code}
+experiments = [
+    Experiment(
+        seed=seed
+    )
+    for seed in range(10)
+]
+aggregation_task = AggregationTask(
+    sub_tasks=experiments,
+)
+lab = labtech.Lab(
+    storage=None,
+    notebook=True,
+)
+results = lab.run_tasks([
+    aggregation_task,
+    # Include intermediate tasks to access their results
+    *experiments,
+])
+print([
+    results[experiment]
+    for experiment in experiments
+])
+```
+
+You can also configure labtech to not remove intermediate results from
+memory by setting `keep_nested_results=True` when calling
+`run_tasks()`. Intermediate results can then be accessed from the
+`.result` attribute of all task objects. However, only results that
+needed to be executed or loaded from cache in order to produce the
+final result will be available, so you may need to set
+`bust_cache=True` to ensure all intermediate tasks are executed:
+
+``` {.python .code}
+experiments = [
+    Experiment(
+        seed=seed
+    )
+    for seed in range(10)
+]
+aggregation_task = AggregationTask(
+    sub_tasks=experiments,
+)
+lab = labtech.Lab(
+    storage=None,
+    notebook=True,
+)
+result = lab.run_task(
+    aggregation_task,
+    keep_nested_results=True,
+    bust_cache=True,
+)
+print([
+    experiment.result
+    for experiment in experiments
+])
+```
+
+### How can I construct a multi-step experiment pipeline?
+
+Say you want to model a multi-step experiment pipeline, where `StepA`
+is run before `StepB`, which is run before `StepC`:
+
+```
+StepA -> StepB -> StepC
+```
+
+This is modeled in labtech by defining a task type for each step, and
+having each step depend on the result from the previous step:
+
+```
+@labtech.task
+class StepA:
+    seed_a: int
+
+    def run(self):
+        return self.seed_a
+
+
+@labtech.task
+class StepB:
+    task_a: StepA
+    seed_b: int
+
+    def run(self):
+        return self.task_a.result * self.seed_b
+
+
+@labtech.task
+class StepC:
+    task_b: StepB
+    seed_c: int
+
+    def run(self):
+        return self.task_b.result * self.seed_c
+
+
+task_a = StepA(
+    seed_a=2,
+)
+task_b = StepB(
+    seed_b=3,
+    task_a=task_a,
+)
+task_c = StepC(
+    seed_c=5,
+    task_b=task_b,
+)
+
+lab = labtech.Lab(
+    storage=None,
+    notebook=True,
+)
+result = lab.run_task(task_c)
+print(result)
+```
 
 ### How can I use labtech with mlflow?
 
@@ -470,7 +834,7 @@ runs = [
 mlflow.set_experiment('example_labtech_experiment')
 lab = labtech.Lab(
     storage=None,
-    notebook=True
+    notebook=True,
 )
 results = lab.run_tasks(runs)
 ```
