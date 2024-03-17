@@ -96,7 +96,7 @@ class Storage(ABC):
         cache."""
 
     @abstractmethod
-    def file_handle(self, key: str, filename: str, *, mode: str) -> IO:
+    def file_handle(self, key: str, filename: str, *, mode: str = 'r') -> IO:
         """Opens and returns a File-like object for a single file within the
         storage cache.
 

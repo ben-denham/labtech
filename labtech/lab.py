@@ -473,6 +473,20 @@ class Lab:
                             disable_progress=disable_progress)
         return runner.run(tasks)
 
+    def run_task(self, task: Task, **kwargs):
+        """Run a single task and return its result. Supports the same keyword
+        arguments as `run_tasks`.
+
+        NOTE: If you have many tasks to run, you should use
+        `run_tasks` instead to parallelise their execution.
+
+        Returns:
+            The result of the given task.
+
+        """
+        results = self.run_tasks([task], **kwargs)
+        return results[task]
+
     def cached_tasks(self, task_types: Sequence[Type[Task]]) -> Sequence[Task]:
         """Returns all task instances present in the Lab's cache storage for
         the given `task_types`, each of which should be a task class
