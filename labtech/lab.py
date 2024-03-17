@@ -473,7 +473,7 @@ class Lab:
                             disable_progress=disable_progress)
         return runner.run(tasks)
 
-    def run_task(self, task: Task, **kwargs):
+    def run_task(self, task: Task, **kwargs) -> Any:
         """Run a single task and return its result. Supports the same keyword
         arguments as `run_tasks`.
 
