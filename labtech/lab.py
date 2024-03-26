@@ -198,6 +198,18 @@ class TaskState:
             check_cycle(task, set())
 
 
+def init_task_worker(log_queue):
+    global _IN_TASK_SUBPROCESS
+    _IN_TASK_SUBPROCESS = True
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    # Sub-processes should log onto the queue in order to printed
+    # in serial by the main process.
+    logger.handlers = []
+    logger.addHandler(QueueHandler(log_queue))
+    sys.stdout = LoggerFileProxy(logger.info, 'Captured STDOUT:\n')
+    sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')
+
+
 class TaskRunner:
 
     def __init__(self, lab: 'Lab', bust_cache: bool, keep_nested_results: bool,
@@ -215,20 +227,10 @@ class TaskRunner:
         if serial:
             return SerialExecutor()
 
-        def init_worker():
-            global _IN_TASK_SUBPROCESS
-            _IN_TASK_SUBPROCESS = True
-            signal.signal(signal.SIGINT, signal.SIG_IGN)
-            # Sub-processes should log onto the queue in order to printed
-            # in serial by the main process.
-            logger.handlers = []
-            logger.addHandler(QueueHandler(self.log_queue))
-            sys.stdout = LoggerFileProxy(logger.info, 'Captured STDOUT:\n')
-            sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')
-
         return concurrent.futures.ProcessPoolExecutor(
             max_workers=self.lab.max_workers,
-            initializer=init_worker,
+            initializer=init_task_worker,
+            initargs=(self.log_queue,),
         )
 
     def get_pbar(self, *, task_type: Type[Task], task_count: int) -> tqdm:
