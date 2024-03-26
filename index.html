@@ -488,28 +488,32 @@ run them with maximal parallelism and result caching:</p>
         <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">power</span>
 
-<span class="c1"># Configure Experiment parameter permutations</span>
-<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">Experiment</span><span class="p">(</span>
-        <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span>
-        <span class="n">power</span><span class="o">=</span><span class="n">power</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Configure Experiment parameter permutations</span>
+    <span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Experiment</span><span class="p">(</span>
+            <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span>
+            <span class="n">power</span><span class="o">=</span><span class="n">power</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">power</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Configure a Lab to run the experiments:</span>
+    <span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+        <span class="c1"># Specify a directory to cache results in (running the experiments a second</span>
+        <span class="c1"># time will just load results from the cache!):</span>
+        <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;demo_lab&#39;</span><span class="p">,</span>
+        <span class="c1"># Control the degree of parallelism:</span>
+        <span class="n">max_workers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">power</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="p">]</span>
 
-<span class="c1"># Configure a Lab to run the experiments:</span>
-<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
-    <span class="c1"># Specify a directory to cache results in (running the experiments a second</span>
-    <span class="c1"># time will just load results from the cache!):</span>
-    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;demo_lab&#39;</span><span class="p">,</span>
-    <span class="c1"># Control the degree of parallelism:</span>
-    <span class="n">max_workers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-<span class="p">)</span>
+    <span class="c1"># Run the experiments!</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">([</span><span class="n">results</span><span class="p">[</span><span class="n">experiment</span><span class="p">]</span> <span class="k">for</span> <span class="n">experiment</span> <span class="ow">in</span> <span class="n">experiments</span><span class="p">])</span>
 
-<span class="c1"># Run the experiments!</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">([</span><span class="n">results</span><span class="p">[</span><span class="n">experiment</span><span class="p">]</span> <span class="k">for</span> <span class="n">experiment</span> <span class="ow">in</span> <span class="n">experiments</span><span class="p">])</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 <p><img alt="Animated GIF of labtech demo on the command-line" src="https://ben-denham.github.io/labtech/images/labtech-demo.gif" /></p>
 <p>Labtech can also produce graphical progress bars in
@@ -546,18 +550,22 @@ result for a large number of dependent tasks:</p>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplier</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slow_task</span><span class="o">.</span><span class="n">result</span>
 
-<span class="n">some_slow_task</span> <span class="o">=</span> <span class="n">SlowTask</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="n">dependent_tasks</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">DependentTask</span><span class="p">(</span>
-        <span class="n">slow_task</span><span class="o">=</span><span class="n">some_slow_task</span><span class="p">,</span>
-        <span class="n">multiplier</span><span class="o">=</span><span class="n">multiplier</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">for</span> <span class="n">multiplier</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="p">]</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">some_slow_task</span> <span class="o">=</span> <span class="n">SlowTask</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">dependent_tasks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">DependentTask</span><span class="p">(</span>
+            <span class="n">slow_task</span><span class="o">=</span><span class="n">some_slow_task</span><span class="p">,</span>
+            <span class="n">multiplier</span><span class="o">=</span><span class="n">multiplier</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">multiplier</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="p">]</span>
 
-<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="s1">&#39;demo_lab&#39;</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">dependent_tasks</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">([</span><span class="n">results</span><span class="p">[</span><span class="n">task</span><span class="p">]</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">dependent_tasks</span><span class="p">])</span>
+    <span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="s1">&#39;demo_lab&#39;</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">dependent_tasks</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">([</span><span class="n">results</span><span class="p">[</span><span class="n">task</span><span class="p">]</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">dependent_tasks</span><span class="p">])</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 <p>To learn more, see:</p>
 <ul>

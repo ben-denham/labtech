@@ -418,6 +418,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#why-do-i-see-the-following-error-an-attempt-has-been-made-to-start-a-new-process-before-the-current-process-has-finished" class="md-nav__link">
+    Why do I see the following error: An attempt has been made to start a new process before the current process has finished?
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -626,6 +633,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#why-do-i-see-the-following-error-an-attempt-has-been-made-to-start-a-new-process-before-the-current-process-has-finished" class="md-nav__link">
+    Why do I see the following error: An attempt has been made to start a new process before the current process has finished?
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -650,6 +664,8 @@
 <p>The following cookbook presents labtech patterns for common use cases.</p>
 <p>You can also run this cookbook as an (<a href="https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb">interactive notebook</a>).</p>
 <div class="highlight"><pre><span></span><code>%pip install labtech fsspec mlflow pandas scikit-learn setuptools
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>!mkdir storage
 </code></pre></div>
 <div class="code highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">labtech</span>
 
@@ -1397,6 +1413,57 @@ recommends wrapping only your tracking code with
 <code>mlflow.start_run()</code>, labtech wraps the entire call to the <code>run()</code>
 method of your task in order to track execution times in mlflow.</p>
 </blockquote>
+<h2 id="why-do-i-see-the-following-error-an-attempt-has-been-made-to-start-a-new-process-before-the-current-process-has-finished">Why do I see the following error: <code>An attempt has been made to start a new process before the current process has finished</code>?</h2>
+<p>When running labtech in a Python script on Windows, macOS, or any
+Python environment using the <code>spawn</code> multiprocessing start method, you
+will see the following error if you do not guard your experiment and
+lab creation and other non-definition code with <code>__name__ ==
+'__main__'</code>:</p>
+<div class="highlight"><pre><span></span><code>RuntimeError:
+        An attempt has been made to start a new process before the
+        current process has finished its bootstrapping phase.
+
+        This probably means that you are not using fork to start your
+        child processes and you have forgotten to use the proper idiom
+        in the main module:
+
+            if __name__ == &#39;__main__&#39;:
+                freeze_support()
+                ...
+
+        The &quot;freeze_support()&quot; line can be omitted if the program
+        is not going to be frozen to produce an executable.
+</code></pre></div>
+<p>To avoid this error, it is recommended that you write all of your
+non-definition code for a Python script in a <code>main()</code> function, and
+then guard the call to <code>main()</code> with <code>__name__ == '__main__'</code>:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">labtech</span>
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Experiment</span><span class="p">(</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+        <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/guarded_lab&#39;</span><span class="p">,</span>
+        <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+<p>For details, see <a href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing-safe-main-import">Safe importing of main module</a>.</p>
 
 
 
