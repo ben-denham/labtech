@@ -19,21 +19,25 @@ class Experiment:
         return self.seed * self.multiplier.value
 
 
-experiments = [
-    Experiment(
-        seed=seed,
-        multiplier=multiplier,
+def main():
+    experiments = [
+        Experiment(
+            seed=seed,
+            multiplier=multiplier,
+        )
+        for seed in range(10)
+        for multiplier in Multiplier
+    ]
+
+    lab = labtech.Lab(
+        storage='examples/storage/basic_lab',
     )
-    for seed in range(10)
-    for multiplier in Multiplier
-]
+    cached_experiments = lab.cached_tasks([Experiment])
+    print(f'Clearing {len(cached_experiments)} cached experiments.')
+    lab.uncache_tasks(cached_experiments)
+    results = lab.run_tasks(experiments)
+    print(results)
 
 
-lab = labtech.Lab(
-    storage='examples/storage/basic_lab',
-)
-cached_experiments = lab.cached_tasks([Experiment])
-print(f'Clearing {len(cached_experiments)} cached experiments.')
-lab.uncache_tasks(cached_experiments)
-results = lab.run_tasks(experiments)
-print(results)
+if __name__ == '__main__':
+    main()

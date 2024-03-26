@@ -11,17 +11,22 @@ class Run:
         return self.seed ** self.seed
 
 
-runs = [
-    Run(
-        seed=seed,
-    )
-    for seed in range(10)
-]
+def main():
+    runs = [
+        Run(
+            seed=seed,
+        )
+        for seed in range(10)
+    ]
 
-mlflow.set_tracking_uri("examples/storage/mlruns")
-mlflow.set_experiment('example_labtech_experiment')
-lab = labtech.Lab(
-    storage=None,
-)
-results = lab.run_tasks(runs)
-print(results)
+    mlflow.set_tracking_uri("examples/storage/mlruns")
+    mlflow.set_experiment('example_labtech_experiment')
+    lab = labtech.Lab(
+        storage=None,
+    )
+    results = lab.run_tasks(runs)
+    print(results)
+
+
+if __name__ == '__main__':
+    main()

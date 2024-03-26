@@ -8,6 +8,10 @@ You can also run this cookbook as an ([interactive notebook](https://mybinder.or
 %pip install labtech fsspec mlflow pandas scikit-learn setuptools
 ```
 
+``` {.code}
+!mkdir storage
+```
+
 ``` {.python .code}
 import labtech
 
@@ -843,3 +847,63 @@ results = lab.run_tasks(runs)
 > recommends wrapping only your tracking code with
 > `mlflow.start_run()`, labtech wraps the entire call to the `run()`
 > method of your task in order to track execution times in mlflow.
+
+
+## Why do I see the following error: `An attempt has been made to start a new process before the current process has finished`?
+
+When running labtech in a Python script on Windows, macOS, or any
+Python environment using the `spawn` multiprocessing start method, you
+will see the following error if you do not guard your experiment and
+lab creation and other non-definition code with `__name__ ==
+'__main__'`:
+
+```
+RuntimeError:
+        An attempt has been made to start a new process before the
+        current process has finished its bootstrapping phase.
+
+        This probably means that you are not using fork to start your
+        child processes and you have forgotten to use the proper idiom
+        in the main module:
+
+            if __name__ == '__main__':
+                freeze_support()
+                ...
+
+        The "freeze_support()" line can be omitted if the program
+        is not going to be frozen to produce an executable.
+```
+
+To avoid this error, it is recommended that you write all of your
+non-definition code for a Python script in a `main()` function, and
+then guard the call to `main()` with `__name__ == '__main__'`:
+
+``` {.python .code}
+import labtech
+
+@labtech.task
+class Experiment:
+    seed: int
+
+    def run(self):
+        return self.seed * self.seed
+
+def main():
+    experiments = [
+        Experiment(
+            seed=seed
+        )
+        for seed in range(1000)
+    ]
+    lab = labtech.Lab(
+        storage='storage/guarded_lab',
+        notebook=True,
+    )
+    result = lab.run_tasks(experiments)
+    print(result)
+
+if __name__ == '__main__':
+    main()
+```
+
+For details, see [Safe importing of main module](https://docs.python.org/3/library/multiprocessing.html#multiprocessing-safe-main-import).

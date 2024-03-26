@@ -16,22 +16,26 @@ class Experiment:
         return sum(datasets[self.dataset_key])
 
 
-experiments = [
-    Experiment(
-        dataset_key=dataset_key
+def main():
+    experiments = [
+        Experiment(
+            dataset_key=dataset_key
+        )
+        for dataset_key in datasets.keys()
+    ]
+
+    lab = labtech.Lab(
+        storage='examples/storage/context_lab',
+        context={
+            'datasets': datasets,
+        },
     )
-    for dataset_key in datasets.keys()
-]
+    cached_experiments = lab.cached_tasks([Experiment])
+    print(f'Clearing {len(cached_experiments)} cached experiments.')
+    lab.uncache_tasks(cached_experiments)
+    results = lab.run_tasks(experiments)
+    print(results)
 
 
-lab = labtech.Lab(
-    storage='examples/storage/context_lab',
-    context={
-        'datasets': datasets,
-    },
-)
-cached_experiments = lab.cached_tasks([Experiment])
-print(f'Clearing {len(cached_experiments)} cached experiments.')
-lab.uncache_tasks(cached_experiments)
-results = lab.run_tasks(experiments)
-print(results)
+if __name__ == '__main__':
+    main()

@@ -57,28 +57,32 @@ class Experiment:
         sleep(1)
         return self.base ** self.power
 
-# Configure Experiment parameter permutations
-experiments = [
-    Experiment(
-        base=base,
-        power=power,
+def main():
+    # Configure Experiment parameter permutations
+    experiments = [
+        Experiment(
+            base=base,
+            power=power,
+        )
+        for base in range(5)
+        for power in range(5)
+    ]
+
+    # Configure a Lab to run the experiments:
+    lab = labtech.Lab(
+        # Specify a directory to cache results in (running the experiments a second
+        # time will just load results from the cache!):
+        storage='demo_lab',
+        # Control the degree of parallelism:
+        max_workers=5,
     )
-    for base in range(5)
-    for power in range(5)
-]
 
-# Configure a Lab to run the experiments:
-lab = labtech.Lab(
-    # Specify a directory to cache results in (running the experiments a second
-    # time will just load results from the cache!):
-    storage='demo_lab',
-    # Control the degree of parallelism:
-    max_workers=5,
-)
+    # Run the experiments!
+    results = lab.run_tasks(experiments)
+    print([results[experiment] for experiment in experiments])
 
-# Run the experiments!
-results = lab.run_tasks(experiments)
-print([results[experiment] for experiment in experiments])
+if __name__ == '__main__':
+    main()
 ```
 
 ![Animated GIF of labtech demo on the command-line](https://ben-denham.github.io/labtech/images/labtech-demo.gif)
@@ -121,18 +125,22 @@ class DependentTask:
     def run(self):
         return self.multiplier * self.slow_task.result
 
-some_slow_task = SlowTask(base=42)
-dependent_tasks = [
-    DependentTask(
-        slow_task=some_slow_task,
-        multiplier=multiplier,
-    )
-    for multiplier in range(10)
-]
+def main():
+    some_slow_task = SlowTask(base=42)
+    dependent_tasks = [
+        DependentTask(
+            slow_task=some_slow_task,
+            multiplier=multiplier,
+        )
+        for multiplier in range(10)
+    ]
 
-lab = labtech.Lab(storage='demo_lab')
-results = lab.run_tasks(dependent_tasks)
-print([results[task] for task in dependent_tasks])
+    lab = labtech.Lab(storage='demo_lab')
+    results = lab.run_tasks(dependent_tasks)
+    print([results[task] for task in dependent_tasks])
+
+if __name__ == '__main__':
+    main()
 ```
 
 To learn more, see:
