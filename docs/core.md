@@ -11,6 +11,8 @@ provide the following attributes and methods:
 
 ::: labtech.types.Task
 
+::: labtech.types.ResultT
+
 ::: labtech.types.ResultMeta
 
 ::: labtech.is_task_type

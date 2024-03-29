@@ -449,7 +449,7 @@ type to store Pandas DataFrames as parquet files:
 
 ``` {.python .code}
 from labtech.cache import BaseCache
-from labtech.tasks import Task
+from labtech.types import Task, ResultT
 from labtech.storage import Storage
 from typing import Any
 import pandas as pd
@@ -459,13 +459,13 @@ class ParquetCache(BaseCache):
     """Caches a Pandas DataFrame result as a parquet file."""
     KEY_PREFIX = 'parquet__'
 
-    def save_result(self, storage: Storage, task: Task, result: Any):
+    def save_result(self, storage: Storage, task: Task[ResultT], result: ResultT):
         if not isinstance(result, pd.DataFrame):
             raise ValueError('ParquetCache can only cache DataFrames')
         with storage.file_handle(task.cache_key, 'result.parquet', mode='wb') as data_file:
             result.to_parquet(data_file)
 
-    def load_result(self, storage: Storage, task: Task) -> Any:
+    def load_result(self, storage: Storage, task: Task[ResultT]) -> ResultT:
         with storage.file_handle(task.cache_key, 'result.parquet', mode='rb') as data_file:
             return pd.read_parquet(data_file)
 

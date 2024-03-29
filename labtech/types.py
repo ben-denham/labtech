@@ -4,7 +4,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from inspect import isclass
-from typing import Any, Callable, Dict, IO, Literal, Optional, Protocol, Sequence, Type
+from typing import (
+    Any, Callable, Dict, Generic, IO, Literal,
+    Optional, Protocol, Sequence, Type, TypeVar,
+)
 
 
 @dataclass(frozen=True)
@@ -13,6 +16,13 @@ class TaskInfo:
     cache: 'Cache'
     max_parallel: Optional[int]
     mlflow_run: bool
+
+
+CovariantResultT = TypeVar('CovariantResultT', covariant=True)
+ResultT = TypeVar('ResultT')
+"""Type variable for result returned by the `run` method of a
+[`Task`][labtech.types.Task]."""
+ResultsMap = Dict['Task[CovariantResultT]', CovariantResultT]
 
 
 @dataclass(frozen=True)
@@ -26,15 +36,12 @@ class ResultMeta:
 
 
 @dataclass(frozen=True)
-class TaskResult:
-    value: Any
+class TaskResult(Generic[ResultT]):
+    value: ResultT
     meta: ResultMeta
 
 
-ResultsMap = Dict['Task', Any]
-
-
-class Task(Protocol):
+class Task(Protocol, Generic[CovariantResultT]):
     """Interface provided by any class that is decorated by
     [`labtech.task`][labtech.task]."""
     _lt: TaskInfo
@@ -54,7 +61,7 @@ class Task(Protocol):
         pass
 
     @property
-    def result(self) -> Any:
+    def result(self) -> CovariantResultT:
         """Returns the result executed/loaded for this task. If no result is
         available in memory, accessing this property raises a `TaskError`."""
 
@@ -70,6 +77,9 @@ class Task(Protocol):
         instead of being called directly.
 
         """
+
+
+TaskT = TypeVar("TaskT", bound=Task)
 
 
 def is_task_type(cls):
@@ -126,12 +136,12 @@ class Cache(ABC):
         the given `storage`."""
 
     @abstractmethod
-    def save(self, storage: Storage, task: Task, result: Any) -> None:
+    def save(self, storage: Storage, task: Task[ResultT], result: TaskResult[ResultT]) -> None:
         """Save the given `result` for the given `task` into the given
         `storage`."""
 
     @abstractmethod
-    def load_task(self, storage: Storage, task_type: Type[Task], key: str) -> Task:
+    def load_task(self, storage: Storage, task_type: Type[TaskT], key: str) -> TaskT:
         """Loads the task instance of the given `task_type` for the given
         `key` from the given `storage`.
 
@@ -139,7 +149,7 @@ class Cache(ABC):
         """
 
     @abstractmethod
-    def load_result_with_meta(self, storage: Storage, task: Task) -> TaskResult:
+    def load_result_with_meta(self, storage: Storage, task: Task[ResultT]) -> TaskResult[ResultT]:
         """Loads the result and metadata for the given task from the storage
         provider.
 

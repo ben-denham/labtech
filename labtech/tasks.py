@@ -7,7 +7,7 @@ from typing import cast, Any, Dict, Optional, Sequence, Set, Union
 
 from frozendict import frozendict
 
-from .types import Task, TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type, is_task
+from .types import Task, ResultT, TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type, is_task
 from .cache import PickleCache, NullCache
 from .exceptions import TaskError
 from .utils import ensure_dict_key_str
@@ -42,7 +42,7 @@ def immutable_param_value(key: str, value: Any) -> Any:
     raise TaskError(f"Unsupported type '{type(value).__qualname__}' in parameter value '{key}'.")
 
 
-def _task_post_init(self):
+def _task_post_init(self: Task):
     # Ensure parameter values are immutable.
     for f in fields(self):
         object.__setattr__(self, f.name, immutable_param_value(f.name, getattr(self, f.name)))
@@ -56,19 +56,19 @@ def _task_post_init(self):
         self._lt.orig_post_init(self)
 
 
-def _task_set_results_map(self, results_map: ResultsMap):
+def _task_set_results_map(self: Task, results_map: ResultsMap):
     object.__setattr__(self, '_results_map', results_map)
 
 
-def _task_set_result_meta(self, result_meta: ResultMeta):
+def _task_set_result_meta(self: Task, result_meta: ResultMeta):
     object.__setattr__(self, 'result_meta', result_meta)
 
 
-def _task_set_context(self, context: dict[str, Any]):
+def _task_set_context(self: Task, context: dict[str, Any]):
     object.__setattr__(self, 'context', context)
 
 
-def _task_result(self) -> Any:
+def _task_result(self: Task[ResultT]) -> ResultT:
     if hasattr(self, '_result'):
         return self._result
     if self._results_map is None:
@@ -78,7 +78,7 @@ def _task_result(self) -> Any:
     return self._results_map[self]
 
 
-def _task__getstate__(self) -> Dict[str, Any]:
+def _task__getstate__(self: Task) -> Dict[str, Any]:
     state = {
         **{f.name: getattr(self, f.name) for f in fields(self)},
         '_lt': self._lt,
@@ -96,7 +96,7 @@ def _task__getstate__(self) -> Dict[str, Any]:
     return state
 
 
-def _task__setstate__(self, state: Dict[str, Any]) -> None:
+def _task__setstate__(self: Task, state: Dict[str, Any]) -> None:
     field_set = set(f.name for f in fields(self))
     for key, value in state.items():
         value = immutable_param_value(key, value) if key in field_set else value

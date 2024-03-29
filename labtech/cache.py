@@ -9,7 +9,7 @@ import pickle
 from typing import Any, Optional, Type
 
 from . import __version__ as labtech_version
-from .types import Task, TaskResult, ResultMeta, Cache, Storage
+from .types import Task, TaskT, ResultT, ResultMeta, TaskResult, Cache, Storage
 from .exceptions import CacheError, TaskNotFound
 from .serialization import Serializer
 
@@ -23,13 +23,13 @@ class NullCache(Cache):
     def is_cached(self, storage: Storage, task: Task) -> bool:
         return False
 
-    def save(self, storage: Storage, task: Task, result: Any):
+    def save(self, storage: Storage, task: Task[ResultT], result: TaskResult[ResultT]):
         pass
 
-    def load_task(self, storage: Storage, task_type: Type[Task], key: str) -> Task:
+    def load_task(self, storage: Storage, task_type: Type[TaskT], key: str) -> TaskT:
         raise TaskNotFound
 
-    def load_result_with_meta(self, storage: Storage, task: Task) -> TaskResult:
+    def load_result_with_meta(self, storage: Storage, task: Task[ResultT]) -> TaskResult[ResultT]:
         raise CacheError('Loading a result from a NullCache is not supported.')
 
     def load_cache_timestamp(self, storage: Storage, task: Task) -> Any:
@@ -63,7 +63,7 @@ class BaseCache(Cache):
     def is_cached(self, storage: Storage, task: Task) -> bool:
         return storage.exists(task.cache_key)
 
-    def save(self, storage: Storage, task: Task, task_result: TaskResult):
+    def save(self, storage: Storage, task: Task[ResultT], task_result: TaskResult[ResultT]):
         start_timestamp = None
         if task_result.meta.start is not None:
             start_timestamp = task_result.meta.start.isoformat()
@@ -108,7 +108,7 @@ class BaseCache(Cache):
             duration=duration,
         )
 
-    def load_task(self, storage: Storage, task_type: Type[Task], key: str) -> Task:
+    def load_task(self, storage: Storage, task_type: Type[TaskT], key: str) -> TaskT:
         metadata = self.load_metadata(storage, task_type, key)
         result_meta = self.build_result_meta(metadata)
         task = self.serializer.deserialize_task(metadata['task'], result_meta=result_meta)
@@ -116,7 +116,7 @@ class BaseCache(Cache):
             raise TaskNotFound
         return task
 
-    def load_result_with_meta(self, storage: Storage, task: Task) -> TaskResult:
+    def load_result_with_meta(self, storage: Storage, task: Task[ResultT]) -> TaskResult[ResultT]:
         result = self.load_result(storage, task)
         metadata = self.load_metadata(storage, type(task), task.cache_key)
         return TaskResult(
@@ -128,7 +128,7 @@ class BaseCache(Cache):
         storage.delete(task.cache_key)
 
     @abstractmethod
-    def load_result(self, storage: Storage, task: Task) -> Any:
+    def load_result(self, storage: Storage, task: Task[ResultT]) -> ResultT:
         """Loads the result for the given task from the storage provider.
 
         Args:
@@ -138,7 +138,7 @@ class BaseCache(Cache):
         """
 
     @abstractmethod
-    def save_result(self, storage: Storage, task: Task, result: Any):
+    def save_result(self, storage: Storage, task: Task[ResultT], result: ResultT):
         """Saves the given task result into the storage provider.
 
         Args:
@@ -167,12 +167,12 @@ class PickleCache(BaseCache):
         super().__init__(serializer=serializer)
         self.pickle_protocol = pickle_protocol
 
-    def save_result(self, storage: Storage, task: Task, result: Any):
+    def save_result(self, storage: Storage, task: Task[ResultT], result: ResultT):
         data_file = storage.file_handle(task.cache_key, self.RESULT_FILENAME, mode='wb')
         with data_file:
             pickle.dump(result, data_file, protocol=self.pickle_protocol)
 
-    def load_result(self, storage: Storage, task: Task) -> Any:
+    def load_result(self, storage: Storage, task: Task[ResultT]) -> ResultT:
         data_file = storage.file_handle(task.cache_key, self.RESULT_FILENAME, mode='rb')
         with data_file:
             return pickle.load(data_file)

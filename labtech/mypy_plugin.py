@@ -2,9 +2,10 @@
 
 from typing import Type
 import mypy.plugins.dataclasses
+from mypy.nodes import COVARIANT
 from mypy.plugin import Plugin, ClassDefContext
 from mypy.plugins.common import add_attribute_to_class
-from mypy.types import Instance, LiteralType, AnyType, TypeOfAny, CallableType, NoneType, UnionType
+from mypy.types import Instance, LiteralType, AnyType, TypeOfAny, TypeVarType, CallableType, NoneType, UnionType
 from mypy.nodes import ArgKind
 
 task_makers = {'labtech.tasks.task'}
@@ -13,12 +14,22 @@ task_makers = {'labtech.tasks.task'}
 
 def task_tag_callback(ctx: ClassDefContext):
     """Add attributes to a "task" class."""
-
+    covariant_result_t_type = TypeVarType(
+        name='CovariantResultT',
+        fullname=ctx.cls.info.fullname + '.CovariantResultT',
+        # TODO: Unsure if id of -1 is valid.
+        id=-1,
+        values=[],
+        upper_bound=ctx.api.named_type('builtins.object'),
+        variance=COVARIANT,
+    )
     results_map_type = Instance(
         typ=ctx.api.named_type('builtins.dict').type,
         args=[
-            ctx.api.named_type('labtech.types.Task'),
-            AnyType(TypeOfAny.explicit),
+            ctx.api.named_type('labtech.types.Task', [
+                covariant_result_t_type
+            ]),
+            covariant_result_t_type,
         ],
     )
     context_type = Instance(
@@ -69,7 +80,7 @@ def task_tag_callback(ctx: ClassDefContext):
         api=ctx.api,
         cls=ctx.cls,
         name='result',
-        typ=AnyType(TypeOfAny.explicit),
+        typ=covariant_result_t_type,
     )
     add_attribute_to_class(
         api=ctx.api,

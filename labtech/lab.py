@@ -15,14 +15,14 @@ from pathlib import Path
 import signal
 import sys
 from threading import Thread
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, TypeVar, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
 
 from frozendict import frozendict
 from tqdm import tqdm
 from tqdm.notebook import tqdm as tqdm_notebook
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from .types import Task, TaskResult, ResultMeta, ResultsMap, Storage, is_task
+from .types import Task, TaskT, ResultT, ResultMeta, ResultsMap, TaskResult, Storage, is_task
 from .tasks import find_tasks_in_param
 from .exceptions import LabError, TaskNotFound
 from .utils import OrderedSet, LoggerFileProxy, logger
@@ -30,8 +30,6 @@ from .storage import NullStorage, LocalStorage
 from .executors import SerialExecutor, wait_for_first_future
 
 _IN_TASK_SUBPROCESS = False
-
-TaskT = TypeVar("TaskT", bound=Task)
 
 
 @contextmanager
@@ -293,7 +291,7 @@ class TaskRunner:
             logger = logging.getLogger(record.name)
             logger.handle(record)
 
-    def run(self, tasks: Sequence[TaskT]) -> Dict[TaskT, Any]:
+    def run(self, tasks: Sequence[Task]) -> Dict[Task, Any]:
         task_results = {}
 
         log_thread = Thread(target=self.logger_thread)
@@ -471,7 +469,7 @@ class Lab:
         # Return results in the same order as tasks
         return {task: results[task] for task in tasks}
 
-    def run_task(self, task: Task, **kwargs) -> Any:
+    def run_task(self, task: Task[ResultT], **kwargs) -> ResultT:
         """Run a single task and return its result. Supports the same keyword
         arguments as `run_tasks`.
 
@@ -485,7 +483,7 @@ class Lab:
         results = self.run_tasks([task], **kwargs)
         return results[task]
 
-    def cached_tasks(self, task_types: Sequence[Type[Task]]) -> Sequence[Task]:
+    def cached_tasks(self, task_types: Sequence[Type[TaskT]]) -> Sequence[TaskT]:
         """Returns all task instances present in the Lab's cache storage for
         the given `task_types`, each of which should be a task class
         decorated with [`labtech.task`][labtech.task].
