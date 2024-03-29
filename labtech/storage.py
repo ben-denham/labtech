@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 import shutil
-from typing import IO, Sequence
+from typing import IO, Sequence, Union
 
 from .types import Storage
 from .exceptions import StorageError
@@ -29,14 +29,16 @@ class LocalStorage(Storage):
     """Storage provider that stores cached results in a local filesystem
     directory."""
 
-    def __init__(self, storage_dir: str):
+    def __init__(self, storage_dir: Union[str, Path]):
         """
         Args:
             storage_dir: Path to the directory where cached results will be
                 stored. The directory will be created if it does not already
                 exist.
         """
-        self._storage_path = Path(storage_dir).resolve()
+        if isinstance(storage_dir, str):
+            storage_dir = Path(storage_dir)
+        self._storage_path = storage_dir.resolve()
         if not self._storage_path.exists():
             self._storage_path.mkdir()
 

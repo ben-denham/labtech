@@ -10,6 +10,7 @@ import logging
 from logging.handlers import QueueHandler
 import math
 import multiprocessing
+from pathlib import Path
 import signal
 import sys
 from threading import Thread
@@ -398,17 +399,17 @@ class Lab:
     """
 
     def __init__(self, *,
-                 storage: Union[str, None, Storage],
+                 storage: Union[str, Path, None, Storage],
                  continue_on_failure: bool = True,
                  max_workers: Optional[int] = None,
                  notebook: bool = False,
                  context: Optional[dict[str, Any]] = None):
         """
         Args:
-            storage: Where task results should be cached to. A string will be
-                interpreted as the path to a local directory, `None` will result
-                in no caching. Any [Storage][labtech.types.Storage] instance may
-                also be specified.
+            storage: Where task results should be cached to. A string or
+                [`Path`][pathlib.Path] will be interpreted as the path to a
+                local directory, `None` will result in no caching. Any
+                [Storage][labtech.types.Storage] instance may also be specified.
             continue_on_failure: If `True`, exceptions raised by tasks will be
                 logged, but execution of other tasks will continue.
             max_workers: The maximum number of parallel worker processes for
@@ -423,7 +424,7 @@ class Lab:
                 affect results (e.g. parallelism factors) or should be kept
                 constant between runs (e.g. datasets).
         """
-        if isinstance(storage, str):
+        if isinstance(storage, str) or isinstance(storage, Path):
             storage = LocalStorage(storage)
         elif storage is None:
             storage = NullStorage()
