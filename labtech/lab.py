@@ -14,7 +14,7 @@ from pathlib import Path
 import signal
 import sys
 from threading import Thread
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, TypeVar, Union
 
 from frozendict import frozendict
 from tqdm import tqdm
@@ -28,6 +28,8 @@ from .storage import NullStorage, LocalStorage
 from .executors import SerialExecutor, wait_for_first_future
 
 _IN_TASK_SUBPROCESS = False
+
+TaskT = TypeVar("TaskT", bound=Task)
 
 
 @contextmanager
@@ -300,7 +302,7 @@ class TaskRunner:
             logger = logging.getLogger(record.name)
             logger.handle(record)
 
-    def run(self, tasks: Sequence[Task]) -> Dict[Task, Any]:
+    def run(self, tasks: Sequence[TaskT]) -> Dict[TaskT, Any]:
         task_results = {}
 
         log_thread = Thread(target=self.logger_thread)
@@ -436,10 +438,10 @@ class Lab:
             context = {}
         self.context = context
 
-    def run_tasks(self, tasks: Sequence[Task], *,
+    def run_tasks(self, tasks: Sequence[TaskT], *,
                   bust_cache: bool = False,
                   keep_nested_results: bool = False,
-                  disable_progress: bool = False) -> Dict[Task, Any]:
+                  disable_progress: bool = False) -> Dict[TaskT, Any]:
         """Run the given tasks with as much process parallelism as possible.
         Loads task results from the cache storage where possible and
         caches results of executed tasks.
