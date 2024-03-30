@@ -474,7 +474,9 @@ class Lab:
                             bust_cache=bust_cache,
                             keep_nested_results=keep_nested_results,
                             disable_progress=disable_progress)
-        return runner.run(tasks)
+        results = runner.run(tasks)
+        # Return results in the same order as tasks
+        return {task: results[task] for task in tasks}
 
     def run_task(self, task: Task, **kwargs) -> Any:
         """Run a single task and return its result. Supports the same keyword
