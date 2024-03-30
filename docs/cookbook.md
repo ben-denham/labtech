@@ -1,4 +1,4 @@
-## Cookbook
+## Labtech Cookbook
 
 The following cookbook presents labtech patterns for common use cases.
 
