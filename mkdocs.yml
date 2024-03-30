@@ -3,6 +3,7 @@ repo_url: https://github.com/ben-denham/labtech/
 site_description: Documentation for labtech
 nav:
   - README: 'README.md'
+  - Tutorial: 'tutorial.md'
   - Cookbook: 'cookbook.md'
   - Labs and Tasks: 'core.md'
   - Caches and Storage: 'caching.md'
