@@ -890,7 +890,8 @@ or be removed from the cache storage with
 <span class="normal">541</span>
 <span class="normal">542</span>
 <span class="normal">543</span>
-<span class="normal">544</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Lab</span><span class="p">:</span>
+<span class="normal">544</span>
+<span class="normal">545</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Lab</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Primary interface for configuring, running, and getting results of tasks.</span>
 
 <span class="sd">    A Lab can be used to run tasks with [`run_tasks()`][labtech.Lab.run_tasks].</span>
@@ -912,9 +913,10 @@ or be removed from the cache storage with
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            storage: Where task results should be cached to. A string or</span>
-<span class="sd">                [`Path`][pathlib.Path] will be interpreted as the path to a</span>
-<span class="sd">                local directory, `None` will result in no caching. Any</span>
-<span class="sd">                [Storage][labtech.types.Storage] instance may also be specified.</span>
+<span class="sd">                [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)</span>
+<span class="sd">                will be interpreted as the path to a local directory, `None`</span>
+<span class="sd">                will result in no caching. Any [Storage][labtech.types.Storage]</span>
+<span class="sd">                instance may also be specified.</span>
 <span class="sd">            continue_on_failure: If `True`, exceptions raised by tasks will be</span>
 <span class="sd">                logged, but execution of other tasks will continue.</span>
 <span class="sd">            max_workers: The maximum number of parallel worker processes for</span>
@@ -1072,9 +1074,10 @@ or be removed from the cache storage with
         –
         <div class="doc-md-description">
           <p>Where task results should be cached to. A string or
-[<code>Path</code>][pathlib.Path] will be interpreted as the path to a
-local directory, <code>None</code> will result in no caching. Any
-<a class="autorefs autorefs-internal" href="../caching/#labtech.storage.Storage">Storage</a> instance may also be specified.</p>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path"><code>Path</code></a>
+will be interpreted as the path to a local directory, <code>None</code>
+will result in no caching. Any <a class="autorefs autorefs-internal" href="../caching/#labtech.storage.Storage">Storage</a>
+instance may also be specified.</p>
         </div>
       </li>
       <li class="field-body">
@@ -1166,7 +1169,8 @@ constant between runs (e.g. datasets).</p>
 <span class="normal">449</span>
 <span class="normal">450</span>
 <span class="normal">451</span>
-<span class="normal">452</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+<span class="normal">452</span>
+<span class="normal">453</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
              <span class="n">storage</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Storage</span><span class="p">],</span>
              <span class="n">continue_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
              <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1175,9 +1179,10 @@ constant between runs (e.g. datasets).</p>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
 <span class="sd">        storage: Where task results should be cached to. A string or</span>
-<span class="sd">            [`Path`][pathlib.Path] will be interpreted as the path to a</span>
-<span class="sd">            local directory, `None` will result in no caching. Any</span>
-<span class="sd">            [Storage][labtech.types.Storage] instance may also be specified.</span>
+<span class="sd">            [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)</span>
+<span class="sd">            will be interpreted as the path to a local directory, `None`</span>
+<span class="sd">            will result in no caching. Any [Storage][labtech.types.Storage]</span>
+<span class="sd">            instance may also be specified.</span>
 <span class="sd">        continue_on_failure: If `True`, exceptions raised by tasks will be</span>
 <span class="sd">            logged, but execution of other tasks will continue.</span>
 <span class="sd">        max_workers: The maximum number of parallel worker processes for</span>
@@ -1300,8 +1305,7 @@ corresponding result.</p>
 
           <details class="quote">
             <summary>Source code in <code>labtech/lab.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">454</span>
-<span class="normal">455</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">455</span>
 <span class="normal">456</span>
 <span class="normal">457</span>
 <span class="normal">458</span>
@@ -1340,7 +1344,8 @@ corresponding result.</p>
 <span class="normal">491</span>
 <span class="normal">492</span>
 <span class="normal">493</span>
-<span class="normal">494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
+<span class="normal">494</span>
+<span class="normal">495</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
               <span class="n">bust_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
               <span class="n">keep_nested_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
               <span class="n">disable_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Task</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -1421,8 +1426,7 @@ arguments as <code>run_tasks</code>.</p>
 
           <details class="quote">
             <summary>Source code in <code>labtech/lab.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">496</span>
-<span class="normal">497</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">497</span>
 <span class="normal">498</span>
 <span class="normal">499</span>
 <span class="normal">500</span>
@@ -1433,7 +1437,8 @@ arguments as <code>run_tasks</code>.</p>
 <span class="normal">505</span>
 <span class="normal">506</span>
 <span class="normal">507</span>
-<span class="normal">508</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="normal">508</span>
+<span class="normal">509</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a single task and return its result. Supports the same keyword</span>
 <span class="sd">    arguments as `run_tasks`.</span>
 
@@ -1476,8 +1481,7 @@ instances.</p>
 
           <details class="quote">
             <summary>Source code in <code>labtech/lab.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">510</span>
-<span class="normal">511</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">511</span>
 <span class="normal">512</span>
 <span class="normal">513</span>
 <span class="normal">514</span>
@@ -1498,7 +1502,8 @@ instances.</p>
 <span class="normal">529</span>
 <span class="normal">530</span>
 <span class="normal">531</span>
-<span class="normal">532</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
+<span class="normal">532</span>
+<span class="normal">533</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Task</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns all task instances present in the Lab&#39;s cache storage for</span>
 <span class="sd">    the given `task_types`, each of which should be a task class</span>
 <span class="sd">    decorated with [`labtech.task`][labtech.task].</span>
@@ -1546,10 +1551,10 @@ storage.</p>
 
           <details class="quote">
             <summary>Source code in <code>labtech/lab.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">534</span>
-<span class="normal">535</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">535</span>
 <span class="normal">536</span>
-<span class="normal">537</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">537</span>
+<span class="normal">538</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if a result is present for given task in the Lab&#39;s cache</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">_lt</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">,</span> <span class="n">task</span><span class="p">)</span>
@@ -1578,12 +1583,12 @@ storage.</p>
 
           <details class="quote">
             <summary>Source code in <code>labtech/lab.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">539</span>
-<span class="normal">540</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">540</span>
 <span class="normal">541</span>
 <span class="normal">542</span>
 <span class="normal">543</span>
-<span class="normal">544</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
+<span class="normal">544</span>
+<span class="normal">545</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes cached results for the given tasks from the Lab&#39;s cache</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
