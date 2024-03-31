@@ -82,6 +82,7 @@ class TaskState:
         self.results_map: ResultsMap = {}
 
         self.pending_tasks: OrderedSet[Task] = OrderedSet()
+        self.processed_task_ids: Set[int] = set()
         self.task_to_direct_dependencies: Dict[Task, Set[Task]] = defaultdict(set)
         self.task_to_pending_dependencies: Dict[Task, Set[Task]] = defaultdict(set)
         self.task_to_pending_dependents: Dict[Task, Set[Task]] = defaultdict(set)
@@ -121,24 +122,23 @@ class TaskState:
 
     def process_tasks(self, tasks: Iterable[Task]):
         all_dependencies: List[Task] = []
-        task_dependencies = {}
         for task in tasks:
+            if id(task) in self.processed_task_ids:
+                continue
+            self.processed_task_ids.add(id(task))
+
             dependent_tasks: List[Task] = []
             if not self.runner.use_cache(task):
                 # Find all dependent tasks inside task fields
                 for field in fields(task):
                     field_value = getattr(task, field.name)
                     dependent_tasks += self.find_tasks(field_value)
+
+            # We insert all of the top-level tasks before processing
+            # discovered dependencies, so that we will attempt to run
+            # higher-level tasks as soon as possible.
+            self.insert_task(task, dependent_tasks)
             all_dependencies += dependent_tasks
-            task_dependencies[task] = dependent_tasks
-        # We insert all of the top-level tasks before processing
-        # discovered dependencies, so that we will attempt to run
-        # higher-level tasks as soon as possible. We also iterate over
-        # the list of tasks instead of task_dependencies, as the list
-        # may contain duplicates of the same task that get reduced to
-        # a single identity in the dictionary.
-        for task in tasks:
-            self.insert_task(task, task_dependencies[task])
         if len(all_dependencies) > 0:
             self.process_tasks(all_dependencies)
 
