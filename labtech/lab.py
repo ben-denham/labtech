@@ -86,6 +86,11 @@ class TaskState:
         self.task_to_pending_dependencies: Dict[Task, Set[Task]] = defaultdict(set)
         self.task_to_pending_dependents: Dict[Task, Set[Task]] = defaultdict(set)
         self.type_to_active_tasks: Dict[Type[Task], Set[Task]] = defaultdict(set)
+        # We need to track all unique instances of a task (i.e. that
+        # hash the same, but have different identities) so that we can
+        # ensure all are updated. Duplicated task instances may occur
+        # in dependencies of different tasks.
+        self.task_to_instances: Dict[Task, List[Task]] = defaultdict(list)
 
         self.process_tasks(tasks)
         self.check_cyclic_dependences()
@@ -115,6 +120,7 @@ class TaskState:
         return []
 
     def process_tasks(self, tasks: Iterable[Task]):
+        all_dependencies: List[Task] = []
         task_dependencies = {}
         for task in tasks:
             dependent_tasks: List[Task] = []
@@ -123,19 +129,23 @@ class TaskState:
                 for field in fields(task):
                     field_value = getattr(task, field.name)
                     dependent_tasks += self.find_tasks(field_value)
+            all_dependencies += dependent_tasks
             task_dependencies[task] = dependent_tasks
         # We insert all of the top-level tasks before processing
         # discovered dependencies, so that we will attempt to run
-        # higher-level tasks as soon as possible.
-        for task, dependencies in task_dependencies.items():
-            self.insert_task(task, dependencies)
-        all_dependencies: List[Task] = sum(task_dependencies.values(), start=[])
+        # higher-level tasks as soon as possible. We also iterate over
+        # the list of tasks instead of task_dependencies, as the list
+        # may contain duplicates of the same task that get reduced to
+        # a single identity in the dictionary.
+        for task in tasks:
+            self.insert_task(task, task_dependencies[task])
         if len(all_dependencies) > 0:
             self.process_tasks(all_dependencies)
 
     def insert_task(self, task: Task, dependencies: Iterable[Task]):
         task._set_results_map(self.results_map)
         self.pending_tasks.add(task)
+        self.task_to_instances[task].append(task)
         for dependency in dependencies:
             self.task_to_direct_dependencies[task].add(dependency)
             self.task_to_pending_dependencies[task].add(dependency)
@@ -145,9 +155,12 @@ class TaskState:
         self.pending_tasks.remove(task)
         self.type_to_active_tasks[type(task)].add(task)
 
-    def complete_task(self, task: Task, *, success: bool, result: Any):
-        if success:
-            self.results_map[task] = result
+    def complete_task(self, task: Task, *, task_result: Optional[TaskResult]):
+        # A task_result of None indicates task failure
+        if task_result is not None:
+            for task_instance in self.task_to_instances[task]:
+                task_instance._set_result_meta(task_result.meta)
+            self.results_map[task] = task_result.value
 
         self.type_to_active_tasks[type(task)].remove(task)
         for dependent in self.task_to_pending_dependents[task]:
@@ -352,13 +365,12 @@ class TaskRunner:
                             try:
                                 task_result = future.result()
                             except Exception as ex:
-                                state.complete_task(task, success=False, result=None)
+                                state.complete_task(task, task_result=None)
                                 self.handle_failure(ex=ex, message=f"Task '{task}' failed.")
                             else:
                                 if task in tasks:
                                     task_results[task] = task_result.value
-                                state.complete_task(task, success=True, result=task_result.value)
-                                task._set_result_meta(task_result.meta)
+                                state.complete_task(task, task_result=task_result)
                                 pbars[type(task)].update(1)
                         future_to_task = {future: future_to_task[future]
                                           for future in future_to_task
