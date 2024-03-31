@@ -422,9 +422,10 @@ class Lab:
         """
         Args:
             storage: Where task results should be cached to. A string or
-                [`Path`][pathlib.Path] will be interpreted as the path to a
-                local directory, `None` will result in no caching. Any
-                [Storage][labtech.types.Storage] instance may also be specified.
+                [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+                will be interpreted as the path to a local directory, `None`
+                will result in no caching. Any [Storage][labtech.types.Storage]
+                instance may also be specified.
             continue_on_failure: If `True`, exceptions raised by tasks will be
                 logged, but execution of other tasks will continue.
             max_workers: The maximum number of parallel worker processes for
