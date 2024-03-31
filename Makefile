@@ -1,4 +1,4 @@
-.PHONY: deps example lint mypy test check docs-serve docs-build docs-github cookbook-notebook
+.PHONY: deps example lint mypy test check docs-serve docs-build docs-github docs-notebook
 
 deps:
 	poetry install
