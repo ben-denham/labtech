@@ -121,6 +121,7 @@ def task(*args,
       before its parent so that it may make use of the nested result.
     * Collections of any of these types: `list`, `tuple`,
       `dict`, [`frozendict`](https://pypi.org/project/frozendict/)
+      * Dictionaries may only contain string keys.
       * Note: Mutable `list` and `dict` collections will be converted to
         immutable `tuple` and [`frozendict`](https://pypi.org/project/frozendict/)
         collections.

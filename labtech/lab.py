@@ -115,6 +115,8 @@ class TaskState:
             searched_coll_ids = searched_coll_ids | {id(value)}
             return [
                 task
+                # We only need to search the values, as all parameter
+                # dictionary keys must be strings.
                 for item in value.values()
                 for task in self.find_tasks(item, searched_coll_ids)
             ]
