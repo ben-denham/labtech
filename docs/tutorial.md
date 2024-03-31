@@ -1,37 +1,29 @@
 ## Labtech Tutorial
 
-The following tutorial presents a full example of using labtech to
+The following tutorial presents a complete example of using labtech to
 easily add parallelism and caching to machine learning experiments.
 
-You can also run this tutorial as an ([interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/tutorial.ipynb)).
+You can also run this tutorial as an [interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/tutorial.ipynb).
 
-Firstly, we will install and import `labtech` along with some other
+Before we begin, let's install `labtech` along with some other
 dependencies we will use in this tutorial:
 
 ``` {.code}
 %pip install labtech mlflow scikit-learn
 ```
 
+Let's also clear any caches that were created by previous runs of this
+tutorial:
+
+``` {.code}
+!rm -rf storage/tutorial/
+!mkdir -p storage/tutorial/
+```
+
 ### Running a single experiment as a labtech task
 
-Throughout this tutorial, we will use labtech to improve and extend
-the following machine learning experiment, where we:
-
-1. Load and scale the `digits` dataset - a benchmark dataset where the
-   goal is to train a classifier that can correctly assign a number
-   between 0 and 9 to the image of a hand-written digit. We will want
-   to extend our experimentation to include other datasets.
-2. Train a random forest classifier on the digits dataset. The
-   classifier is configured `n_estimators=5` (i.e. a forest of 5
-   trees). We will want to extend our experimentation to test other
-   `n_estimators` values and classifiers other than a random forest.
-   We also set a fixed `random_state` to ensure we get the same result
-   every time we run the code.
-3. Evaluate the classifier by calculating the logistic loss of
-   probabilities predicted by the classifier for the dataset. Standard
-   evaluation practice would be to calculate loss for a separate test
-   dataset, but we will use a single dataset for both training and
-   testing to simplify this tutorial.
+To get started, we'll take the following simple machine learning
+experiment code and convert it to be run with labtech.
 
 ``` {.python .code}
 from sklearn import datasets
@@ -52,17 +44,36 @@ prob_y = clf.predict_proba(digits_X)
 print(f'{log_loss(digits_y, prob_y) = :.3}')
 ```
 
+Throughout this tutorial, we will use labtech to improve and extend
+this experiment, which currently:
+
+1. Loads and scales the `digits` dataset.
+    * This is a benchmark dataset where the goal is to train a
+      classifier that can correctly assign a number between 0 and 9 to
+      the image of a hand-written digit.
+    * We will want to extend our experimentation to also include other
+      datasets.
+2. Trains a random forest classifier on the digits dataset.
+    * The classifier is configured with `n_estimators=5` (i.e. a forest
+      of 5 trees) and a fixed `random_state` (to ensure we get the same
+      result every time we run the code).
+    * We will want to extend our experimentation to test other
+      `n_estimators` values and classifiers other than a random forest.
+3. Evaluates the classifier by calculating the logistic loss of
+   probabilities predicted by the classifier for the dataset.
+    * Standard evaluation practice would be to calculate loss for a
+      separate test dataset, but we will use a single dataset for both
+      training and testing to simplify this tutorial.
+
 Let's set up this same experiment to be run with labtech, providing us
 with a foundation that we can extend throughout this tutorial.
 
 First, we'll define a labtech *task type* that will load the dataset,
 train the classifier, and return the probabilities predicted for the
-dataset.
-
-Defining a task type for our experiment is as simple as defining a
-class decorated with `@labtech.task` that defines a `run()` method
-that performs the experiment and returns its result (the predicted
-probabilities):
+dataset. Defining a task type for our experiment is as simple as
+defining a class decorated with `@labtech.task` that defines a `run()`
+method that performs the experiment and returns its result (the
+predicted probabilities):
 
 ``` {.python .code}
 import labtech
@@ -85,12 +96,12 @@ class ClassifierExperiment:
 
 Next, we create a labtech *lab* that can be used to execute the
 experiment. We'll configure the lab to cache results in a folder
-called `'storage/classification_lab_1` and to use notebook-friendly
-progress bars:
+called `storage/tutorial/classification_lab_1` and to display
+notebook-friendly progress bars:
 
 ``` {.python .code}
 lab = labtech.Lab(
-    storage='storage/classification_lab_1',
+    storage='storage/tutorial/classification_lab_1',
     notebook=True,
 )
 ```
@@ -116,12 +127,12 @@ prob_y = lab.run_task(classifier_experiment)
 print(f'{log_loss(digits_y, prob_y) = :.3}')
 ```
 
-Defining the task to just return the prediction probabilities instead
-of also performing the loss calculation would give us flexibility to
-change the evaluation (e.g. from `log_loss` to another metric) while
-still being able to re-use the same cached result.
+Defining the task to return the prediction probabilities instead of
+just the loss metric gives us flexibility to change the evaluation in
+the future (e.g. from `log_loss` to another metric) while still being
+able to re-use the same cached result.
 
-We can also ask our lab to construct `task` objects for all previously
+We can also ask our lab to return `task` objects for all previously
 cached results for a given task type by calling `lab.cached_tasks()`.
 A given task could then be passed to `lab.run_task()` to load it's
 result (or we could pass a list of tasks to `lab.run_tasks()`, as we
@@ -133,8 +144,8 @@ lab.cached_tasks([
 ])
 ```
 
-It is very important that you clear any cached results whenever you
-make a change that will impact the behaviour of a task - otherwise
+**It is very important that you clear any cached results whenever you
+make a change that will impact the behaviour of a task** - otherwise
 your cached results may no longer reflect the actual result of the
 current code.
 
@@ -152,10 +163,10 @@ lab.uncache_tasks([
 Let's extend our experimentation to compare the results for
 classifiers configured with different `n_estimators` values.
 
-To do so, we'll add a `n_estimators` parameter to our
+To do so, we'll add an `n_estimators` parameter to our
 `ClassifierExperiment` task type and reference it within the `run()`
-method with `self.n_estimators`. Task parameters are declared in the
-exactly same way as
+method as `self.n_estimators`. Task parameters are declared in exactly
+the same way as
 [dataclass](https://docs.python.org/3/library/dataclasses.html)
 fields:
 
@@ -192,16 +203,16 @@ classifier_experiments = [
 ```
 
 We can run a list of tasks with `lab.run_tasks()`, which has the added
-benefit of leverage Python's multiprocessing capabilities to **run the
-tasks in parallel** - running as many tasks simultaneously as possible
-with the CPU of the machine running the tasks. Also, because we've
-changed the definition of our `ClassifierExperiment` class, we'll keep
-caches for the new definition separate by constructing a new lab that
-uses a different storage directory:
+benefit of leveraging Python's multiprocessing capabilities to **run
+the tasks in parallel** - running as many tasks simultaneously as
+possible with the CPU of the machine running the tasks. Also, because
+we've changed the definition of our `ClassifierExperiment` class,
+we'll keep caches for the new definition separate by constructing a
+new lab that uses a different storage directory:
 
 ``` {.python .code}
 lab = labtech.Lab(
-    storage='storage/classification_lab_2',
+    storage='storage/tutorial/classification_lab_2',
     notebook=True,
 )
 results = lab.run_tasks(classifier_experiments)
@@ -226,16 +237,15 @@ wherever possible.
 To demonstrate this, let's extend our experimentation with a new
 post-processing step that will take the probabilities returned by one
 of our previous `ClassifierExperiment` tasks and assign a probability
-of `1` to the most likely class for each record (and conversely
-assigning a probability of `0` to all other classes).
+of `1` to the most likely class for each record (and conversely assign
+a probability of `0` to all other classes).
 
 To achieve this, we will define a new `MinMaxProbabilityExperiment`
 task type that accepts a `ClassifierExperiment` as a parameter.
 Labtech will consider any task in a parameter to be a *dependency* of
-the task. Dependency tasks will be executed before any of their
-dependent tasks, allowing us to access the result from the `.result`
-attribute of the task parameter (i.e.
-`self.classifier_experiment.result`):
+the task. Dependency tasks will be run before any of their dependent
+tasks, allowing us to access the result from the `.result` attribute
+of the task parameter (i.e. `self.classifier_experiment.result`):
 
 ``` {.python .code}
 import numpy as np
@@ -255,11 +265,12 @@ class MinMaxProbabilityExperiment:
 ```
 
 We can then construct and run a list of `MinMaxProbabilityExperiment`
-tasks that depend on our previous `classifier_experiments`. Labtech
-will ensure each of the `classifier_experiments` has been run before
-it's dependent `MinMaxProbabilityExperiment` is run, re-using results
-depended on by multiple tasks and loading previously cached results
-wherever possible:
+tasks that depend on our previous `ClassifierExperiment` tasks in
+`classifier_experiments`. Labtech will ensure each of the
+`classifier_experiments` has been run before it's dependent
+`MinMaxProbabilityExperiment` is run, re-using results depended on by
+multiple tasks and loading previously cached results wherever
+possible:
 
 ``` {.python .code}
 min_max_prob_experiments = [
@@ -284,32 +295,32 @@ dependent tasks, and using caches wherever possible.
 
 Now let's extend our experimentation to compare different classifier
 models. We'd like to make the classifier itself a parameter to the
-task, but. However, task parameters can only be [json-serializable
+task, but task parameters can only be [json-serializable
 values](https://ben-denham.github.io/labtech/core/#labtech.task) or
-dependency tasks, so we will use dependency tasks to construct and
-return classifier objects to our experiment tasks. We achieve this in
-the following code by:
+dependency tasks. Therefore, we will use dependency tasks to construct
+and return classifier objects to our experiment tasks. We achieve this
+in the following code by:
 
-1. We define `RFClassifierTask` and `LRClassifierTask` task types.
-   * `RFClassifierTask` returns a random forest classifier
-     parameterised by an `n_estimators` value.
-   * `LRClassifierTask` returns a logistic regression classifier.
-   * Because constructing a classifier object is inexpensive, we don't
-     need to cache them, so we set `cache=None` in the `@labtech.task`
-     decorator for these task types.
-   * We will identify these task types in type hints with the
-     `ClassifierTask` [Protocol](https://docs.python.org/3/library/typing.html#typing.Protocol),
-     which will match any task type that returns a sklearn classifier.
-1. We redefine `ClassifierExperiment` to be parameterised by a
-   `ClassifierTask`, which provides the classifier through
-   `self.classifier_task.result` to be trained and applied. Because
-   one `ClassifierTask` result may be shared by many
-   `ClassifierExperiment` tasks, the `run()` method first creates its
-   own copy of the classifier with `clone()`.
-
-Constructing a classifier object is inexpensive, so we don't need to
-cache the result
-
+1. Defining `RFClassifierTask` and `LRClassifierTask` task types.
+    * `RFClassifierTask` returns a random forest classifier
+      parameterised by an `n_estimators` value.
+    * `LRClassifierTask` returns a logistic regression classifier.
+    * Because constructing a classifier object is inexpensive, we don't
+      need to cache them, so we set `cache=None` in the `@labtech.task`
+      decorator for these task types.
+    * For type hinting purposes, we will identify these task types
+      with the `ClassifierTask`
+      [Protocol](https://docs.python.org/3/library/typing.html#typing.Protocol),
+      which will match any task type that returns an sklearn
+      classifier.
+1. Redefining `ClassifierExperiment` to be parameterised by a
+   `ClassifierTask`.
+    * The classifier object to be trained and applied is retrieved
+      from the `ClassifierTask` result with
+      `self.classifier_task.result`.
+    * Because one `ClassifierTask` result may be shared by many
+      `ClassifierExperiment` tasks, the `run()` method first creates
+      its own copy of the classifier with `clone()`.
 
 ``` {.python .code}
 from typing import Protocol
@@ -361,7 +372,7 @@ class ClassifierExperiment:
 
 Now we can generate and run a set of `RFClassifierTask` tasks for
 various `n_estimators` values, and construct a `ClassifierExperiment`
-for each of these `RFClassifierTask` tasks as well as a
+for each of these `RFClassifierTask` tasks as well as an
 `LRClassifierTask` task:
 
 ``` {.python .code}
@@ -382,7 +393,7 @@ classifier_experiments = [
 ]
 
 lab = labtech.Lab(
-    storage='storage/classification_lab_3',
+    storage='storage/tutorial/classification_lab_3',
     notebook=True,
 )
 
@@ -394,10 +405,10 @@ for experiment, prob_y in results.items():
 ### Providing large objects as context
 
 Sometimes we want to pass large, unchanging objects to our tasks, but
-don't want to be restricted to loading them in a dependent task. For
-example, it would be convenient to load a collection of datasets
-outside of any tasks, allowing us to inspect these datasets before and
-after the tasks have been run:
+don't want to be forced to load them in a dependent task. For example,
+it would be convenient to load a collection of datasets (on which to
+run our experiments) outside of any task, allowing us to inspect these
+datasets before and after the tasks have been run:
 
 ``` {.python .code}
 iris_X, iris_y = datasets.load_iris(return_X_y=True)
@@ -412,12 +423,12 @@ DATASETS = {
 To achieve this, a labtech lab can be provided with a *context* that
 is made available to all tasks. In the following code, we:
 
-1. Redefine `ClassifierExperiment` to accept a `dataset_key` parameter
-   and use it to look up a dataset inside the `'DATASETS'` key of
-   `self.context`.
-2. We pass a `context` to the `labtech.Lab()` constructor, which sets
-   the `'DATASETS'` key to the set of `DATASETS` defined above.
-3. We alter the task generation and evaluation code to handle multiple
+1. Pass a `context` to the `labtech.Lab()` constructor, with a
+   `'DATASETS'` key for the set of `DATASETS` defined above.
+2. Redefine `ClassifierExperiment` to accept a `dataset_key` parameter
+   and use it to look up a dataset inside the `'DATASETS'` key of the
+   context, which is made available by labtech as `self.context`.
+3. Alter the task generation and evaluation code to handle multiple
    datasets.
 
 ``` {.python .code}
@@ -448,7 +459,7 @@ classifier_experiments = [
 ]
 
 lab = labtech.Lab(
-    storage='storage/classification_lab_4',
+    storage='storage/tutorial/classification_lab_4',
     notebook=True,
     context={
         'DATASETS': DATASETS,
@@ -457,18 +468,19 @@ lab = labtech.Lab(
 
 results = lab.run_tasks(classifier_experiments)
 for experiment, prob_y in results.items():
-    print(f'{experiment}: {log_loss(DATASETS[experiment.dataset_key]["y"], prob_y) = :.3}')
+    dataset_y = DATASETS[experiment.dataset_key]["y"]
+    print(f'{experiment}: {log_loss(dataset_y, prob_y) = :.3}')
 ```
 
-The lab context can also be useful for passing parameters to tasks
-that won't affect the result and therefore don't need to be part of
-the tasks formal parameters. E.g. log levels and task-internal
-parallelism settings.
+The lab context can also be useful for passing parameters to a task
+that won't affect its result and therefore don't need to be part of
+the task's formal parameters. For example: log levels and
+task-internal parallelism settings.
 
-> Warning: It is important that you do NOT make changes to context
-> values that impact task results after you have started caching
-> experiment results - otherwise your cached results may not reflect
-> your latest context values.
+**It is important that you do NOT make changes to context values that
+impact task results after you have started caching experiment
+results** - otherwise your cached results may not reflect your latest
+context values.
 
 ### Bringing it all together and aggregating results
 
@@ -477,24 +489,27 @@ one place, with some additional improvements:
 
 * The "experiment-like" `ClassifierExperiment` and
   `MinMaxProbabilityExperiment` task types are now identified by a
-  common `ExperimentTask` base class.
-* A final `ExperimentEvaluationTask` task that depends on all
+  common `ExperimentTask` Protocol (which requires each of those
+  classes to provide a `dataset_key` attribute or property that is
+  used by the new `ExperimentEvaluationTask`).
+* A new, final, `ExperimentEvaluationTask` task that depends on all
   `ExperimentTask` tasks is used to compute the loss metric for all
-  experiments. A final task like this is useful once we have a large
-  number of experiments as it allows us to cache the final evaluation
-  of all tasks, meaning we only need to load experiment results and
-  re-calculate metrics if any of the experiments have changed or new
-  experiments have been added.
+  experiments.
+    * A final task like this is useful once we have a large number of
+      experiments as it allows us to cache the final evaluation of all
+      tasks, meaning that we only need to load experiment results and
+      re-calculate metrics when experiment parameters have changed or
+      new experiments have been added.
 * We enable labtech's integration with [`mlflow`](https://mlflow.org/)
   by the following additions (see [How can I use labtech with mlfow?](https://ben-denham.github.io/labtech/cookbook/#how-can-i-use-labtech-with-mlflow)
   for details):
-  1. Adding `mlflow_run=True` to the `@labtech.task` decorator of
-     `ClassifierExperiment` and `MinMaxProbabilityExperiment`,
-     indicating that each task of these types should be recorded as a
-     "run" in mflow.
-  2. Naming the over-arching labtech "experiment" with
-     `mlflow.set_experiment('example_labtech_experiment')` before the
-     tasks are run.
+    1. We add `mlflow_run=True` to the `@labtech.task` decorator of
+       `ClassifierExperiment` and `MinMaxProbabilityExperiment`,
+       indicating that each task of these types should be recorded as
+       a "run" in mflow.
+    2. We name the over-arching mlflow "experiment" with
+       `mlflow.set_experiment('example_labtech_experiment')` before
+       the tasks are run.
 
 
 ``` {.python .code}
@@ -526,14 +541,13 @@ DATASETS = {
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
+
 class ClassifierTask(Protocol):
 
     def run(self) -> ClassifierMixin:
         pass
 
 
-# Constructing a classifier object is inexpensive, so we don't need to
-# cache the result
 @labtech.task(cache=None)
 class RFClassifierTask:
     n_estimators: int
@@ -556,8 +570,11 @@ class LRClassifierTask:
 
 # === Experiment Tasks ===
 
-class ExperimentTask:
-    pass
+class ExperimentTask(Protocol):
+    dataset_key: str
+
+    def run(self) -> ClassifierMixin:
+        pass
 
 
 @labtech.task(mlflow_run=True)
@@ -570,6 +587,7 @@ class ClassifierExperiment(ExperimentTask):
         X, y = dataset['X'], dataset['y']
 
         clf = clone(self.classifier_task.result)
+        clf.fit(X, y)
         prob_y = clf.predict_proba(X)
         return prob_y
 
@@ -577,6 +595,10 @@ class ClassifierExperiment(ExperimentTask):
 @labtech.task(mlflow_run=True)
 class MinMaxProbabilityExperiment(ExperimentTask):
     experiment: ExperimentTask
+
+    @property
+    def dataset_key(self):
+        return self.experiment.dataset_key
 
     def run(self) -> np.ndarray:
         prob_y = self.experiment.result
@@ -590,6 +612,7 @@ class MinMaxProbabilityExperiment(ExperimentTask):
 # === Results Aggregation ===
 
 from sklearn.metrics import log_loss
+
 
 @labtech.task
 class ExperimentEvaluationTask:
@@ -644,7 +667,7 @@ import mlflow
 
 mlflow.set_experiment('example_labtech_experiment')
 lab = labtech.Lab(
-    storage='storage/classification_lab_final',
+    storage='storage/tutorial/classification_lab_final',
     notebook=True,
     context={
         'DATASETS': DATASETS,
@@ -652,7 +675,8 @@ lab = labtech.Lab(
 )
 
 evaluation_result = lab.run_task(evaluation_task)
-print(evaluation_result)
+for experiment, result in evaluation_result.items():
+    print(f'{experiment}: log_loss = {result["log_loss"]:.3}')
 ```
 
 ### Next Steps

@@ -2,7 +2,7 @@
 
 The following cookbook presents labtech patterns for common use cases.
 
-You can also run this cookbook as an ([interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb)).
+You can also run this cookbook as an [interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb).
 
 ``` {.code}
 %pip install labtech fsspec mlflow pandas scikit-learn setuptools
