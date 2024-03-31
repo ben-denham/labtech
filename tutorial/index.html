@@ -1,0 +1,1190 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for labtech">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../cookbook/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.3.1">
+    
+    
+      
+        <title>Tutorial - labtech</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.046329b4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#labtech-tutorial" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="labtech" class="md-header__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            labtech
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorial
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="labtech" class="md-nav__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    labtech
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    README
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Tutorial
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Tutorial
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#labtech-tutorial" class="md-nav__link">
+    Labtech Tutorial
+  </a>
+  
+    <nav class="md-nav" aria-label="Labtech Tutorial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-a-single-experiment-as-a-labtech-task" class="md-nav__link">
+    Running a single experiment as a labtech task
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameterising-tasks-and-running-many-tasks-in-parallel" class="md-nav__link">
+    Parameterising tasks, and running many tasks in parallel
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maximising-concurrency-and-caching-with-dependent-tasks" class="md-nav__link">
+    Maximising concurrency and caching with dependent tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameterising-tasks-with-complex-objects" class="md-nav__link">
+    Parameterising tasks with complex objects
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#providing-large-objects-as-context" class="md-nav__link">
+    Providing large objects as context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bringing-it-all-together-and-aggregating-results" class="md-nav__link">
+    Bringing it all together and aggregating results
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    Next Steps
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cookbook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Labs and Tasks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../caching/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Caches and Storage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#labtech-tutorial" class="md-nav__link">
+    Labtech Tutorial
+  </a>
+  
+    <nav class="md-nav" aria-label="Labtech Tutorial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-a-single-experiment-as-a-labtech-task" class="md-nav__link">
+    Running a single experiment as a labtech task
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameterising-tasks-and-running-many-tasks-in-parallel" class="md-nav__link">
+    Parameterising tasks, and running many tasks in parallel
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maximising-concurrency-and-caching-with-dependent-tasks" class="md-nav__link">
+    Maximising concurrency and caching with dependent tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameterising-tasks-with-complex-objects" class="md-nav__link">
+    Parameterising tasks with complex objects
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#providing-large-objects-as-context" class="md-nav__link">
+    Providing large objects as context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bringing-it-all-together-and-aggregating-results" class="md-nav__link">
+    Bringing it all together and aggregating results
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    Next Steps
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Tutorial</h1>
+
+<h2 id="labtech-tutorial">Labtech Tutorial</h2>
+<p>The following tutorial presents a complete example of using labtech to
+easily add parallelism and caching to machine learning experiments.</p>
+<p>You can also run this tutorial as an <a href="https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/tutorial.ipynb">interactive notebook</a>.</p>
+<p>Before we begin, let's install <code>labtech</code> along with some other
+dependencies we will use in this tutorial:</p>
+<div class="highlight"><pre><span></span><code>%pip install labtech mlflow scikit-learn
+</code></pre></div>
+<p>Let's also clear any caches that were created by previous runs of this
+tutorial:</p>
+<div class="highlight"><pre><span></span><code>!rm -rf storage/tutorial/
+!mkdir -p storage/tutorial/
+</code></pre></div>
+<h3 id="running-a-single-experiment-as-a-labtech-task">Running a single experiment as a labtech task</h3>
+<p>To get started, we'll take the following simple machine learning
+experiment code and convert it to be run with labtech.</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">log_loss</span>
+
+<span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_digits</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">digits_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+<span class="n">clf</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span>
+    <span class="n">n_estimators</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span><span class="p">)</span>
+<span class="n">prob_y</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">log_loss</span><span class="p">(</span><span class="n">digits_y</span><span class="p">,</span><span class="w"> </span><span class="n">prob_y</span><span class="p">)</span><span class="w"> </span><span class="si">= :</span><span class="s1">.3</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>Throughout this tutorial, we will use labtech to improve and extend
+this experiment, which currently:</p>
+<ol>
+<li>Loads and scales the <code>digits</code> dataset.<ul>
+<li>This is a benchmark dataset where the goal is to train a
+  classifier that can correctly assign a number between 0 and 9 to
+  the image of a hand-written digit.</li>
+<li>We will want to extend our experimentation to also include other
+  datasets.</li>
+</ul>
+</li>
+<li>Trains a random forest classifier on the digits dataset.<ul>
+<li>The classifier is configured with <code>n_estimators=5</code> (i.e. a forest
+  of 5 trees) and a fixed <code>random_state</code> (to ensure we get the same
+  result every time we run the code).</li>
+<li>We will want to extend our experimentation to test other
+  <code>n_estimators</code> values and classifiers other than a random forest.</li>
+</ul>
+</li>
+<li>Evaluates the classifier by calculating the logistic loss of
+   probabilities predicted by the classifier for the dataset.<ul>
+<li>Standard evaluation practice would be to calculate loss for a
+  separate test dataset, but we will use a single dataset for both
+  training and testing to simplify this tutorial.</li>
+</ul>
+</li>
+</ol>
+<p>Let's set up this same experiment to be run with labtech, providing us
+with a foundation that we can extend throughout this tutorial.</p>
+<p>First, we'll define a labtech <em>task type</em> that will load the dataset,
+train the classifier, and return the probabilities predicted for the
+dataset. Defining a task type for our experiment is as simple as
+defining a class decorated with <code>@labtech.task</code> that defines a <code>run()</code>
+method that performs the experiment and returns its result (the
+predicted probabilities):</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">labtech</span>
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ClassifierExperiment</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_digits</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">digits_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span>
+            <span class="n">n_estimators</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span><span class="p">)</span>
+        <span class="n">prob_y</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prob_y</span>
+</code></pre></div>
+<p>Next, we create a labtech <em>lab</em> that can be used to execute the
+experiment. We'll configure the lab to cache results in a folder
+called <code>storage/tutorial/classification_lab_1</code> and to display
+notebook-friendly progress bars:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/tutorial/classification_lab_1&#39;</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Finally, we create a task instance of <code>ClassifierExperiment</code> and call
+<code>lab.run_task()</code> to run it. The output will be the predicted
+probabilities returned by the task's <code>run()</code> method, so we can
+calculate the loss from them as before:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">classifier_experiment</span> <span class="o">=</span> <span class="n">ClassifierExperiment</span><span class="p">()</span>
+<span class="n">prob_y</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">classifier_experiment</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">log_loss</span><span class="p">(</span><span class="n">digits_y</span><span class="p">,</span><span class="w"> </span><span class="n">prob_y</span><span class="p">)</span><span class="w"> </span><span class="si">= :</span><span class="s1">.3</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>An immediate benefit of running an experiment this way with labtech is
+that <strong>the result will be cached to disk for future use</strong>. Any future
+calls to run the same experiment (even after restarting Python) will
+load the result from the cache:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">prob_y</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">classifier_experiment</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">log_loss</span><span class="p">(</span><span class="n">digits_y</span><span class="p">,</span><span class="w"> </span><span class="n">prob_y</span><span class="p">)</span><span class="w"> </span><span class="si">= :</span><span class="s1">.3</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>Defining the task to return the prediction probabilities instead of
+just the loss metric gives us flexibility to change the evaluation in
+the future (e.g. from <code>log_loss</code> to another metric) while still being
+able to re-use the same cached result.</p>
+<p>We can also ask our lab to return <code>task</code> objects for all previously
+cached results for a given task type by calling <code>lab.cached_tasks()</code>.
+A given task could then be passed to <code>lab.run_task()</code> to load it's
+result (or we could pass a list of tasks to <code>lab.run_tasks()</code>, as we
+will see in the next section of this tutorial).</p>
+<div class="code highlight"><pre><span></span><code><span class="n">lab</span><span class="o">.</span><span class="n">cached_tasks</span><span class="p">([</span>
+    <span class="n">ClassifierExperiment</span><span class="p">,</span>
+<span class="p">])</span>
+</code></pre></div>
+<p><strong>It is very important that you clear any cached results whenever you
+make a change that will impact the behaviour of a task</strong> - otherwise
+your cached results may no longer reflect the actual result of the
+current code.</p>
+<p>You can clear the cached results for a list of tasks with
+<code>lab.uncache_tasks()</code>:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">lab</span><span class="o">.</span><span class="n">uncache_tasks</span><span class="p">([</span>
+    <span class="n">classifier_experiment</span><span class="p">,</span>
+<span class="p">])</span>
+</code></pre></div>
+<h3 id="parameterising-tasks-and-running-many-tasks-in-parallel">Parameterising tasks, and running many tasks in parallel</h3>
+<p>Let's extend our experimentation to compare the results for
+classifiers configured with different <code>n_estimators</code> values.</p>
+<p>To do so, we'll add an <code>n_estimators</code> parameter to our
+<code>ClassifierExperiment</code> task type and reference it within the <code>run()</code>
+method as <code>self.n_estimators</code>. Task parameters are declared in exactly
+the same way as
+<a href="https://docs.python.org/3/library/dataclasses.html">dataclass</a>
+fields:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">labtech</span>
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ClassifierExperiment</span><span class="p">:</span>
+    <span class="n">n_estimators</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_digits</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">digits_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span>
+            <span class="n">n_estimators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span><span class="p">)</span>
+        <span class="n">prob_y</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prob_y</span>
+</code></pre></div>
+<p>Now we'll use a list comprehension to construct a list of
+<code>ClassifierExperiment</code> tasks with different <code>n_estimators</code> values:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">classifier_experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ClassifierExperiment</span><span class="p">(</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="n">n_estimators</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">n_estimators</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>We can run a list of tasks with <code>lab.run_tasks()</code>, which has the added
+benefit of leveraging Python's multiprocessing capabilities to <strong>run
+the tasks in parallel</strong> - running as many tasks simultaneously as
+possible with the CPU of the machine running the tasks. Also, because
+we've changed the definition of our <code>ClassifierExperiment</code> class,
+we'll keep caches for the new definition separate by constructing a
+new lab that uses a different storage directory:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/tutorial/classification_lab_2&#39;</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">classifier_experiments</span><span class="p">)</span>
+</code></pre></div>
+<p><code>lab.run_tasks()</code> returns a dictionary mapping each input task to the
+result it returned, which we can loop over to print loss metrics for
+each experiment:</p>
+<div class="code highlight"><pre><span></span><code><span class="k">for</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">prob_y</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">experiment</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">log_loss</span><span class="p">(</span><span class="n">digits_y</span><span class="p">,</span><span class="w"> </span><span class="n">prob_y</span><span class="p">)</span><span class="w"> </span><span class="si">= :</span><span class="s1">.3</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="maximising-concurrency-and-caching-with-dependent-tasks">Maximising concurrency and caching with dependent tasks</h3>
+<p>Labtech's true power lies in its ability to manage complex networks of
+dependent tasks - automatically running as many tasks as possible in
+parallel (even different types of tasks) and re-using cached results
+wherever possible.</p>
+<p>To demonstrate this, let's extend our experimentation with a new
+post-processing step that will take the probabilities returned by one
+of our previous <code>ClassifierExperiment</code> tasks and assign a probability
+of <code>1</code> to the most likely class for each record (and conversely assign
+a probability of <code>0</code> to all other classes).</p>
+<p>To achieve this, we will define a new <code>MinMaxProbabilityExperiment</code>
+task type that accepts a <code>ClassifierExperiment</code> as a parameter.
+Labtech will consider any task in a parameter to be a <em>dependency</em> of
+the task. Dependency tasks will be run before any of their dependent
+tasks, allowing us to access the result from the <code>.result</code> attribute
+of the task parameter (i.e. <code>self.classifier_experiment.result</code>):</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">MinMaxProbabilityExperiment</span><span class="p">:</span>
+    <span class="n">classifier_experiment</span><span class="p">:</span> <span class="n">ClassifierExperiment</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">prob_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier_experiment</span><span class="o">.</span><span class="n">result</span>
+        <span class="c1"># Replace the maximum probability in each row with 1,</span>
+        <span class="c1"># and replace all other probabilities with 0.</span>
+        <span class="n">min_max_prob_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">prob_y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">min_max_prob_y</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prob_y</span><span class="p">)),</span> <span class="n">prob_y</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">min_max_prob_y</span>
+</code></pre></div>
+<p>We can then construct and run a list of <code>MinMaxProbabilityExperiment</code>
+tasks that depend on our previous <code>ClassifierExperiment</code> tasks in
+<code>classifier_experiments</code>. Labtech will ensure each of the
+<code>classifier_experiments</code> has been run before it's dependent
+<code>MinMaxProbabilityExperiment</code> is run, re-using results depended on by
+multiple tasks and loading previously cached results wherever
+possible:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">min_max_prob_experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">MinMaxProbabilityExperiment</span><span class="p">(</span>
+        <span class="n">classifier_experiment</span><span class="o">=</span><span class="n">classifier_experiment</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">classifier_experiment</span> <span class="ow">in</span> <span class="n">classifier_experiments</span>
+<span class="p">]</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">min_max_prob_experiments</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">prob_y</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">experiment</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">log_loss</span><span class="p">(</span><span class="n">digits_y</span><span class="p">,</span><span class="w"> </span><span class="n">prob_y</span><span class="p">)</span><span class="w"> </span><span class="si">= :</span><span class="s1">.3</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>By simply specifying task dependencies, you can construct any task
+structure that can be expressed as a <a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">directed acyclic graph (or
+DAG)</a> and let
+labtech handle running tasks concurrently, sharing results between
+dependent tasks, and using caches wherever possible.</p>
+<h3 id="parameterising-tasks-with-complex-objects">Parameterising tasks with complex objects</h3>
+<p>Now let's extend our experimentation to compare different classifier
+models. We'd like to make the classifier itself a parameter to the
+task, but task parameters can only be <a href="https://ben-denham.github.io/labtech/core/#labtech.task">json-serializable
+values</a> or
+dependency tasks. Therefore, we will use dependency tasks to construct
+and return classifier objects to our experiment tasks. We achieve this
+in the following code by:</p>
+<ol>
+<li>Defining <code>RFClassifierTask</code> and <code>LRClassifierTask</code> task types.<ul>
+<li><code>RFClassifierTask</code> returns a random forest classifier
+  parameterised by an <code>n_estimators</code> value.</li>
+<li><code>LRClassifierTask</code> returns a logistic regression classifier.</li>
+<li>Because constructing a classifier object is inexpensive, we don't
+  need to cache them, so we set <code>cache=None</code> in the <code>@labtech.task</code>
+  decorator for these task types.</li>
+<li>For type hinting purposes, we will identify these task types
+  with the <code>ClassifierTask</code>
+  <a href="https://docs.python.org/3/library/typing.html#typing.Protocol">Protocol</a>,
+  which will match any task type that returns an sklearn
+  classifier.</li>
+</ul>
+</li>
+<li>Redefining <code>ClassifierExperiment</code> to be parameterised by a
+   <code>ClassifierTask</code>.<ul>
+<li>The classifier object to be trained and applied is retrieved
+  from the <code>ClassifierTask</code> result with
+  <code>self.classifier_task.result</code>.</li>
+<li>Because one <code>ClassifierTask</code> result may be shared by many
+  <code>ClassifierExperiment</code> tasks, the <code>run()</code> method first creates
+  its own copy of the classifier with <code>clone()</code>.</li>
+</ul>
+</li>
+</ol>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Protocol</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">clone</span><span class="p">,</span> <span class="n">ClassifierMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+
+<span class="k">class</span> <span class="nc">ClassifierTask</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">RFClassifierTask</span><span class="p">:</span>
+    <span class="n">n_estimators</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RandomForestClassifier</span><span class="p">(</span>
+            <span class="n">n_estimators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LRClassifierTask</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LogisticRegression</span><span class="p">(</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ClassifierExperiment</span><span class="p">:</span>
+    <span class="n">classifier_task</span><span class="p">:</span> <span class="n">ClassifierTask</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_digits</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">digits_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier_task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span><span class="p">)</span>
+        <span class="n">prob_y</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prob_y</span>
+</code></pre></div>
+<p>Now we can generate and run a set of <code>RFClassifierTask</code> tasks for
+various <code>n_estimators</code> values, and construct a <code>ClassifierExperiment</code>
+for each of these <code>RFClassifierTask</code> tasks as well as an
+<code>LRClassifierTask</code> task:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">rf_classifier_tasks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RFClassifierTask</span><span class="p">(</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="n">n_estimators</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">n_estimators</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">classifier_experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ClassifierExperiment</span><span class="p">(</span>
+        <span class="n">classifier_task</span><span class="o">=</span><span class="n">classifier_task</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">classifier_task</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="n">LRClassifierTask</span><span class="p">(),</span>
+        <span class="o">*</span><span class="n">rf_classifier_tasks</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">]</span>
+
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/tutorial/classification_lab_3&#39;</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">classifier_experiments</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">prob_y</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">experiment</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">log_loss</span><span class="p">(</span><span class="n">digits_y</span><span class="p">,</span><span class="w"> </span><span class="n">prob_y</span><span class="p">)</span><span class="w"> </span><span class="si">= :</span><span class="s1">.3</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="providing-large-objects-as-context">Providing large objects as context</h3>
+<p>Sometimes we want to pass large, unchanging objects to our tasks, but
+don't want to be forced to load them in a dependent task. For example,
+it would be convenient to load a collection of datasets (on which to
+run our experiments) outside of any task, allowing us to inspect these
+datasets before and after the tasks have been run:</p>
+<div class="code highlight"><pre><span></span><code><span class="n">iris_X</span><span class="p">,</span> <span class="n">iris_y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_iris</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">iris_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">iris_X</span><span class="p">)</span>
+
+<span class="n">DATASETS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;digits&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">digits_X</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">digits_y</span><span class="p">},</span>
+    <span class="s1">&#39;iris&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">iris_X</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">iris_y</span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>To achieve this, a labtech lab can be provided with a <em>context</em> that
+is made available to all tasks. In the following code, we:</p>
+<ol>
+<li>Pass a <code>context</code> to the <code>labtech.Lab()</code> constructor, with a
+   <code>'DATASETS'</code> key for the set of <code>DATASETS</code> defined above.</li>
+<li>Redefine <code>ClassifierExperiment</code> to accept a <code>dataset_key</code> parameter
+   and use it to look up a dataset inside the <code>'DATASETS'</code> key of the
+   context, which is made available by labtech as <code>self.context</code>.</li>
+<li>Alter the task generation and evaluation code to handle multiple
+   datasets.</li>
+</ol>
+<div class="code highlight"><pre><span></span><code><span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ClassifierExperiment</span><span class="p">:</span>
+    <span class="n">classifier_task</span><span class="p">:</span> <span class="n">ClassifierTask</span>
+    <span class="n">dataset_key</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;DATASETS&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_key</span><span class="p">]</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier_task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">prob_y</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prob_y</span>
+
+
+<span class="n">classifier_experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ClassifierExperiment</span><span class="p">(</span>
+        <span class="n">classifier_task</span><span class="o">=</span><span class="n">classifier_task</span><span class="p">,</span>
+        <span class="n">dataset_key</span><span class="o">=</span><span class="n">dataset_key</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># By including multiple for clauses, we will produce a ClassifierExperiment</span>
+    <span class="c1"># for every combination of dataset_key and classifier_task</span>
+    <span class="k">for</span> <span class="n">dataset_key</span> <span class="ow">in</span> <span class="n">DATASETS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">classifier_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">LRClassifierTask</span><span class="p">(),</span> <span class="o">*</span><span class="n">rf_classifier_tasks</span><span class="p">]</span>
+<span class="p">]</span>
+
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/tutorial/classification_lab_4&#39;</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">context</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;DATASETS&#39;</span><span class="p">:</span> <span class="n">DATASETS</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">classifier_experiments</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">prob_y</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">dataset_y</span> <span class="o">=</span> <span class="n">DATASETS</span><span class="p">[</span><span class="n">experiment</span><span class="o">.</span><span class="n">dataset_key</span><span class="p">][</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">experiment</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">log_loss</span><span class="p">(</span><span class="n">dataset_y</span><span class="p">,</span><span class="w"> </span><span class="n">prob_y</span><span class="p">)</span><span class="w"> </span><span class="si">= :</span><span class="s1">.3</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>The lab context can also be useful for passing parameters to a task
+that won't affect its result and therefore don't need to be part of
+the task's formal parameters. For example: log levels and
+task-internal parallelism settings.</p>
+<p><strong>It is important that you do NOT make changes to context values that
+impact task results after you have started caching experiment
+results</strong> - otherwise your cached results may not reflect your latest
+context values.</p>
+<h3 id="bringing-it-all-together-and-aggregating-results">Bringing it all together and aggregating results</h3>
+<p>The following code brings all the steps from this tutorial together in
+one place, with some additional improvements:</p>
+<ul>
+<li>The "experiment-like" <code>ClassifierExperiment</code> and
+  <code>MinMaxProbabilityExperiment</code> task types are now identified by a
+  common <code>ExperimentTask</code> Protocol (which requires each of those
+  classes to provide a <code>dataset_key</code> attribute or property that is
+  used by the new <code>ExperimentEvaluationTask</code>).</li>
+<li>A new, final, <code>ExperimentEvaluationTask</code> task that depends on all
+  <code>ExperimentTask</code> tasks is used to compute the loss metric for all
+  experiments.<ul>
+<li>A final task like this is useful once we have a large number of
+  experiments as it allows us to cache the final evaluation of all
+  tasks, meaning that we only need to load experiment results and
+  re-calculate metrics when experiment parameters have changed or
+  new experiments have been added.</li>
+</ul>
+</li>
+<li>We enable labtech's integration with <a href="https://mlflow.org/"><code>mlflow</code></a>
+  by the following additions (see <a href="https://ben-denham.github.io/labtech/cookbook/#how-can-i-use-labtech-with-mlflow">How can I use labtech with mlfow?</a>
+  for details):<ol>
+<li>We add <code>mlflow_run=True</code> to the <code>@labtech.task</code> decorator of
+   <code>ClassifierExperiment</code> and <code>MinMaxProbabilityExperiment</code>,
+   indicating that each task of these types should be recorded as
+   a "run" in mflow.</li>
+<li>We name the over-arching mlflow "experiment" with
+   <code>mlflow.set_experiment('example_labtech_experiment')</code> before
+   the tasks are run.</li>
+</ol>
+</li>
+</ul>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Protocol</span>
+
+<span class="kn">import</span> <span class="nn">labtech</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">clone</span><span class="p">,</span> <span class="n">ClassifierMixin</span>
+
+
+<span class="c1"># === Prepare Datasets ===</span>
+
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="n">digits_X</span><span class="p">,</span> <span class="n">digits_y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_digits</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">digits_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">digits_X</span><span class="p">)</span>
+
+<span class="n">iris_X</span><span class="p">,</span> <span class="n">iris_y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_iris</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">iris_X</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">iris_X</span><span class="p">)</span>
+
+<span class="n">DATASETS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;digits&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">digits_X</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">digits_y</span><span class="p">},</span>
+    <span class="s1">&#39;iris&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">iris_X</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">iris_y</span><span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="c1"># === Classifier Tasks ===</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+
+<span class="k">class</span> <span class="nc">ClassifierTask</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">RFClassifierTask</span><span class="p">:</span>
+    <span class="n">n_estimators</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RandomForestClassifier</span><span class="p">(</span>
+            <span class="n">n_estimators</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">LRClassifierTask</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LogisticRegression</span><span class="p">(</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="c1"># === Experiment Tasks ===</span>
+
+<span class="k">class</span> <span class="nc">ExperimentTask</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="n">dataset_key</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassifierMixin</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">mlflow_run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ClassifierExperiment</span><span class="p">(</span><span class="n">ExperimentTask</span><span class="p">):</span>
+    <span class="n">classifier_task</span><span class="p">:</span> <span class="n">ClassifierTask</span>
+    <span class="n">dataset_key</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;DATASETS&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_key</span><span class="p">]</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+
+        <span class="n">clf</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier_task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">prob_y</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prob_y</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">mlflow_run</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MinMaxProbabilityExperiment</span><span class="p">(</span><span class="n">ExperimentTask</span><span class="p">):</span>
+    <span class="n">experiment</span><span class="p">:</span> <span class="n">ExperimentTask</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dataset_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">dataset_key</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">prob_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">result</span>
+        <span class="c1"># Replace the maximum probability in each row with 1,</span>
+        <span class="c1"># and replace all other probabilities with 0.</span>
+        <span class="n">min_max_prob_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">prob_y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">min_max_prob_y</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prob_y</span><span class="p">)),</span> <span class="n">prob_y</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">min_max_prob_y</span>
+
+
+<span class="c1"># === Results Aggregation ===</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">log_loss</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ExperimentEvaluationTask</span><span class="p">:</span>
+    <span class="n">experiments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ExperimentTask</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">experiment</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;log_loss&#39;</span><span class="p">:</span> <span class="n">log_loss</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;DATASETS&#39;</span><span class="p">][</span><span class="n">experiment</span><span class="o">.</span><span class="n">dataset_key</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">],</span>
+                <span class="n">experiment</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+            <span class="p">)}</span>
+            <span class="k">for</span> <span class="n">experiment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiments</span>
+        <span class="p">}</span>
+
+
+<span class="c1"># === Task Construction ===</span>
+
+<span class="n">rf_classifier_tasks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RFClassifierTask</span><span class="p">(</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="n">n_estimators</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">n_estimators</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="n">classifier_experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ClassifierExperiment</span><span class="p">(</span>
+        <span class="n">classifier_task</span><span class="o">=</span><span class="n">classifier_task</span><span class="p">,</span>
+        <span class="n">dataset_key</span><span class="o">=</span><span class="n">dataset_key</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">dataset_key</span> <span class="ow">in</span> <span class="n">DATASETS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">classifier_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">LRClassifierTask</span><span class="p">(),</span> <span class="o">*</span><span class="n">rf_classifier_tasks</span><span class="p">]</span>
+<span class="p">]</span>
+
+<span class="n">min_max_prob_experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">MinMaxProbabilityExperiment</span><span class="p">(</span>
+        <span class="n">experiment</span><span class="o">=</span><span class="n">classifier_experiment</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">classifier_experiment</span> <span class="ow">in</span> <span class="n">classifier_experiments</span>
+<span class="p">]</span>
+
+<span class="n">evaluation_task</span> <span class="o">=</span> <span class="n">ExperimentEvaluationTask</span><span class="p">(</span>
+    <span class="n">experiments</span><span class="o">=</span><span class="p">[</span>
+        <span class="o">*</span><span class="n">classifier_experiments</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">min_max_prob_experiments</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+
+<span class="c1"># === Task Execution ===</span>
+
+<span class="kn">import</span> <span class="nn">mlflow</span>
+
+<span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s1">&#39;example_labtech_experiment&#39;</span><span class="p">)</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/tutorial/classification_lab_final&#39;</span><span class="p">,</span>
+    <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">context</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;DATASETS&#39;</span><span class="p">:</span> <span class="n">DATASETS</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">evaluation_result</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">evaluation_task</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">evaluation_result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">experiment</span><span class="si">}</span><span class="s1">: log_loss = </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;log_loss&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.3</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="next-steps">Next Steps</h3>
+<p>Congratulations on completing the labtech tutorial! You're now ready
+to manage complex experiment workflows with ease!</p>
+<p>To learn more about labtech, you can dive into the following
+resources:</p>
+<ul>
+<li><a href="https://ben-denham.github.io/labtech/cookbook">Cookbook of common patterns</a> (<a href="https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb">as an interactive notebook</a>)</li>
+<li><a href="https://ben-denham.github.io/labtech/core">API reference for Labs and Tasks</a></li>
+<li><a href="https://ben-denham.github.io/labtech/caching">More options for cache formats and storage providers</a></li>
+<li><a href="https://github.com/ben-denham/labtech/tree/main/examples">More examples</a></li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tracking", "navigation.sections"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.dff1b7c8.min.js"></script>
+      
+    
+  </body>
+</html>
