@@ -3,11 +3,11 @@
 from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
-from typing import cast, Any, Dict, Optional, Union
+from typing import cast, Any, Dict, Optional, Sequence, Set, Union
 
 from frozendict import frozendict
 
-from .types import TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type, is_task
+from .types import Task, TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type, is_task
 from .cache import PickleCache, NullCache
 from .exceptions import TaskError
 from .utils import ensure_dict_key_str
@@ -228,3 +228,31 @@ def task(*args,
         return decorator(args[0], *args[1:])
     else:
         return decorator
+
+
+def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] = None) -> Sequence[Task]:
+    """Given a parameter value, return all tasks within it found through a recursive search."""
+    if searched_coll_ids is None:
+        searched_coll_ids = set()
+    if id(param_value) in searched_coll_ids:
+        return []
+
+    if is_task(param_value):
+        return [param_value]
+    elif isinstance(param_value, list) or isinstance(param_value, tuple):
+        searched_coll_ids = searched_coll_ids | {id(param_value)}
+        return [
+            task
+            for item in param_value
+            for task in find_tasks_in_param(item, searched_coll_ids)
+        ]
+    elif isinstance(param_value, dict):
+        searched_coll_ids = searched_coll_ids | {id(param_value)}
+        return [
+            task
+            # We only need to search the values, as all parameter
+            # dictionary keys must be strings.
+            for item in param_value.values()
+            for task in find_tasks_in_param(item, searched_coll_ids)
+        ]
+    return []

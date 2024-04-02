@@ -23,6 +23,7 @@ from tqdm.notebook import tqdm as tqdm_notebook
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from .types import Task, TaskResult, ResultMeta, ResultsMap, Storage, is_task
+from .tasks import find_tasks_in_param
 from .exceptions import LabError, TaskNotFound
 from .utils import OrderedSet, LoggerFileProxy, logger
 from .storage import NullStorage, LocalStorage
@@ -96,32 +97,6 @@ class TaskState:
         self.process_tasks(tasks)
         self.check_cyclic_dependences()
 
-    def find_tasks(self, value, searched_coll_ids: Optional[Set[int]] = None) -> Sequence[Task]:
-        if searched_coll_ids is None:
-            searched_coll_ids = set()
-        if id(value) in searched_coll_ids:
-            return []
-
-        if is_task(value):
-            return [value]
-        elif isinstance(value, list) or isinstance(value, tuple):
-            searched_coll_ids = searched_coll_ids | {id(value)}
-            return [
-                task
-                for item in value
-                for task in self.find_tasks(item, searched_coll_ids)
-            ]
-        elif isinstance(value, dict):
-            searched_coll_ids = searched_coll_ids | {id(value)}
-            return [
-                task
-                # We only need to search the values, as all parameter
-                # dictionary keys must be strings.
-                for item in value.values()
-                for task in self.find_tasks(item, searched_coll_ids)
-            ]
-        return []
-
     def process_tasks(self, tasks: Iterable[Task]):
         all_dependencies: List[Task] = []
         for task in tasks:
@@ -134,7 +109,7 @@ class TaskState:
                 # Find all dependent tasks inside task fields
                 for field in fields(task):
                     field_value = getattr(task, field.name)
-                    dependent_tasks += self.find_tasks(field_value)
+                    dependent_tasks += find_tasks_in_param(field_value)
 
             # We insert all of the top-level tasks before processing
             # discovered dependencies, so that we will attempt to run
