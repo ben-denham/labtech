@@ -679,7 +679,52 @@ for experiment, result in evaluation_result.items():
     print(f'{experiment}: log_loss = {result["log_loss"]:.3}')
 ```
 
-### Next Steps
+### Visualising tasks and dependencies
+
+Finally, we can use Labtech to generate a diagram of a list of tasks
+that shows all of the task types, parameters, and dependencies:
+
+``` {.python .code}
+from labtech.diagram import display_task_diagram
+
+labtech.diagram.display_task_diagram([
+    evaluation_task,
+], direction='BT')
+```
+
+```mermaid
+classDiagram
+    direction BT
+
+    class ExperimentEvaluationTask
+    ExperimentEvaluationTask : list[ExperimentTask] experiments
+
+    class ClassifierExperiment
+    ClassifierExperiment : ClassifierTask classifier_task
+    ClassifierExperiment : str dataset_key
+
+    class MinMaxProbabilityExperiment
+    MinMaxProbabilityExperiment : ExperimentTask experiment
+
+    class LRClassifierTask
+
+    class RFClassifierTask
+    RFClassifierTask : int n_estimators
+
+
+    ExperimentEvaluationTask <-- "many" ClassifierExperiment: experiments
+    ExperimentEvaluationTask <-- "many" MinMaxProbabilityExperiment: experiments
+
+    ClassifierExperiment <-- LRClassifierTask: classifier_task
+    ClassifierExperiment <-- RFClassifierTask: classifier_task
+
+    MinMaxProbabilityExperiment <-- ClassifierExperiment: experiment
+```
+
+Such diagrams can help you visualise how your experiments are running,
+and may be useful to include in project documentation.
+
+### Next steps
 
 Congratulations on completing the labtech tutorial! You're now ready
 to manage complex experiment workflows with ease!
@@ -690,4 +735,5 @@ resources:
 * [Cookbook of common patterns](https://ben-denham.github.io/labtech/cookbook) ([as an interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb))
 * [API reference for Labs and Tasks](https://ben-denham.github.io/labtech/core)
 * [More options for cache formats and storage providers](https://ben-denham.github.io/labtech/caching)
+* [Diagramming tools](https://ben-denham.github.io/labtech/diagram)
 * [More examples](https://github.com/ben-denham/labtech/tree/main/examples)

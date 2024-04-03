@@ -6,6 +6,7 @@ nav:
   - Tutorial: 'tutorial.md'
   - Cookbook: 'cookbook.md'
   - Labs and Tasks: 'core.md'
+  - Diagramming: 'diagram.md'
   - Caches and Storage: 'caching.md'
 plugins:
   - search
@@ -21,7 +22,11 @@ plugins:
 markdown_extensions:
   - pymdownx.highlight:
       use_pygments: true
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 theme:
   name: material
   features:

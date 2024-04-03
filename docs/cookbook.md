@@ -737,7 +737,7 @@ StepA -> StepB -> StepC
 This is modeled in labtech by defining a task type for each step, and
 having each step depend on the result from the previous step:
 
-```
+``` {.python .code}
 @labtech.task
 class StepA:
     seed_a: int
@@ -783,6 +783,26 @@ lab = labtech.Lab(
 result = lab.run_task(task_c)
 print(result)
 ```
+
+
+### How can I visualise my task types, including their parameters and dependencies?
+
+`labtech.diagram.display_task_diagram()` can be used to display a
+[Mermaid diagram](https://mermaid.js.org/syntax/classDiagram.html) of
+task types for a given list of tasks:
+
+``` {.python .code}
+from labtech.diagram import display_task_diagram
+
+display_task_diagram(
+    [task_c],
+    direction='RL',
+)
+```
+
+`labtech.diagram.build_task_diagram()` can be similarly used to return
+the Mermaid syntax for the diagram.
+
 
 ### How can I use labtech with mlflow?
 
@@ -849,7 +869,7 @@ results = lab.run_tasks(runs)
 > method of your task in order to track execution times in mlflow.
 
 
-## Why do I see the following error: `An attempt has been made to start a new process before the current process has finished`?
+### Why do I see the following error: `An attempt has been made to start a new process before the current process has finished`?
 
 When running labtech in a Python script on Windows, macOS, or any
 Python environment using the `spawn` multiprocessing start method, you

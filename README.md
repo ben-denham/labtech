@@ -143,12 +143,46 @@ if __name__ == '__main__':
     main()
 ```
 
+Labtech can even generate a [Mermaid diagram](https://mermaid.js.org/syntax/classDiagram.html)
+to visualise your tasks:
+
+```python
+from labtech.diagram import display_task_diagram
+
+some_slow_task = SlowTask(base=42)
+dependent_tasks = [
+    DependentTask(
+        slow_task=some_slow_task,
+        multiplier=multiplier,
+    )
+    for multiplier in range(10)
+]
+
+display_task_diagram(dependent_tasks)
+```
+
+```mermaid
+classDiagram
+    direction BT
+
+    class DependentTask
+    DependentTask : SlowTask slow_task
+    DependentTask : int multiplier
+
+    class SlowTask
+    SlowTask : int base
+
+
+    DependentTask <-- SlowTask: slow_task
+```
+
 To learn more, dive into the following resources:
 
 * [The labtech tutorial](https://ben-denham.github.io/labtech/tutorial) ([as an interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/tutorial.ipynb))
 * [Cookbook of common patterns](https://ben-denham.github.io/labtech/cookbook) ([as an interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb))
 * [API reference for Labs and Tasks](https://ben-denham.github.io/labtech/core)
 * [More options for cache formats and storage providers](https://ben-denham.github.io/labtech/caching)
+* [Diagramming tools](https://ben-denham.github.io/labtech/diagram)
 * [More examples](https://github.com/ben-denham/labtech/tree/main/examples)
 
 
