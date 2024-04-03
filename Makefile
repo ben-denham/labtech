@@ -13,7 +13,7 @@ mlflow:
 lint:
 	poetry run flake8
 mypy:
-	poetry run mypy --show-error-codes --enable-recursive-aliases labtech examples
+	poetry run mypy --show-error-codes labtech examples
 test:
 	poetry run pytest \
 		--cov="labtech" \

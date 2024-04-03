@@ -22,6 +22,7 @@ def task_tag_callback(ctx: ClassDefContext):
         values=[],
         upper_bound=ctx.api.named_type('builtins.object'),
         variance=COVARIANT,
+        default=AnyType(TypeOfAny.from_omitted_generics),
     )
     results_map_type = Instance(
         typ=ctx.api.named_type('builtins.dict').type,

@@ -21,7 +21,7 @@ class TaskStructure:
     """Records the structure of task types and dependencies/relationships
     between task types."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.task_type_to_rels: Dict[Type[Task], Dict[TaskRelKey, TaskRelInfo]] = {}
 
     def add_task_type(self, task_type: Type[Task]):

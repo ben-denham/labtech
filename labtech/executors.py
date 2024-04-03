@@ -24,7 +24,7 @@ class SerialFuture(Future):
 
 class SerialExecutor(Executor):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.futures: list[SerialFuture] = []
 
     def submit(self, fn: Callable, /, *args, **kwargs):

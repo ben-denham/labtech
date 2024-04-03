@@ -41,6 +41,7 @@ class TaskResult(Generic[ResultT]):
     meta: ResultMeta
 
 
+@dataclass
 class Task(Protocol, Generic[CovariantResultT]):
     """Interface provided by any class that is decorated by
     [`labtech.task`][labtech.task]."""
