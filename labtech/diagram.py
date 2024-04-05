@@ -1,6 +1,6 @@
 from dataclasses import dataclass, fields
 from textwrap import indent
-from typing import Dict, Sequence, Type, get_origin, get_args
+from typing import Dict, Sequence, Type, get_origin, get_args, get_type_hints
 
 from .types import Task, is_task
 from .tasks import find_tasks_in_param
@@ -93,13 +93,18 @@ def format_type(t: Type) -> str:
 
 
 def diagram_task_type(task_type: Type[Task]) -> str:
+    run_return_type = get_type_hints(task_type.run).get('return')
+    run_return = (
+        '' if run_return_type is None else f' {format_type(run_return_type)}'
+    )
     return '\n'.join([
-        f'class {task_type.__name__}',
+        f'class {format_type(task_type)}',
         *[
             f'{format_type(task_type)} : {format_type(field.type)} {field.name}'
             for field in fields(task_type)
             if field
-        ]
+        ],
+        f'{format_type(task_type)} : run(){run_return}'
     ])
 
 
@@ -139,6 +144,9 @@ def diagram_task_structure(task_structure: TaskStructure, *, direction: str) -> 
 def build_task_diagram(tasks: Sequence[Task], *, direction: str = 'BT') -> str:
     """Returns a [Mermaid diagram](https://mermaid.js.org/syntax/classDiagram.html)
     representing the task types and dependencies of the given tasks.
+
+    Each task type lists its parameters (with their return types) and
+    its run method (with its return type).
 
     Arrows between task types point from a dependency task type to the
     task type that depends on it, and are labelled with the dependent

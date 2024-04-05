@@ -51,7 +51,7 @@ class Experiment:
     base: int
     power: int
 
-    def run(self):
+    def run(self) -> int:
         # Define the task's run() method to return the result of the experiment:
         labtech.logger.info(f'Raising {self.base} to the power of {self.power}')
         sleep(1)
@@ -113,7 +113,7 @@ import labtech
 class SlowTask:
     base: int
 
-    def run(self):
+    def run(self) -> int:
         sleep(5)
         return self.base ** 2
 
@@ -122,7 +122,7 @@ class DependentTask:
     slow_task: SlowTask
     multiplier: int
 
-    def run(self):
+    def run(self) -> int:
         return self.multiplier * self.slow_task.result
 
 def main():
@@ -168,9 +168,11 @@ classDiagram
     class DependentTask
     DependentTask : SlowTask slow_task
     DependentTask : int multiplier
+    DependentTask : run() int
 
     class SlowTask
     SlowTask : int base
+    SlowTask : run() int
 
 
     DependentTask <-- SlowTask: slow_task

@@ -698,18 +698,23 @@ classDiagram
 
     class ExperimentEvaluationTask
     ExperimentEvaluationTask : list[ExperimentTask] experiments
+    ExperimentEvaluationTask : run()
 
     class ClassifierExperiment
     ClassifierExperiment : ClassifierTask classifier_task
     ClassifierExperiment : str dataset_key
+    ClassifierExperiment : run() ndarray
 
     class MinMaxProbabilityExperiment
     MinMaxProbabilityExperiment : ExperimentTask experiment
+    MinMaxProbabilityExperiment : run() ndarray
 
     class LRClassifierTask
+    LRClassifierTask : run() ClassifierMixin
 
     class RFClassifierTask
     RFClassifierTask : int n_estimators
+    RFClassifierTask : run() ClassifierMixin
 
 
     ExperimentEvaluationTask <-- "many" ClassifierExperiment: experiments
