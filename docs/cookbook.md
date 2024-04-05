@@ -435,6 +435,47 @@ of tasks by passing the `bust_cache` option to `run_tasks()`:
 lab.run_tasks(cached_cvexperiment_tasks, bust_cache=True)
 ```
 
+### What types of values should my tasks return to be cached?
+
+While you can define your task to return any Python object you like to
+be cached, one generally useful approach is to return a dictionary
+comprised of built-in (e.g. lists, strings, numbers) or otherwise
+standard data types (e.g. arrays, dataframes). This is for two
+reasons:
+
+1. If the returned dictionary needs to be extended to include
+   additional keys, it will often be straightforward to adapt code
+   that uses task results to safely continue using previously cached
+   results that do not contain those keys.
+2. Using custom objects (such as dataclasses) could cause
+   issues when loading cached objects if the definition of the
+   class ever changes.
+
+If you want to keep the typing benefits of a custom dataclass, you can
+consider using a
+[`TypeDict`](https://docs.python.org/3/library/typing.html#typing.TypedDict):
+
+``` {.python .code}
+from typing import TypedDict, NotRequired
+
+
+class MyTaskResult(TypedDict):
+    predictions: np.ndarray
+    # Key added in a later version of the task. Requires Python >= 3.11.
+    model_weights: NotRequired[np.ndarray]
+
+
+@labtech.task
+class ExampleTask:
+    seed: int
+
+    def run(self):
+        return MyTaskResult(
+            predictions=np.array([1, 2, 3]),
+            model_weights=np.array([self.seed, self.seed ** 2]),
+        )
+```
+
 ### How can I cache task results in a format other than pickle?
 
 You can define your own cache type to support storing cached results
