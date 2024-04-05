@@ -412,6 +412,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#what-types-of-values-should-my-tasks-return-to-be-cached" class="md-nav__link">
+    <span class="md-ellipsis">
+      What types of values should my tasks return to be cached?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#how-can-i-cache-task-results-in-a-format-other-than-pickle" class="md-nav__link">
     <span class="md-ellipsis">
       How can I cache task results in a format other than pickle?
@@ -690,6 +699,15 @@
   <a href="#how-can-i-clear-cached-results" class="md-nav__link">
     <span class="md-ellipsis">
       How can I clear cached results?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-types-of-values-should-my-tasks-return-to-be-cached" class="md-nav__link">
+    <span class="md-ellipsis">
+      What types of values should my tasks return to be cached?
     </span>
   </a>
   
@@ -1179,6 +1197,43 @@ the tasks to load their cached results:</p>
 <p>You can also ignore all previously cached results when running a list
 of tasks by passing the <code>bust_cache</code> option to <code>run_tasks()</code>:</p>
 <div class="code highlight"><pre><span></span><code><span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">cached_cvexperiment_tasks</span><span class="p">,</span> <span class="n">bust_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="what-types-of-values-should-my-tasks-return-to-be-cached">What types of values should my tasks return to be cached?</h3>
+<p>While you can define your task to return any Python object you like to
+be cached, one generally useful approach is to return a dictionary
+comprised of built-in (e.g. lists, strings, numbers) or otherwise
+standard data types (e.g. arrays, dataframes). This is for two
+reasons:</p>
+<ol>
+<li>If the returned dictionary needs to be extended to include
+   additional keys, it will often be straightforward to adapt code
+   that uses task results to safely continue using previously cached
+   results that do not contain those keys.</li>
+<li>Using custom objects (such as dataclasses) could cause
+   issues when loading cached objects if the definition of the
+   class ever changes.</li>
+</ol>
+<p>If you want to keep the typing benefits of a custom dataclass, you can
+consider using a
+<a href="https://docs.python.org/3/library/typing.html#typing.TypedDict"><code>TypeDict</code></a>:</p>
+<div class="code highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">NotRequired</span>
+
+
+<span class="k">class</span> <span class="nc">MyTaskResult</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="c1"># Key added in a later version of the task. Requires Python &gt;= 3.11.</span>
+    <span class="n">model_weights</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span> <span class="nc">ExampleTask</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MyTaskResult</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+            <span class="n">model_weights</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">**</span> <span class="mi">2</span><span class="p">]),</span>
+        <span class="p">)</span>
 </code></pre></div>
 <h3 id="how-can-i-cache-task-results-in-a-format-other-than-pickle">How can I cache task results in a format other than pickle?</h3>
 <p>You can define your own cache type to support storing cached results
