@@ -31,7 +31,7 @@ print(results)
 
 """
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
 from .types import is_task, is_task_type
 from .tasks import task
