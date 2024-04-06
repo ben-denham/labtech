@@ -11,7 +11,7 @@ mlflow:
 	poetry run mlflow ui --port 5000 --backend-store-uri examples/storage/mlruns
 
 lint:
-	poetry run flake8
+	poetry run flake8 labtech
 mypy:
 	poetry run mypy --show-error-codes labtech examples
 test:
