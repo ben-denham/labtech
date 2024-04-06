@@ -16,3 +16,6 @@ examples/mlruns/
 
 # Build
 dist/
+
+# Virtual Environments
+.venv/
