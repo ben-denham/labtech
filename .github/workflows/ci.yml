@@ -39,6 +39,10 @@ jobs:
         run: |
           make lint
 
+      - name: Typecheck with mypy
+        run: |
+          make mypy
+
       - name: Test with pytest
         run: |
           make test
