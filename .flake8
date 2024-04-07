@@ -1,3 +1,4 @@
 [flake8]
 max-line-length = 160
 ignore = W604, W503
+exclude = .git,__pycache__,docs/source/conf.py,old,build,dist,.venv,.eggs,*.egg-info
