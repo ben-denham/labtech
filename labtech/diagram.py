@@ -1,6 +1,6 @@
 from dataclasses import dataclass, fields
 from textwrap import indent
-from typing import Dict, Sequence, Type, get_args, get_origin, get_type_hints
+from typing import Dict, Sequence, Type, get_origin, get_args, get_type_hints
 
 from .tasks import find_tasks_in_param
 from .types import Task, is_task
@@ -100,11 +100,11 @@ def diagram_task_type(task_type: Type[Task]) -> str:
     return '\n'.join([
         f'class {format_type(task_type)}',
         *[
-            f'{format_type(task_type)}: {format_type(field.type)} {field.name}'
+            f'{format_type(task_type)} : {format_type(field.type)} {field.name}'
             for field in fields(task_type)
             if field
         ],
-        f'{format_type(task_type)}: run(){run_return}'
+        f'{format_type(task_type)} : run(){run_return}'
     ])
 
 
@@ -187,7 +187,7 @@ def display_task_diagram(tasks: Sequence[Task], **kwargs) -> None:
     """
     diagram = build_task_diagram(tasks, **kwargs)
     try:
-        from IPython.display import Markdown, display
+        from IPython.display import display, Markdown
     except ImportError:
         print(diagram)
     else:
