@@ -37,12 +37,15 @@ jobs:
 
       - name: Lint
         run: |
+          flake8 --version
           make lint
 
       - name: Typecheck with mypy
         run: |
+          mypy --version
           make mypy
 
       - name: Test with pytest
         run: |
+          pytest --version
           make test
