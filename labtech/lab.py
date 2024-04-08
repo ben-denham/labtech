@@ -22,7 +22,7 @@ from tqdm import tqdm
 from tqdm.notebook import tqdm as tqdm_notebook
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from .types import Task, TaskT, ResultT, ResultMeta, ResultsMap, TaskResult, Storage, is_task
+from .types import Task, TaskT, ResultT, ResultMeta, ResultsMap, TaskResult, Storage, is_task, is_task_type
 from .tasks import find_tasks_in_param
 from .exceptions import LabError, TaskNotFound
 from .utils import OrderedSet, LoggerFileProxy, logger
@@ -30,6 +30,24 @@ from .storage import NullStorage, LocalStorage
 from .executors import SerialExecutor, wait_for_first_future
 
 _IN_TASK_SUBPROCESS = False
+
+
+def check_tasks(tasks: Sequence[Task]) -> None:
+    for task in tasks:
+        if not is_task(task):
+            raise LabError(
+                (f'`{repr(task)}` is not a task, please provide a task object '
+                 'made from a class decorated with @labtech.task.')
+            )
+
+
+def check_task_types(task_types: Sequence[Type[Task]]) -> None:
+    for task_type in task_types:
+        if not is_task_type(task_type):
+            raise LabError(
+                (f'`{repr(task_type)}` is not a task type, please provide a '
+                 'class decorated with @labtech.task.')
+            )
 
 
 @contextmanager
@@ -461,6 +479,7 @@ class Lab:
                 corresponding result.
 
         """
+        check_tasks(tasks)
         runner = TaskRunner(self,
                             bust_cache=bust_cache,
                             keep_nested_results=keep_nested_results,
@@ -494,6 +513,7 @@ class Lab:
         instances.
 
         """
+        check_task_types(task_types)
         keys = self._storage.find_keys()
         tasks = []
         for key in keys:
@@ -510,11 +530,13 @@ class Lab:
     def is_cached(self, task: Task) -> bool:
         """Checks if a result is present for given task in the Lab's cache
         storage."""
+        check_tasks([task])
         return task._lt.cache.is_cached(self._storage, task)
 
     def uncache_tasks(self, tasks: Sequence[Task]):
         """Removes cached results for the given tasks from the Lab's cache
         storage."""
+        check_tasks(tasks)
         for task in tasks:
             if self.is_cached(task):
                 task._lt.cache.delete(self._storage, task)
