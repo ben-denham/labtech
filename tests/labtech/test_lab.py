@@ -13,13 +13,16 @@ def lab(tmp_path: Path) -> Lab:
 class TestLab:
     class TestRunTasks:
         def test_no_tasks(self, lab: Lab) -> None:
-            lab.run_tasks(tasks=[])
+            results = lab.run_tasks(tasks=[])
+            assert results == {}
 
         def test_simple_task(self, lab: Lab) -> None:
-            lab.run_tasks(tasks=[_SimpleTask(a=1)])
+            results = lab.run_tasks(tasks=[_SimpleTask(a=1)])
+            assert results == {_SimpleTask(a=1): 1}
 
         def test_noparam_task(self, lab: Lab) -> None:
-            lab.run_tasks(tasks=[_NoParamTask()])
+            results = lab.run_tasks(tasks=[_NoParamTask()])
+            assert results == {_NoParamTask(): 1}
 
         def test_duplicated_task(self, lab: Lab) -> None:
             """Tests both duplicate parent tasks and duplicated child tasks."""
