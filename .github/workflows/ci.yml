@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"] # Sync with tool.poetry.dependencies in pyproject.toml
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: Gr1N/setup-poetry@v8
+        with:
+          poetry-version: 1.7.1
+
+      - name: Install dependencies
+        run: |
+          python --version
+          poetry install
+
+      - name: Build
+        run: |
+          make build
+
+      - name: Lint
+        run: |
+          poetry run flake8 --version
+          make lint
+
+      - name: Typecheck with mypy
+        run: |
+          poetry run mypy --version
+          make mypy
+
+      - name: Test with pytest
+        run: |
+          poetry run pytest --version
+          make test

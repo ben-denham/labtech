@@ -2,8 +2,8 @@ from dataclasses import dataclass, fields
 from textwrap import indent
 from typing import Dict, Sequence, Type, get_origin, get_args, get_type_hints
 
-from .types import Task, is_task
 from .tasks import find_tasks_in_param
+from .types import Task, is_task
 
 
 @dataclass(frozen=True)

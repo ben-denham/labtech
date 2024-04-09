@@ -1,4 +1,4 @@
-.PHONY: deps example lint mypy test check docs-serve docs-build docs-github docs-notebook
+.PHONY: deps example lint mypy test check build docs-serve docs-build docs-github docs-notebook
 
 deps:
 	poetry install
@@ -20,6 +20,9 @@ test:
 		--cov-report="html:tests/coverage" \
 		--cov-report=term
 check: lint mypy test
+
+build:
+	poetry build
 
 docs-serve:
 	poetry run mkdocs serve
