@@ -38,19 +38,16 @@ class TestImmutableParamValue:
 
     def test_nested_dict(self) -> None:
         assert immutable_param_value("hello", {"a": 1, "b": {"c": 2}}) == frozendict(
-            {"hello.a": 1, "hello.b.c": 2}
+            {"hello.a": 1, "hello.b": frozendict({"hello.b.c": 2})}
         )
 
     def test_multiple_nesting(self) -> None:
         assert immutable_param_value("hello", {"a": [1, {"b": 2}]}) == frozendict(
-            {"hello.a.0": 1, "hello.a.1.b": 2}
+            {"hello.a": (1, frozendict({"hello.a.1.b": 2}))}
         )
 
     def test_nested_list_dict(self) -> None:
-        assert immutable_param_value("hello", [1, {"a": 2}]) == (
-            1,
-            frozendict({"hello.1.a": 2}),
-        )
+        assert immutable_param_value("hello", [1, {"a": 2}]) == (1, frozendict({"hello.1.a": 2}))
 
     @pytest.mark.parametrize(
         "value",
