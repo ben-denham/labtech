@@ -10,6 +10,7 @@ from labtech.lab import Lab
 def lab(tmp_path: Path) -> Lab:
     return Lab(storage=tmp_path, max_workers=1)
 
+
 class TestLab:
     class TestRunTasks:
         def test_no_tasks(self, lab: Lab) -> None:
@@ -40,6 +41,7 @@ class TestLab:
                 assert task.result_meta is not None
                 assert task.child.result_meta is not None
 
+
 @labtech.task(cache=None)
 class _SimpleTask:
     a: int
@@ -47,10 +49,12 @@ class _SimpleTask:
     def run(self) -> int:
         return self.a
 
+
 @labtech.task(cache=None)
 class _NoParamTask:
     def run(self) -> Literal[1]:
         return 1
+
 
 @labtech.task(cache=None)
 class _ParentTask:
