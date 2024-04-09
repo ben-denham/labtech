@@ -38,6 +38,7 @@ class TestOrderedSet:
         assert combined_items is not extra_items
         assert list(combined_items) == ['a', 'c', 'b', 'e', 'f']
 
+
 class TestLoggerFileProxy:
     def test_prefix_added(self, mocker: MockerFixture) -> None:
         logger_func = mocker.Mock()
