@@ -1,7 +1,6 @@
 import re
 from enum import Enum
 
-import pandas as pd
 import pytest
 from frozendict import frozendict
 from labtech.exceptions import TaskError
