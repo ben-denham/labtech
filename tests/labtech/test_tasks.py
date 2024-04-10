@@ -103,6 +103,9 @@ class TestTask:
                 def _lt(self) -> None:
                     pass
 
+                def _is_task(self) -> None:
+                    pass
+
     @pytest.mark.parametrize("badattr", _RESERVED_ATTRS)
     def test_fail_reserved_attrs(self, badattr: str) -> None:
         class SimpleTaskBase:
