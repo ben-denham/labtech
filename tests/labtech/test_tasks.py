@@ -1,10 +1,15 @@
+from dataclasses import FrozenInstanceError, dataclass
 import re
 from enum import Enum
+from typing import Literal
 
+import labtech.tasks
 import pytest
 from frozendict import frozendict
+from labtech.cache import BaseCache, NullCache, PickleCache
 from labtech.exceptions import TaskError
-from labtech.tasks import immutable_param_value
+from labtech.tasks import _RESERVED_ATTRS, immutable_param_value
+from labtech.types import ResultT, Storage, Task, TaskInfo
 
 
 class _BadObject:
@@ -16,6 +21,180 @@ class _BadObject:
 class _ExampleEnum(Enum):
     A = 1
     B = 2
+
+
+class BadCache(BaseCache):
+    """A pretend cache that returns fake values."""
+
+    KEY_PREFIX = "bad__"
+
+    def save_result(self, storage: Storage, task: Task[ResultT], result: ResultT):
+        raise NotImplementedError
+
+    def load_result(self, storage: Storage, task: Task[ResultT]) -> ResultT:
+        raise NotImplementedError
+
+
+class TestTask:
+    def test_defaults(self) -> None:
+        @labtech.task
+        class SimpleTask:
+            def run(self) -> None:
+                return None
+
+        task = SimpleTask()
+        task_info: TaskInfo = task._lt
+
+        assert isinstance(task_info.cache, PickleCache)
+        assert task_info.max_parallel is None
+        assert task_info.mlflow_run is False
+        assert task_info.orig_post_init is None
+
+    def test_null_cache(self) -> None:
+        @labtech.task(cache=None)
+        class SimpleTask:
+            def run(self) -> None:
+                return None
+
+        task = SimpleTask()
+        task_info: TaskInfo = task._lt
+        assert isinstance(task_info.cache, NullCache)
+
+    def test_nondefault_cache(self) -> None:
+        @labtech.task(cache=BadCache())
+        class SimpleTask:
+            def run(self) -> None:
+                return None
+
+        task = SimpleTask()
+        task_info: TaskInfo = task._lt
+        assert isinstance(task_info.cache, BadCache)
+
+    @pytest.mark.parametrize("max_parallel", [None, 1, 2, 3])
+    def test_max_parallel(self, max_parallel: int | None) -> None:
+        @labtech.task(max_parallel=max_parallel)
+        class SimpleTask:
+            def run(self) -> None:
+                pass
+
+        task = SimpleTask()
+        task_info: TaskInfo = task._lt
+        assert task_info.max_parallel == max_parallel
+
+    def test_mlflow_run(self) -> None:
+        @labtech.task(mlflow_run=True)
+        class SimpleTask:
+            def run(self) -> None:
+                pass
+
+        task = SimpleTask()
+        task_info: TaskInfo = task._lt
+        assert task_info.mlflow_run is True
+
+    def test_reserved_lt_attr(self) -> None:
+        match = re.escape("Task type already defines reserved attribute '_lt'.")
+        with pytest.raises(AttributeError, match=match):
+
+            @labtech.task
+            class SimpleTask:
+                def run(self) -> None:
+                    pass
+
+                def _lt(self) -> None:
+                    pass
+
+    @pytest.mark.parametrize("badattr", _RESERVED_ATTRS)
+    def test_fail_reserved_attrs(self, badattr: str) -> None:
+        class SimpleTaskBase:
+            pass
+
+        setattr(SimpleTaskBase, badattr, None)
+
+        match = re.escape(f"Task type already defines reserved attribute '{badattr}'.")
+        with pytest.raises(AttributeError, match=match):
+
+            @labtech.task(mlflow_run=True)
+            class SimpleTask(SimpleTaskBase):
+                def run(self) -> None:
+                    pass
+
+    def test_stored_post_init(self) -> None:
+        @labtech.task
+        class SimpleTask:
+            def __post_init__(self):
+                return "It's me!"
+
+            def run(self) -> None:
+                pass
+
+        task = SimpleTask()
+        task_info: TaskInfo = task._lt
+        assert task_info.orig_post_init is not None
+        assert task_info.orig_post_init(task) == "It's me!"
+
+    def test_frozen(self) -> None:
+        @labtech.task
+        class SimpleTask:
+            a: int
+
+            def run(self) -> None:
+                return None
+
+        task = SimpleTask(a=1)
+
+        # Check the dataclass is now frozen
+        with pytest.raises(FrozenInstanceError):
+            task.a = 2
+
+    def test_order(self) -> None:
+        @labtech.task
+        class SimpleTask:
+            a: int
+            b: str
+
+            def run(self) -> None:
+                return None
+
+        task1 = SimpleTask(a=1, b="hello")
+        task2 = SimpleTask(b="hello", a=2)
+        task3 = SimpleTask(a=1, b="zzz")
+
+        assert task1 < task2
+        assert task2 > task3
+        assert task1 <= task3
+        assert task1 != task2
+        assert task1 == task1
+
+    def test_fail_no_run(self) -> None:
+        match = re.escape("Task type 'SimpleTask' must define a 'run' method")
+        with pytest.raises(NotImplementedError, match=match):
+
+            @labtech.task
+            class SimpleTask:
+                pass
+
+    def test_fail_noncallable_run(self) -> None:
+        match = re.escape("Task type 'SimpleTask' must define a 'run' method")
+        with pytest.raises(NotImplementedError, match=match):
+
+            @labtech.task
+            class SimpleTask:
+                run: int
+
+    def test_post_init_missing_dunder(self) -> None:
+        """This checks a bug is fixed where we were storing `post_init` instead of `__post_init__`."""
+
+        @labtech.task
+        class SimpleTask:
+            def post_init(self):
+                pass
+
+            def run(self) -> None:
+                pass
+
+        task = SimpleTask()
+        task_info: TaskInfo = task._lt
+        assert task_info.orig_post_init is None
 
 
 class TestImmutableParamValue:

@@ -19,6 +19,11 @@ class CacheDefault:
 
 CACHE_DEFAULT = CacheDefault()
 
+_RESERVED_ATTRS = [
+    '_lt', '_is_task', 'cache_key', 'result', '_results_map', '_set_results_map',
+    'result_meta', '_set_result_meta', 'context', 'set_context',
+]
+"""Reserved attribute names for task types."""
 
 def immutable_param_value(key: str, value: Any) -> Any:
     """Converts a parameter value to an immutable equivalent that is hashable."""
@@ -187,16 +192,12 @@ def task(*args,
     def decorator(cls):
         nonlocal cache
 
-        reserved_attrs = [
-            '_lt', '_is_task', 'cache_key', 'result', '_results_map', '_set_results_map',
-            'result_meta', '_set_result_meta', 'context', 'set_context',
-        ]
         if not is_task_type(cls):
-            for reserved_attr in reserved_attrs:
+            for reserved_attr in _RESERVED_ATTRS:
                 if hasattr(cls, reserved_attr):
                     raise AttributeError(f"Task type already defines reserved attribute '{reserved_attr}'.")
 
-        post_init = getattr(cls, 'post_init', None)
+        post_init = getattr(cls, '__post_init__', None)
         cls.__post_init__ = _task_post_init
 
         cls = dataclass(frozen=True, eq=True, order=True)(cls)
