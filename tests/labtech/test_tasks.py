@@ -3,16 +3,18 @@ from dataclasses import FrozenInstanceError
 from enum import Enum
 
 import labtech.tasks
+import labtech
 import pytest
 from frozendict import frozendict
 from labtech.cache import BaseCache, NullCache, PickleCache
 from labtech.exceptions import TaskError
 from labtech.tasks import _RESERVED_ATTRS, immutable_param_value
 from labtech.types import ResultT, Storage, Task, TaskInfo
+from labtech.tasks import ParamScalar, find_tasks_in_param, immutable_param_value
 
 
 class _BadObject:
-    """An object which is not supported by `immutable_param_value`."""
+    """An object which is not supported in a task parameter."""
 
     pass
 
@@ -20,6 +22,31 @@ class _BadObject:
 class _ExampleEnum(Enum):
     A = 1
     B = 2
+
+    
+@labtech.task
+class ExampleTask:
+    a: int
+
+    def run(self) -> int:
+        return self.a
+
+
+@pytest.fixture(
+    params=[
+        None,
+        True,
+        False,
+        "hello",
+        "world",
+        3.14,
+        42,
+        _ExampleEnum.A,
+    ],
+)
+def scalar(request: pytest.FixtureRequest) -> ParamScalar:
+    return request.param
+
 
 
 class BadCache(BaseCache):
@@ -254,21 +281,14 @@ class TestImmutableParamValue:
             frozendict({"a": 2}),
         )
 
-    @pytest.mark.parametrize(
-        "value",
-        [
-            None,
-            True,
-            False,
-            "hello",
-            "world",
-            3.14,
-            42,
-            _ExampleEnum.A,
-        ],
-    )
-    def test_scalar(self, value) -> None:
-        assert immutable_param_value("hello", value) is value
+    def test_scalar(self, scalar: ParamScalar) -> None:
+        assert immutable_param_value("hello", scalar) is scalar
+
+    def test_unhandled(self) -> None:
+        with pytest.raises(
+            TaskError, match="Unsupported type 'BadObject' in parameter value 'hello'."
+        ):
+            immutable_param_value("hello", _BadObject())
 
     def test_multiple_nested_error(self) -> None:
         match = re.escape(
@@ -276,3 +296,54 @@ class TestImmutableParamValue:
         )
         with pytest.raises(TaskError, match=match):
             immutable_param_value("hello", {"a": 1, "b": (1, 2, {"c": _BadObject()})})
+
+
+class TestFindTasksInParam:
+    def test_scalar(self, scalar: ParamScalar) -> None:
+        assert find_tasks_in_param(scalar) == []
+
+    def test_task(self) -> None:
+        task = ExampleTask(1)
+        assert find_tasks_in_param(task) == [task]
+
+    def test_list(self) -> None:
+        task = ExampleTask(1)
+        assert find_tasks_in_param([task]) == [task]
+        assert find_tasks_in_param([]) == []
+
+    def test_dict(self) -> None:
+        task = ExampleTask(1)
+        assert find_tasks_in_param({"a": task}) == [task]
+        assert find_tasks_in_param({}) == []
+
+    def test_nested_list(self) -> None:
+        task1 = ExampleTask(1)
+        task2 = ExampleTask(2)
+        assert find_tasks_in_param([task1, [task2]]) == [task1, task2]
+
+    def test_nested_dict(self) -> None:
+        task1 = ExampleTask(1)
+        task2 = ExampleTask(2)
+        assert find_tasks_in_param({"a": task1, "b": {"c": task2}}) == [task1, task2]
+
+    def test_tuple(self) -> None:
+        task = ExampleTask(1)
+        assert find_tasks_in_param((task,)) == [task]
+
+    def test_frozen_dict(self) -> None:
+        task = ExampleTask(1)
+        assert find_tasks_in_param(frozendict({"a": task})) == [task]
+
+    def test_searched_coll_ids(self) -> None:
+        task1 = ExampleTask(1)
+        task2 = ExampleTask(2)
+        assert find_tasks_in_param([task1, task2], searched_coll_ids={id(task1)}) == [
+            task2
+        ]
+
+    def test_unhandled(self) -> None:
+        match = re.escape(
+            "Unexpected type _BadObject encountered in task parameter value."
+        )
+        with pytest.raises(AssertionError, match=match):
+            find_tasks_in_param(_BadObject())

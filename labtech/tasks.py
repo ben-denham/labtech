@@ -3,7 +3,7 @@
 from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
-from typing import cast, Any, Dict, Optional, Sequence, Set, Union
+from typing import TypeAlias, cast, Any, Dict, Optional, Sequence, Set, Union
 
 from frozendict import frozendict
 
@@ -12,6 +12,7 @@ from .cache import PickleCache, NullCache
 from .exceptions import TaskError
 from .utils import ensure_dict_key_str
 
+ParamScalar: TypeAlias = None | str | bool | float | int | Enum
 
 class CacheDefault:
     pass
@@ -26,6 +27,8 @@ _RESERVED_ATTRS = [
 """Reserved attribute names for task types."""
 
 
+
+
 def immutable_param_value(key: str, value: Any) -> Any:
     """Converts a parameter value to an immutable equivalent that is hashable."""
     if isinstance(value, list) or isinstance(value, tuple):
@@ -35,14 +38,7 @@ def immutable_param_value(key: str, value: Any) -> Any:
             ensure_dict_key_str(dict_key, exception_type=TaskError): immutable_param_value(f'{key}["{dict_key}"]', dict_value)
             for dict_key, dict_value in value.items()
         })
-    is_scalar = (
-        (value is None)
-        or isinstance(value, str)
-        or isinstance(value, bool)
-        or isinstance(value, float)
-        or isinstance(value, int)
-        or isinstance(value, Enum)
-    )
+    is_scalar = isinstance(value, ParamScalar)
     if is_scalar or is_task(value):
         return value
     raise TaskError(f"Unsupported type '{type(value).__qualname__}' in parameter value '{key}'.")
@@ -257,4 +253,9 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] 
             for item in param_value.values()
             for task in find_tasks_in_param(item, searched_coll_ids)
         ]
-    return []
+    elif isinstance(param_value, ParamScalar):
+        return []
+
+    # This should be impossible.
+    msg = f"Unexpected type {type(param_value).__qualname__} encountered in task parameter value."
+    raise AssertionError(msg)
