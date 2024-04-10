@@ -195,6 +195,19 @@ class TestTask:
                 def run(self) -> None:
                     pass
 
+    def test_inheritance(self) -> None:
+        @labtech.task
+        class SimpleTask:
+            def run(self) -> None:
+                pass
+
+        @labtech.task
+        class SubTask(SimpleTask):
+            def run(self) -> None:
+                pass
+
+        # Check we don't get an error trying to do this.
+        SubTask()
 
 class TestImmutableParamValue:
     def test_empty_list(self) -> None:
