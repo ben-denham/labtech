@@ -286,7 +286,7 @@ class TestImmutableParamValue:
 
     def test_unhandled(self) -> None:
         with pytest.raises(
-            TaskError, match="Unsupported type 'BadObject' in parameter value 'hello'."
+            TaskError, match="Unsupported type '_BadObject' in parameter value 'hello'."
         ):
             immutable_param_value("hello", _BadObject())
 
