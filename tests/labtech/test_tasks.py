@@ -1,7 +1,6 @@
-from dataclasses import FrozenInstanceError, dataclass
 import re
+from dataclasses import FrozenInstanceError
 from enum import Enum
-from typing import Literal
 
 import labtech.tasks
 import pytest
@@ -185,8 +184,11 @@ class TestTask:
                 run: int
 
     def test_post_init_missing_dunder(self) -> None:
-        match = re.escape("Task type already defines reserved attribute '__post_init__'.")
+        match = re.escape(
+            "Task type already defines reserved attribute '__post_init__'."
+        )
         with pytest.raises(AttributeError, match=match):
+
             @labtech.task
             class SimpleTask:
                 def __post_init__(self):
@@ -208,6 +210,7 @@ class TestTask:
 
         # Check we don't get an error trying to do this.
         SubTask()
+
 
 class TestImmutableParamValue:
     def test_empty_list(self) -> None:

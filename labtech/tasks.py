@@ -25,6 +25,7 @@ _RESERVED_ATTRS = [
 ]
 """Reserved attribute names for task types."""
 
+
 def immutable_param_value(key: str, value: Any) -> Any:
     """Converts a parameter value to an immutable equivalent that is hashable."""
     if isinstance(value, list) or isinstance(value, tuple):
