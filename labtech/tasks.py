@@ -23,10 +23,10 @@ CACHE_DEFAULT = CacheDefault()
 def immutable_param_value(key: str, value: Any) -> Any:
     """Converts a parameter value to an immutable equivalent that is hashable."""
     if isinstance(value, list) or isinstance(value, tuple):
-        return tuple(immutable_param_value(f'{key}.{i}', item) for i, item in enumerate(value))
+        return tuple(immutable_param_value(f'{key}[{i}]', item) for i, item in enumerate(value))
     if isinstance(value, dict) or isinstance(value, frozendict):
         return frozendict({
-            ensure_dict_key_str(dict_key, exception_type=TaskError): immutable_param_value(f'{key}.{dict_key}', dict_value)
+            ensure_dict_key_str(dict_key, exception_type=TaskError): immutable_param_value(f'{key}["{dict_key}"]', dict_value)
             for dict_key, dict_value in value.items()
         })
     is_scalar = (
