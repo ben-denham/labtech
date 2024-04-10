@@ -21,7 +21,7 @@ CACHE_DEFAULT = CacheDefault()
 
 _RESERVED_ATTRS = [
     '_lt', '_is_task', 'cache_key', 'result', '_results_map', '_set_results_map',
-    'result_meta', '_set_result_meta', 'context', 'set_context',
+    'result_meta', '_set_result_meta', 'context', 'set_context', '__post_init__',
 ]
 """Reserved attribute names for task types."""
 
@@ -197,7 +197,7 @@ def task(*args,
                 if hasattr(cls, reserved_attr):
                     raise AttributeError(f"Task type already defines reserved attribute '{reserved_attr}'.")
 
-        post_init = getattr(cls, '__post_init__', None)
+        post_init = getattr(cls, 'post_init', None)
         cls.__post_init__ = _task_post_init
 
         cls = dataclass(frozen=True, eq=True, order=True)(cls)

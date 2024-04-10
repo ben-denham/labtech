@@ -121,7 +121,7 @@ class TestTask:
     def test_stored_post_init(self) -> None:
         @labtech.task
         class SimpleTask:
-            def __post_init__(self):
+            def post_init(self):
                 return "It's me!"
 
             def run(self) -> None:
@@ -182,19 +182,15 @@ class TestTask:
                 run: int
 
     def test_post_init_missing_dunder(self) -> None:
-        """This checks a bug is fixed where we were storing `post_init` instead of `__post_init__`."""
+        match = re.escape("Task type already defines reserved attribute '__post_init__'.")
+        with pytest.raises(AttributeError, match=match):
+            @labtech.task
+            class SimpleTask:
+                def __post_init__(self):
+                    pass
 
-        @labtech.task
-        class SimpleTask:
-            def post_init(self):
-                pass
-
-            def run(self) -> None:
-                pass
-
-        task = SimpleTask()
-        task_info: TaskInfo = task._lt
-        assert task_info.orig_post_init is None
+                def run(self) -> None:
+                    pass
 
 
 class TestImmutableParamValue:
