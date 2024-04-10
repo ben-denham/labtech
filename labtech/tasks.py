@@ -3,6 +3,7 @@
 from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
+from types import UnionType
 from typing import TypeAlias, cast, Any, Dict, Optional, Sequence, Set, Union
 
 from frozendict import frozendict
@@ -38,7 +39,7 @@ def immutable_param_value(key: str, value: Any) -> Any:
             ensure_dict_key_str(dict_key, exception_type=TaskError): immutable_param_value(f'{key}["{dict_key}"]', dict_value)
             for dict_key, dict_value in value.items()
         })
-    is_scalar = isinstance(value, ParamScalar)
+    is_scalar = isinstance(value, cast(UnionType, ParamScalar))
     if is_scalar or is_task(value):
         return value
     raise TaskError(f"Unsupported type '{type(value).__qualname__}' in parameter value '{key}'.")
@@ -253,7 +254,7 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] 
             for item in param_value.values()
             for task in find_tasks_in_param(item, searched_coll_ids)
         ]
-    elif isinstance(param_value, ParamScalar):
+    elif isinstance(param_value, cast(UnionType, ParamScalar)):
         return []
 
     # This should be impossible.
