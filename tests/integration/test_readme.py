@@ -9,16 +9,16 @@ README_PKG = Path(__file__).parent / "readme"
 class TestReadmeExamples:
     def test_usage_subprocess(self) -> None:
         cproc = _run_example_subprocess("usage")
-        assert cproc.stdout == b"[1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 4, 8, 16, 1, 3, 9, 27, 81, 1, 4, 16, 64, 256]\r\n"
+        assert cproc.stdout.decode().replace("\r","") == "[1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 4, 8, 16, 1, 3, 9, 27, 81, 1, 4, 16, 64, 256]\n"
 
     def test_dependents_and_mermaid_subprocess(self) -> None:
         cproc = _run_example_subprocess("dependents_and_mermaid")
-        stdout = b"<IPython.core.display.Markdown object>\r\n" * 11
-        stdout += b"[0, 1764, 3528, 5292, 7056, 8820, 10584, 12348, 14112, 15876]\r\n"
+        stdout = "<IPython.core.display.Markdown object>\n" * 11
+        stdout += "[0, 1764, 3528, 5292, 7056, 8820, 10584, 12348, 14112, 15876]\n"
 
         # Final mermaid display
-        stdout += b"<IPython.core.display.Markdown object>\r\n"
-        assert cproc.stdout == stdout
+        stdout += "<IPython.core.display.Markdown object>\n"
+        assert cproc.stdout.decode().replace("\r","") == stdout
 
 
 def _run_example_subprocess(name: str) -> subprocess.CompletedProcess:
