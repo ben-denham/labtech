@@ -9,7 +9,7 @@ README_PKG = Path(__file__).parent / "readme"
 class TestReadmeExamples:
     def test_usage_subprocess(self) -> None:
         cproc = _run_example_subprocess("usage")
-        assert cproc.stdout.decode().replace("\r","") == "[1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 4, 8, 16, 1, 3, 9, 27, 81, 1, 4, 16, 64, 256]\n"
+        assert cproc.stdout.decode().replace("\r", "") == "[1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 4, 8, 16, 1, 3, 9, 27, 81, 1, 4, 16, 64, 256]\n"
 
     def test_dependents_and_mermaid_subprocess(self) -> None:
         cproc = _run_example_subprocess("dependents_and_mermaid")
@@ -18,7 +18,7 @@ class TestReadmeExamples:
 
         # Final mermaid display
         stdout += "<IPython.core.display.Markdown object>\n"
-        assert cproc.stdout.decode().replace("\r","") == stdout
+        assert cproc.stdout.decode().replace("\r", "") == stdout
 
 
 def _run_example_subprocess(name: str) -> subprocess.CompletedProcess:
