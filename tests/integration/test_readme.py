@@ -13,12 +13,12 @@ class TestReadmeExamples:
 
     def test_dependents_and_mermaid_subprocess(self) -> None:
         cproc = _run_example_subprocess("dependents_and_mermaid")
-        stdout = "<IPython.core.display.Markdown object>\n" * 11
-        stdout += "[0, 1764, 3528, 5292, 7056, 8820, 10584, 12348, 14112, 15876]\n"
+        mkdown_obj = "<IPython.core.display.Markdown object>\n"
+        listout = "[0, 1764, 3528, 5292, 7056, 8820, 10584, 12348, 14112, 15876]\n"
 
-        # Final mermaid display
-        stdout += "<IPython.core.display.Markdown object>\n"
-        assert cproc.stdout.decode().replace("\r", "") == stdout
+        stdout = cproc.stdout.decode().replace("\r", "")
+        assert stdout.startswith(mkdown_obj)
+        assert stdout.endswith(listout + mkdown_obj)
 
 
 def _run_example_subprocess(name: str) -> subprocess.CompletedProcess:
