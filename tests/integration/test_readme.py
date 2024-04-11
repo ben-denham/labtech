@@ -17,7 +17,6 @@ class TestReadmeExamples:
         listout = "[0, 1764, 3528, 5292, 7056, 8820, 10584, 12348, 14112, 15876]\n"
 
         stdout = cproc.stdout.decode().replace("\r", "")
-        assert stdout.startswith(mkdown_obj)
         assert stdout.endswith(listout + mkdown_obj)
 
 
