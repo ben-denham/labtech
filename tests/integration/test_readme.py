@@ -5,6 +5,7 @@ from pathlib import Path
 ROOT_PROJ_DIR = Path(__file__).parents[3]
 README_PKG = Path(__file__).parent / "readme"
 
+
 class TestReadmeExamples:
     def test_usage_subprocess(self) -> None:
         cproc = _run_example_subprocess("usage")
