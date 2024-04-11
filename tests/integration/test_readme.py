@@ -29,7 +29,6 @@ def _run_example_subprocess(name: str) -> subprocess.CompletedProcess:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         cwd=ROOT_PROJ_DIR,
-        shell=True,
     )
     assert cproc.returncode == 0, cproc.stderr.decode() if cproc.stderr else None
     return cproc
