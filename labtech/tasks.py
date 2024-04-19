@@ -259,4 +259,4 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] 
 
     # This should be impossible.
     msg = f"Unexpected type {type(param_value).__qualname__} encountered in task parameter value."
-    raise AssertionError(msg)
+    raise TaskError(msg)
