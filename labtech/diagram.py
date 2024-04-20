@@ -1,3 +1,4 @@
+import builtins
 from dataclasses import dataclass, fields
 from textwrap import indent
 from typing import Dict, Sequence, Type, get_origin, get_args, get_type_hints
@@ -186,9 +187,17 @@ def display_task_diagram(tasks: Sequence[Task], **kwargs) -> None:
 
     """
     diagram = build_task_diagram(tasks, **kwargs)
+
+    ipython = False
     try:
         from IPython.display import display, Markdown
     except ImportError:
-        print(diagram)
+        pass
     else:
+        if hasattr(builtins, '__IPYTHON__'):
+            ipython = True
+
+    if ipython:
         display(Markdown(f'```mermaid\n{diagram}\n```'))
+    else:
+        print(diagram)
