@@ -13,7 +13,7 @@ mlflow:
 sort-imports:
 	poetry run ruff check --select "I" --fix
 lint:
-	poetry run flake8
+	poetry run ruff check
 mypy:
 	poetry run mypy --show-error-codes labtech examples
 test:
