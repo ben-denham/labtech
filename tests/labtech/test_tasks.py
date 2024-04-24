@@ -345,5 +345,5 @@ class TestFindTasksInParam:
         match = re.escape(
             "Unexpected type _BadObject encountered in task parameter value."
         )
-        with pytest.raises(AssertionError, match=match):
+        with pytest.raises(TaskError, match=match):
             find_tasks_in_param(_BadObject())
