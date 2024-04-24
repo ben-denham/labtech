@@ -245,7 +245,7 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] 
             for item in param_value
             for task in find_tasks_in_param(item, searched_coll_ids)
         ]
-    elif isinstance(param_value, dict):
+    elif isinstance(param_value, dict) or isinstance(param_value, frozendict):
         searched_coll_ids = searched_coll_ids | {id(param_value)}
         return [
             task
