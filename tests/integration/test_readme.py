@@ -30,7 +30,6 @@ class TestReadmeExamples:
             '\n'
             '    DependentTask <-- SlowTask: slow_task\n'
         )
-        
 
         stdout = cproc.stdout.decode().replace("\r", "")
         assert stdout.endswith(listout + diagram)
