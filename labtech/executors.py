@@ -1,4 +1,4 @@
-from concurrent.futures import Executor, Future, FIRST_COMPLETED, wait
+from concurrent.futures import FIRST_COMPLETED, Executor, Future, wait
 from typing import Callable, Sequence
 
 

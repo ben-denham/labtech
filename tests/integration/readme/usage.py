@@ -2,6 +2,7 @@ from time import sleep
 
 import labtech
 
+
 # Decorate your task class with @labtech.task:
 @labtech.task
 class Experiment:

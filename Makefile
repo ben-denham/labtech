@@ -1,4 +1,4 @@
-.PHONY: deps example lint mypy test check build docs-serve docs-build docs-github docs-notebook
+.PHONY: deps example sort-imports lint mypy test check build docs-serve docs-build docs-github docs-notebook
 
 deps:
 	poetry install
@@ -10,6 +10,8 @@ jupyter:
 mlflow:
 	poetry run mlflow ui --port 5000 --backend-store-uri examples/storage/mlruns
 
+sort-imports:
+	poetry run ruff check --select "I" --fix
 lint:
 	poetry run flake8
 mypy:
@@ -19,7 +21,7 @@ test:
 		--cov="labtech" \
 		--cov-report="html:tests/coverage" \
 		--cov-report=term
-check: lint mypy test
+check: sort-imports lint mypy test
 
 build:
 	poetry build

@@ -1,7 +1,7 @@
 import builtins
 from dataclasses import dataclass, fields
 from textwrap import indent
-from typing import Dict, Sequence, Type, get_origin, get_args, get_type_hints
+from typing import Dict, Sequence, Type, get_args, get_origin, get_type_hints
 
 from .tasks import find_tasks_in_param
 from .types import Task, is_task
@@ -190,7 +190,7 @@ def display_task_diagram(tasks: Sequence[Task], **kwargs) -> None:
 
     ipython = False
     try:
-        from IPython.display import display, Markdown
+        from IPython.display import Markdown, display
     except ImportError:
         pass
     else:

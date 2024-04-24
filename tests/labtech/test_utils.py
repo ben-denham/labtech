@@ -1,7 +1,8 @@
 import sys
 
-from labtech.utils import LoggerFileProxy, OrderedSet
 from pytest_mock import MockerFixture
+
+from labtech.utils import LoggerFileProxy, OrderedSet
 
 
 class TestOrderedSet:

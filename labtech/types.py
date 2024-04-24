@@ -5,8 +5,17 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from inspect import isclass
 from typing import (
-    Any, Callable, Dict, Generic, IO, Literal,
-    Optional, Protocol, Sequence, Type, TypeVar,
+    IO,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Literal,
+    Optional,
+    Protocol,
+    Sequence,
+    Type,
+    TypeVar,
 )
 
 

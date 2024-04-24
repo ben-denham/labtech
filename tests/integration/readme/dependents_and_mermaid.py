@@ -2,6 +2,7 @@ from time import sleep
 
 import labtech
 
+
 @labtech.task
 class SlowTask:
     base: int

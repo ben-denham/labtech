@@ -1,8 +1,9 @@
 from pathlib import Path
 from typing import Literal
 
-import labtech
 import pytest
+
+import labtech
 from labtech.lab import Lab
 
 

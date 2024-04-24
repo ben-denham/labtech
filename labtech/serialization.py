@@ -2,12 +2,12 @@
 
 from dataclasses import fields
 from enum import Enum
-from typing import cast, Dict, List, Optional, Type, Union
+from typing import Dict, List, Optional, Type, Union, cast
 
 from frozendict import frozendict
 
-from .types import Task, ResultMeta, is_task
 from .exceptions import SerializationError
+from .types import ResultMeta, Task, is_task
 from .utils import ensure_dict_key_str
 
 # Type to represent any value that can be handled by Python's default
