@@ -13,11 +13,27 @@ class TestReadmeExamples:
 
     def test_dependents_and_mermaid_subprocess(self) -> None:
         cproc = _run_example_subprocess("dependents_and_mermaid")
-        mkdown_obj = "<IPython.core.display.Markdown object>\n"
         listout = "[0, 1764, 3528, 5292, 7056, 8820, 10584, 12348, 14112, 15876]\n"
+        diagram = (
+            'classDiagram\n'
+            '    direction BT\n'
+            '\n'
+            '    class DependentTask\n'
+            '    DependentTask : SlowTask slow_task\n'
+            '    DependentTask : int multiplier\n'
+            '    DependentTask : run() int\n'
+            '\n'
+            '    class SlowTask\n'
+            '    SlowTask : int base\n'
+            '    SlowTask : run() int\n'
+            '\n'
+            '\n'
+            '    DependentTask <-- SlowTask: slow_task\n'
+        )
+        
 
         stdout = cproc.stdout.decode().replace("\r", "")
-        assert stdout.endswith(listout + mkdown_obj)
+        assert stdout.endswith(listout + diagram)
 
 
 def _run_example_subprocess(name: str) -> subprocess.CompletedProcess:
