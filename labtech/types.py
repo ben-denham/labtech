@@ -86,12 +86,12 @@ TaskT = TypeVar("TaskT", bound=Task)
 def is_task_type(cls):
     """Returns `True` if the given `cls` is a class decorated with
     [`labtech.task`][labtech.task]."""
-    return isclass(cls) and hasattr(cls, '_lt')
+    return isclass(cls) and isinstance(getattr(cls, '_lt', None), TaskInfo)
 
 
 def is_task(obj):
     """Returns `True` if the given `obj` is an instance of a task class."""
-    return hasattr(obj, '_is_task')
+    return is_task_type(type(obj)) and hasattr(obj, '_is_task')
 
 
 class Storage(ABC):
