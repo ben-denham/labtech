@@ -52,6 +52,15 @@ class LocalStorage(Storage):
                 gitignore_file.write('*\n')
 
     def _key_path(self, key: str) -> Path:
+        if not key:
+            raise StorageError("Key cannot be empty")
+        
+        if key.startswith('/') or key.endswith('/') or key.startswith(os.path.sep) or key.endswith(os.path.sep):
+            msg = f"Key '{key}' should not start or end with '/'"
+            if os.path.sep != '/':
+                msg += f" or '{os.path.sep}'"
+            raise StorageError(msg)
+
         key_path = (self._storage_path / key).resolve()
         if key_path.parent != self._storage_path:
             raise StorageError((f"Key '{key}' should only reference a directory directly "
