@@ -39,6 +39,7 @@ pip install labtech
 
 ## Usage
 
+<!-- N.B. keep this code in-sync with tests/integration/readme/usage.py -->
 ```python
 from time import sleep
 
@@ -104,6 +105,7 @@ Tasks parameters can be any of the following types:
 Here's an example of defining a single long-running task to produce a
 result for a large number of dependent tasks:
 
+<!-- N.B. keep this code in-sync with tests/integration/readme/dependents_and_mermaid.py -->
 ```python
 from time import sleep
 
@@ -146,6 +148,7 @@ if __name__ == '__main__':
 Labtech can even generate a [Mermaid diagram](https://mermaid.js.org/syntax/classDiagram.html)
 to visualise your tasks:
 
+<!-- N.B. keep this code in-sync with tests/integration/readme/dependents_and_mermaid.py -->
 ```python
 from labtech.diagram import display_task_diagram
 
