@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
+
 from labtech.exceptions import StorageError
 from labtech.storage import LocalStorage
 
@@ -29,7 +30,7 @@ class TestLocalStorage:
     class TestFindKeys:
         def test_empty(self, local_storage: LocalStorage):
             assert local_storage.find_keys() == []
-        
+
         def test_single_key(self, local_storage: LocalStorage):
             key = 'key'
             (local_storage._storage_path / key).touch()
@@ -44,7 +45,7 @@ class TestLocalStorage:
     class TestExists:
         def test_missing_key(self, local_storage: LocalStorage):
             assert not local_storage.exists('fake')
-        
+
         def test_existing_key(self, local_storage: LocalStorage):
             key = 'key'
             (local_storage._storage_path / key).touch()

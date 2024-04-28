@@ -54,7 +54,7 @@ class LocalStorage(Storage):
     def _key_path(self, key: str) -> Path:
         if not key:
             raise StorageError("Key cannot be empty")
-        
+
         if key.startswith('/') or key.endswith('/') or key.startswith(os.path.sep) or key.endswith(os.path.sep):
             msg = f"Key '{key}' should not start or end with '/'"
             if os.path.sep != '/':
