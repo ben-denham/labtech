@@ -4,15 +4,14 @@ from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
 from types import UnionType
-from typing import TypeAlias, cast, Any, Dict, Optional, Sequence, Set, Union
+from typing import Any, Dict, Optional, Sequence, Set, TypeAlias, Union, cast
 
 from frozendict import frozendict
 
-from .types import Task, ResultT, TaskInfo, ResultMeta, ResultsMap, Cache, is_task_type, is_task
-from .cache import PickleCache, NullCache
+from .cache import NullCache, PickleCache
 from .exceptions import TaskError
+from .types import Cache, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
 from .utils import ensure_dict_key_str
-
 
 ParamScalar: TypeAlias = None | str | bool | float | int | Enum
 

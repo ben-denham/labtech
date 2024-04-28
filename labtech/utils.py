@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import cast, Dict, Generic, Optional, Sequence, TypeVar, Type
+from typing import Dict, Generic, Optional, Sequence, Type, TypeVar, cast
 
 
 def get_logger():

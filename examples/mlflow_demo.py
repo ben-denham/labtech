@@ -1,5 +1,6 @@
-import labtech
 import mlflow
+
+import labtech
 
 
 @labtech.task(mlflow_run=True)

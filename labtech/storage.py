@@ -1,12 +1,12 @@
 """Storage providers for cached task results."""
 
 import os
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import IO, Sequence, Union
 
-from .types import Storage
 from .exceptions import StorageError
+from .types import Storage
 
 
 class NullStorage(Storage):

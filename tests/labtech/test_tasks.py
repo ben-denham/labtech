@@ -2,13 +2,14 @@ import re
 from dataclasses import FrozenInstanceError
 from enum import Enum
 
-import labtech.tasks
-import labtech
 import pytest
 from frozendict import frozendict
+
+import labtech
+import labtech.tasks
 from labtech.cache import BaseCache, NullCache, PickleCache
 from labtech.exceptions import TaskError
-from labtech.tasks import _RESERVED_ATTRS, immutable_param_value, ParamScalar, find_tasks_in_param
+from labtech.tasks import _RESERVED_ATTRS, ParamScalar, find_tasks_in_param, immutable_param_value
 from labtech.types import ResultT, Storage, Task, TaskInfo
 
 

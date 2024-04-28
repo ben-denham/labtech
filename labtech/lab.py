@@ -1,33 +1,33 @@
 """Lab and related utilities responsible for running tasks."""
 
-from collections import Counter, defaultdict
 import concurrent.futures
 import concurrent.futures.process
+import logging
+import math
+import multiprocessing
+import signal
+import sys
+from collections import Counter, defaultdict
 from contextlib import contextmanager
 from dataclasses import fields
 from datetime import datetime
 from enum import Enum
-import logging
 from logging.handlers import QueueHandler
-import math
-import multiprocessing
 from pathlib import Path
-import signal
-import sys
 from threading import Thread
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
 
 from frozendict import frozendict
 from tqdm import tqdm
-from tqdm.notebook import tqdm as tqdm_notebook
 from tqdm.contrib.logging import logging_redirect_tqdm
+from tqdm.notebook import tqdm as tqdm_notebook
 
-from .types import Task, TaskT, ResultT, ResultMeta, ResultsMap, TaskResult, Storage, is_task, is_task_type
-from .tasks import find_tasks_in_param
 from .exceptions import LabError, TaskNotFound
-from .utils import OrderedSet, LoggerFileProxy, logger
-from .storage import NullStorage, LocalStorage
 from .executors import SerialExecutor, wait_for_first_future
+from .storage import LocalStorage, NullStorage
+from .tasks import find_tasks_in_param
+from .types import ResultMeta, ResultsMap, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
+from .utils import LoggerFileProxy, OrderedSet, logger
 
 _IN_TASK_SUBPROCESS = False
 
