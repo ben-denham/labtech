@@ -15,7 +15,7 @@
         <link rel="next" href="tutorial/">
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="images/icon.png">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
     
     
@@ -87,8 +87,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="labtech" class="md-header__button md-logo" aria-label="labtech" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="images/icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -194,8 +193,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="." title="labtech" class="md-nav__button md-logo" aria-label="labtech" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="images/icon.svg" alt="logo">
 
     </a>
     labtech
@@ -505,6 +503,8 @@
 
 <div align="center">
 
+<img alt="Labtech logo - FIFO the Labrador in a lab coat and goggles working on a laptop with the labtech "lt" icon." src="https://ben-denham.github.io/labtech/images/fifo.svg">
+
 <h1>labtech</h1>
 
 <a href="">
@@ -538,6 +538,7 @@ run them with maximal parallelism and result caching:</p>
 <div class="highlight"><pre><span></span><code>pip install labtech
 </code></pre></div>
 <h2 id="usage">Usage</h2>
+<!-- N.B. keep this code in-sync with tests/integration/readme/usage.py -->
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
 
 <span class="kn">import</span> <span class="nn">labtech</span>
@@ -597,6 +598,7 @@ run them with maximal parallelism and result caching:</p>
 </ul>
 <p>Here's an example of defining a single long-running task to produce a
 result for a large number of dependent tasks:</p>
+<!-- N.B. keep this code in-sync with tests/integration/readme/dependents_and_mermaid.py -->
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
 
 <span class="kn">import</span> <span class="nn">labtech</span>
@@ -636,6 +638,7 @@ result for a large number of dependent tasks:</p>
 </code></pre></div>
 <p>Labtech can even generate a <a href="https://mermaid.js.org/syntax/classDiagram.html">Mermaid diagram</a>
 to visualise your tasks:</p>
+<!-- N.B. keep this code in-sync with tests/integration/readme/dependents_and_mermaid.py -->
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">labtech.diagram</span> <span class="kn">import</span> <span class="n">display_task_diagram</span>
 
 <span class="n">some_slow_task</span> <span class="o">=</span> <span class="n">SlowTask</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>

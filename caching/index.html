@@ -15,7 +15,7 @@
       
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../images/icon.png">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
     
     
@@ -87,8 +87,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="labtech" class="md-header__button md-logo" aria-label="labtech" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="../images/icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -194,8 +193,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="labtech" class="md-nav__button md-logo" aria-label="labtech" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+  <img src="../images/icon.svg" alt="logo">
 
     </a>
     labtech
@@ -1519,22 +1517,40 @@ directory.</p>
 <span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span>
-<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LocalStorage</span><span class="p">(</span><span class="n">Storage</span><span class="p">):</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LocalStorage</span><span class="p">(</span><span class="n">Storage</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Storage provider that stores cached results in a local filesystem</span>
 <span class="sd">    directory.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            storage_dir: Path to the directory where cached results will be</span>
 <span class="sd">                stored. The directory will be created if it does not already</span>
 <span class="sd">                exist.</span>
+<span class="sd">            with_gitignore: If `True`, a `.gitignore` file will be created</span>
+<span class="sd">                inside the storage directory to ignore the entire storage</span>
+<span class="sd">                directory. If an existing `.gitignore` file exists, it will be</span>
+<span class="sd">                replaced.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">storage_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">=</span> <span class="n">storage_dir</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">with_gitignore</span><span class="p">:</span>
+            <span class="n">gitignore_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">/</span> <span class="s1">&#39;.gitignore&#39;</span>
+            <span class="k">with</span> <span class="n">gitignore_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">gitignore_file</span><span class="p">:</span>
+                <span class="n">gitignore_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;*</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_key_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
         <span class="n">key_path</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">/</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
@@ -1587,7 +1603,7 @@ directory.</p>
 
 
 <h4 id="labtech.storage.LocalStorage.__init__" class="doc doc-heading">
-          <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span></code>
+          <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span></code>
 
 </h4>
 
@@ -1609,6 +1625,19 @@ stored. The directory will be created if it does not already
 exist.</p>
         </div>
       </li>
+      <li class="field-body">
+        <b><code>with_gitignore</code></b>
+            (<code>bool</code>, default:
+                <code>True</code>
+)
+        –
+        <div class="doc-md-description">
+          <p>If <code>True</code>, a <code>.gitignore</code> file will be created
+inside the storage directory to ignore the entire storage
+directory. If an existing <code>.gitignore</code> file exists, it will be
+replaced.</p>
+        </div>
+      </li>
   </ul>
 
           <details class="quote">
@@ -1624,18 +1653,36 @@ exist.</p>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
-<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]):</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
 <span class="sd">        storage_dir: Path to the directory where cached results will be</span>
 <span class="sd">            stored. The directory will be created if it does not already</span>
 <span class="sd">            exist.</span>
+<span class="sd">        with_gitignore: If `True`, a `.gitignore` file will be created</span>
+<span class="sd">            inside the storage directory to ignore the entire storage</span>
+<span class="sd">            directory. If an existing `.gitignore` file exists, it will be</span>
+<span class="sd">            replaced.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">storage_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">=</span> <span class="n">storage_dir</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">with_gitignore</span><span class="p">:</span>
+        <span class="n">gitignore_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">/</span> <span class="s1">&#39;.gitignore&#39;</span>
+        <span class="k">with</span> <span class="n">gitignore_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">gitignore_file</span><span class="p">:</span>
+            <span class="n">gitignore_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;*</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
