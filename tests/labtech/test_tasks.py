@@ -8,9 +8,8 @@ import pytest
 from frozendict import frozendict
 from labtech.cache import BaseCache, NullCache, PickleCache
 from labtech.exceptions import TaskError
-from labtech.tasks import _RESERVED_ATTRS, immutable_param_value
+from labtech.tasks import _RESERVED_ATTRS, immutable_param_value, ParamScalar, find_tasks_in_param
 from labtech.types import ResultT, Storage, Task, TaskInfo
-from labtech.tasks import ParamScalar, find_tasks_in_param, immutable_param_value
 
 
 class _BadObject:
@@ -23,7 +22,7 @@ class _ExampleEnum(Enum):
     A = 1
     B = 2
 
-    
+
 @labtech.task
 class ExampleTask:
     a: int
@@ -46,7 +45,6 @@ class ExampleTask:
 )
 def scalar(request: pytest.FixtureRequest) -> ParamScalar:
     return request.param
-
 
 
 class BadCache(BaseCache):

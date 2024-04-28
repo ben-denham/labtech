@@ -13,7 +13,9 @@ from .cache import PickleCache, NullCache
 from .exceptions import TaskError
 from .utils import ensure_dict_key_str
 
+
 ParamScalar: TypeAlias = None | str | bool | float | int | Enum
+
 
 class CacheDefault:
     pass
@@ -21,13 +23,12 @@ class CacheDefault:
 
 CACHE_DEFAULT = CacheDefault()
 
+
 _RESERVED_ATTRS = [
     '_lt', '_is_task', 'cache_key', 'result', '_results_map', '_set_results_map',
     'result_meta', '_set_result_meta', 'context', 'set_context', '__post_init__',
 ]
 """Reserved attribute names for task types."""
-
-
 
 
 def immutable_param_value(key: str, value: Any) -> Any:
