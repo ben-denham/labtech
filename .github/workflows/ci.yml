@@ -37,7 +37,7 @@ jobs:
 
       - name: Lint
         run: |
-          poetry run flake8 --version
+          poetry run ruff --version
           make lint
 
       - name: Typecheck with mypy
