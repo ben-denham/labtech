@@ -29,18 +29,27 @@ class LocalStorage(Storage):
     """Storage provider that stores cached results in a local filesystem
     directory."""
 
-    def __init__(self, storage_dir: Union[str, Path]):
+    def __init__(self, storage_dir: Union[str, Path], *, with_gitignore: bool = True):
         """
         Args:
             storage_dir: Path to the directory where cached results will be
                 stored. The directory will be created if it does not already
                 exist.
+            with_gitignore: If `True`, a `.gitignore` file will be created
+                inside the storage directory to ignore the entire storage
+                directory. If an existing `.gitignore` file exists, it will be
+                replaced.
         """
         if isinstance(storage_dir, str):
             storage_dir = Path(storage_dir)
         self._storage_path = storage_dir.resolve()
         if not self._storage_path.exists():
             self._storage_path.mkdir()
+
+        if with_gitignore:
+            gitignore_path = self._storage_path / '.gitignore'
+            with gitignore_path.open('w') as gitignore_file:
+                gitignore_file.write('*\n')
 
     def _key_path(self, key: str) -> Path:
         key_path = (self._storage_path / key).resolve()
