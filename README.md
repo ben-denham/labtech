@@ -1,5 +1,7 @@
 <div align="center">
 
+<img alt="Labtech logo - FIFO the Labrador in a lab coat and goggles working on a laptop with the labtech "lt" icon." src="https://ben-denham.github.io/labtech/images/fifo.svg">
+
 <h1>labtech</h1>
 
 <a href="">

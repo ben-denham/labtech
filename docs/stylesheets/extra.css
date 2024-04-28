@@ -1,3 +1,10 @@
+:root {
+  --md-primary-fg-color:        #4618f1;
+  --md-primary-fg-color--light: #A691F2;
+  --md-primary-fg-color--dark:  #1d0772;
+}
+
+
 hr {
     margin: 4em 0 1.5em 0 !important;
 }

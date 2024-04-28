@@ -33,5 +33,7 @@ theme:
   features:
     - navigation.tracking
     - navigation.sections
+  logo: images/icon.svg
+  favicon: images/icon.png
 extra_css:
     - stylesheets/extra.css
