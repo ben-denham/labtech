@@ -1,0 +1,785 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for labtech">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../images/icon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Notes - labtech</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  <meta name="google-site-verification" content="vh6b0j6iPvwU3b9udYxcZrs_R0D-m6NRkRzqFnTiP-A" />
+  
+
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#notes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="labtech" class="md-header__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  <img src="../images/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            labtech
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Notes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="labtech" class="md-nav__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  <img src="../images/icon.svg" alt="logo">
+
+    </a>
+    labtech
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    README
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorial
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cookbook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Labs and Tasks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagram/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagramming
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../caching/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Caches and Storage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coretaskshtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/tasks.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coretasksnested-taskshtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/tasks/nested-tasks.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coreobjectshtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/objects.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-corehandling-dependencieshtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/handling-dependencies.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coreschedulingindexhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/scheduling/index.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coreschedulingacceleratorshtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/scheduling/accelerators.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coreschedulingray-oom-preventionhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-corefault-tolerancehtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/fault-tolerance.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-corefault_tolerancetaskshtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/fault_tolerance/tasks.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-corefault_toleranceobjectshtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/fault_tolerance/objects.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-observabilitygetting-startedhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-observability/getting-started.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-observabilityuser-guidescli-sdkhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-observability/user-guides/cli-sdk.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-observabilityuser-guidesconfigure-logginghtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-observability/user-guides/configure-logging.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coreray-daghtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/ray-dag.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coremiscellaneoushtmlrunning-large-ray-clusters" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/miscellaneous.html#running-large-ray-clusters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coreuser-spawn-processeshtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/user-spawn-processes.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-corepatternsindexhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/patterns/index.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-coretips-for-first-timehtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/tips-for-first-time.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestray-corestarting-rayhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/ray-core/starting-ray.html
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#httpsdocsrayioenlatestclustergetting-startedhtmlcluster-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      https://docs.ray.io/en/latest/cluster/getting-started.html#cluster-index
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="notes">Notes</h1>
+<h2 id="httpsdocsrayioenlatestray-coretaskshtml">https://docs.ray.io/en/latest/ray-core/tasks.html</h2>
+<ul>
+<li>Each remote function can specify resource requirements (number of
+  CPUs or GPUs, memory, available memory):
+  https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#resource-requirements</li>
+<li>A result/object ref passed to a task will be treated like a
+  dependency - Ray will get that output to the node it needs to be on:
+  https://docs.ray.io/en/latest/ray-core/tasks.html#passing-object-refs-to-ray-tasks</li>
+<li>Use ray.wait() to wait for the first completed future:
+  https://docs.ray.io/en/latest/ray-core/tasks.html#passing-object-refs-to-ray-tasks</li>
+<li>Tasks can be cancelled:
+  https://docs.ray.io/en/latest/ray-core/tasks.html#cancelling-tasks</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coretasksnested-taskshtml">https://docs.ray.io/en/latest/ray-core/tasks/nested-tasks.html</h2>
+<ul>
+<li>A task can call another task - potentially a nice paradigm than
+  explicitly creating a DAG? Harder for us to implement for labtech,
+  as it requires running a task and then "shelving" it while its
+  dependencies run.</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coreobjectshtml">https://docs.ray.io/en/latest/ray-core/objects.html</h2>
+<ul>
+<li>Use an object to represent the context? Or parts of the context?</li>
+<li>Probably use them to store object results to manage sharing results?
+  Maybe make that optional vs just loading from Storage?</li>
+<li>"Remote objects are cached in Ray’s distributed shared-memory object
+  store, and there is one object store per node in the cluster. In the
+  cluster setting, a remote object can live on one or many nodes,
+  independent of who holds the object ref(s)."</li>
+<li>"If the object is a numpy array or a collection of numpy arrays, the
+  get call is zero-copy and returns arrays backed by shared object
+  store memory. Otherwise, we deserialize the object data into a
+  Python object."</li>
+<li>"If the current node’s object store does not contain the object, the
+  object is downloaded."</li>
+<li>"Objects are tracked via distributed reference counting, and their
+  data is automatically freed once all references to the object are
+  deleted."</li>
+<li>"You can also pass objects to tasks via closure-capture."</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-corehandling-dependencieshtml">https://docs.ray.io/en/latest/ray-core/handling-dependencies.html</h2>
+<ul>
+<li>"For production usage or non-changing environments, we recommend
+  installing your dependencies into a container image and specifying
+  the image using the Cluster Launcher. For dynamic environments (e.g.
+  for development and experimentation), we recommend using runtime
+  environments."</li>
+<li>"You can build all your files and dependencies into a container
+  image and specify this in your your Cluster YAML Configuration." ...
+  "You can push local files to the cluster using ray rsync_up"</li>
+<li>Runtime Environments:</li>
+<li>Can be different for each task, or one for the entire "job"
+    (app) - probably just use the latter for simplicity?</li>
+<li><code>ray.init(runtime_env={...})</code></li>
+<li>Specifying a <code>working_dir</code> will ensure that local directory is
+    pushed to the cluster by <code>ray.init()</code>.</li>
+<li>You can specify pip or conda deps, but probably best to leave
+    these to the cluster server setup - otherwise you'll be
+    re-downloading every time.</li>
+<li>You can specify Python modules that your tasks depend on with
+    <code>py_modules</code>.<ul>
+<li>This can be a directory of python files. "if the local directory
+  contains a .gitignore file, the files and paths specified there
+  are not uploaded to the cluster."</li>
+<li>"Note: This feature is currently limited to modules that are
+  packages with a single directory containing an <strong>init</strong>.py file.
+  For single-file modules, you may use working_dir."</li>
+<li>Also has an <code>excludes</code> option.</li>
+</ul>
+</li>
+<li>"If runtime_env cannot be set up (e.g., network issues, download
+    failures, etc.), Ray will fail to schedule tasks/actors that
+    require the runtime_env. If you call ray.get, it will raise
+    RuntimeEnvSetupError with the error message in detail."</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coreschedulingindexhtml">https://docs.ray.io/en/latest/ray-core/scheduling/index.html</h2>
+<ul>
+<li>You can choose a different scheduling strategy.</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coreschedulingacceleratorshtml">https://docs.ray.io/en/latest/ray-core/scheduling/accelerators.html</h2>
+<ul>
+<li>Ray can handle GPU allocation</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coreschedulingray-oom-preventionhtml">https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html</h2>
+<ul>
+<li>Ray automatically kills tasks to prevent out-of-memory</li>
+<li>Tasks killed by the memory monitor will be retried infinitely with
+  exponential backoff up to 60 seconds.</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-corefault-tolerancehtml">https://docs.ray.io/en/latest/ray-core/fault-tolerance.html</h2>
+<ul>
+<li>Generally, don't call <code>.put()</code> inside a task it seems.</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-corefault_tolerancetaskshtml">https://docs.ray.io/en/latest/ray-core/fault_tolerance/tasks.html</h2>
+<ul>
+<li>TODO</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-corefault_toleranceobjectshtml">https://docs.ray.io/en/latest/ray-core/fault_tolerance/objects.html</h2>
+<ul>
+<li>TODO</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-observabilitygetting-startedhtml">https://docs.ray.io/en/latest/ray-observability/getting-started.html</h2>
+<ul>
+<li>Ray Dashboard can be run to view running tasks</li>
+<li>It is automatically run on the head node on a given port.</li>
+<li>We should make sure tasks are meaningfully named to help our users
+    view this.</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-observabilityuser-guidescli-sdkhtml">https://docs.ray.io/en/latest/ray-observability/user-guides/cli-sdk.html</h2>
+<ul>
+<li>There is also a CLI to get task status</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-observabilityuser-guidesconfigure-logginghtml">https://docs.ray.io/en/latest/ray-observability/user-guides/configure-logging.html</h2>
+<ul>
+<li>Log files go into a tmp directory by default</li>
+<li>"By default, Worker stdout and stderr for Tasks and Actors stream to
+  the Ray Driver (the entrypoint script that calls ray.init). It helps
+  users aggregate the logs for the distributed Ray application in a
+  single place."</li>
+<li>How will we make this work with our own logging? Plug on top of
+    this logging and manage it's output ourselves?</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coreray-daghtml">https://docs.ray.io/en/latest/ray-core/ray-dag.html</h2>
+<ul>
+<li>There is an API to build a DAG that can be executed, but probably
+  not helpful for us.</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coremiscellaneoushtmlrunning-large-ray-clusters">https://docs.ray.io/en/latest/ray-core/miscellaneous.html#running-large-ray-clusters</h2>
+<ul>
+<li>Tips for running Ray clusters with 1k+ nodes!</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coreuser-spawn-processeshtml">https://docs.ray.io/en/latest/ray-core/user-spawn-processes.html</h2>
+<ul>
+<li>Notes for avoiding zombies when your task contains subprocesses and
+  is killed.</li>
+<li>"RAY_kill_child_processes_on_worker_exit (default true): Only works
+  on Linux. If true, the worker kills all direct child processes on
+  exit. This won’t work if the worker crashed. This is NOT recursive,
+  in that grandchild processes are not killed by this mechanism."</li>
+<li>"RAY_kill_child_processes_on_worker_exit_with_raylet_subreaper
+  (default false): Only works on Linux greater than or equal to 3.4.
+  If true, Raylet recursively kills any child processes and grandchild
+  processes that were spawned by the worker after the worker exits.
+  This works even if the worker crashed. The killing happens within 10
+  seconds after the worker death."</li>
+<li>"On non-Linux platforms, user-spawned process is not controlled by
+  Ray. The user is responsible for managing the lifetime of the child
+  processes. If the parent Ray worker process dies, the child
+  processes will continue to run."</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-corepatternsindexhtml">https://docs.ray.io/en/latest/ray-core/patterns/index.html</h2>
+<ul>
+<li>TODO</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-coretips-for-first-timehtml">https://docs.ray.io/en/latest/ray-core/tips-for-first-time.html</h2>
+<ul>
+<li>TODO</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestray-corestarting-rayhtml">https://docs.ray.io/en/latest/ray-core/starting-ray.html</h2>
+<ul>
+<li>TODO</li>
+</ul>
+<h2 id="httpsdocsrayioenlatestclustergetting-startedhtmlcluster-index">https://docs.ray.io/en/latest/cluster/getting-started.html#cluster-index</h2>
+<ul>
+<li>TODO</li>
+</ul>
+<h1 id="questions">Questions</h1>
+<ul>
+<li>Can I dynamically create a remote function?</li>
+<li>How will this work with mlflow?</li>
+<li>Have an option to not use distributed storage, where we load and
+  save all results locally, and distribute them as shared objects?</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tracking", "navigation.sections"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>
