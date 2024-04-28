@@ -3,7 +3,8 @@
 from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
-from typing import cast, Any, Dict, Optional, Sequence, Set, Union
+from types import UnionType
+from typing import TypeAlias, cast, Any, Dict, Optional, Sequence, Set, Union
 
 from frozendict import frozendict
 
@@ -13,11 +14,15 @@ from .exceptions import TaskError
 from .utils import ensure_dict_key_str
 
 
+ParamScalar: TypeAlias = None | str | bool | float | int | Enum
+
+
 class CacheDefault:
     pass
 
 
 CACHE_DEFAULT = CacheDefault()
+
 
 _RESERVED_ATTRS = [
     '_lt', '_is_task', 'cache_key', 'result', '_results_map', '_set_results_map',
@@ -35,14 +40,7 @@ def immutable_param_value(key: str, value: Any) -> Any:
             ensure_dict_key_str(dict_key, exception_type=TaskError): immutable_param_value(f'{key}["{dict_key}"]', dict_value)
             for dict_key, dict_value in value.items()
         })
-    is_scalar = (
-        (value is None)
-        or isinstance(value, str)
-        or isinstance(value, bool)
-        or isinstance(value, float)
-        or isinstance(value, int)
-        or isinstance(value, Enum)
-    )
+    is_scalar = isinstance(value, cast(UnionType, ParamScalar))
     if is_scalar or is_task(value):
         return value
     raise TaskError(f"Unsupported type '{type(value).__qualname__}' in parameter value '{key}'.")
@@ -248,7 +246,7 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] 
             for item in param_value
             for task in find_tasks_in_param(item, searched_coll_ids)
         ]
-    elif isinstance(param_value, dict):
+    elif isinstance(param_value, dict) or isinstance(param_value, frozendict):
         searched_coll_ids = searched_coll_ids | {id(param_value)}
         return [
             task
@@ -257,4 +255,9 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] 
             for item in param_value.values()
             for task in find_tasks_in_param(item, searched_coll_ids)
         ]
-    return []
+    elif isinstance(param_value, cast(UnionType, ParamScalar)):
+        return []
+
+    # This should be impossible.
+    msg = f"Unexpected type {type(param_value).__qualname__} encountered in task parameter value."
+    raise TaskError(msg)
