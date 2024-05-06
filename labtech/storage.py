@@ -59,7 +59,10 @@ class LocalStorage(Storage):
         return key_path
 
     def find_keys(self) -> Sequence[str]:
-        return sorted([key_path.name for key_path in self._storage_path.iterdir()])
+        return sorted([
+            key_path.name for key_path in self._storage_path.iterdir()
+            if key_path.is_dir()
+        ])
 
     def exists(self, key: str) -> bool:
         key_path = self._key_path(key)
