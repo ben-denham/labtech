@@ -1,10 +1,10 @@
-import builtins
 from dataclasses import dataclass, fields
 from textwrap import indent
 from typing import Dict, Sequence, Type, get_args, get_origin, get_type_hints
 
 from .tasks import find_tasks_in_param
 from .types import Task, is_task
+from .utils import is_ipython
 
 
 @dataclass(frozen=True)
@@ -187,17 +187,8 @@ def display_task_diagram(tasks: Sequence[Task], **kwargs) -> None:
 
     """
     diagram = build_task_diagram(tasks, **kwargs)
-
-    ipython = False
-    try:
+    if is_ipython():
         from IPython.display import Markdown, display
-    except ImportError:
-        pass
-    else:
-        if hasattr(builtins, '__IPYTHON__'):
-            ipython = True
-
-    if ipython:
         display(Markdown(f'```mermaid\n{diagram}\n```'))
     else:
         print(diagram)

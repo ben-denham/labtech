@@ -91,8 +91,7 @@ if __name__ == '__main__':
 ![Animated GIF of labtech demo on the command-line](https://ben-denham.github.io/labtech/images/labtech-demo.gif)
 
 Labtech can also produce graphical progress bars in
-[Jupyter](https://jupyter.org/) when the `Lab` is initialized with
-`notebook=True`:
+[Jupyter](https://jupyter.org/) notebooks:
 
 ![Animated GIF of labtech demo in Jupyter](https://ben-denham.github.io/labtech/images/labtech-demo-jupyter.gif)
 

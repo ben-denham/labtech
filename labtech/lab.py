@@ -27,7 +27,7 @@ from .executors import SerialExecutor, wait_for_first_future
 from .storage import LocalStorage, NullStorage
 from .tasks import find_tasks_in_param
 from .types import ResultMeta, ResultsMap, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
-from .utils import LoggerFileProxy, OrderedSet, logger
+from .utils import LoggerFileProxy, OrderedSet, is_ipython, logger
 
 _IN_TASK_SUBPROCESS = False
 
@@ -410,7 +410,7 @@ class Lab:
                  storage: Union[str, Path, None, Storage],
                  continue_on_failure: bool = True,
                  max_workers: Optional[int] = None,
-                 notebook: bool = False,
+                 notebook: Optional[bool] = None,
                  context: Optional[dict[str, Any]] = None):
         """
         Args:
@@ -426,8 +426,9 @@ class Lab:
                 `concurrent.futures.ProcessPoolExecutor`: the number of
                 processors on the machine. When `max_workers=1`, all tasks will
                 be run in the main process, without multi-processing.
-            notebook: Should be set to `True` if run from a Jupyter notebook
-                for graphical progress bars.
+            notebook: Determines whether to use notebook-friendly graphical
+                progress bars. When set to `None` (the default), labtech will
+                detect whether the code is being run from an IPython notebook.
             context: A dictionary of additional variables to make available to
                 tasks. The context will not be cached, so the values should not
                 affect results (e.g. parallelism factors) or should be kept
@@ -440,7 +441,7 @@ class Lab:
         self._storage = storage
         self.continue_on_failure = continue_on_failure
         self.max_workers = max_workers
-        self.notebook = notebook
+        self.notebook = is_ipython() if notebook is None else notebook
         if context is None:
             context = {}
         self.context = context

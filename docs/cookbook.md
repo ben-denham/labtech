@@ -50,10 +50,7 @@ experiments = [
     )
     for seed in range(5)
 ]
-lab = labtech.Lab(
-    storage=None,
-    notebook=True,
-)
+lab = labtech.Lab(storage=None)
 results = lab.run_tasks(experiments)
 ```
 
@@ -120,10 +117,7 @@ class ClassifierExperiment:
 experiment = ClassifierExperiment(
     classifier_task=LRClassifierTask(random_state=42),
 )
-lab = labtech.Lab(
-    storage=None,
-    notebook=True,
-)
+lab = labtech.Lab(storage=None)
 results = lab.run_tasks([experiment])
 ```
 
@@ -182,10 +176,7 @@ experiments = [
     ClassifierExperiment(classifier_task=classifier_task)
     for classifier_task in classifier_tasks
 ]
-lab = labtech.Lab(
-    storage=None,
-    notebook=True,
-)
+lab = labtech.Lab(storage=None)
 results = lab.run_tasks(experiments)
 ```
 
@@ -242,10 +233,7 @@ experiments = [
     )
     for dataset in DatasetOption
 ]
-lab = labtech.Lab(
-    storage=None,
-    notebook=True,
-)
+lab = labtech.Lab(storage=None)
 results = lab.run_tasks(experiments)
 ```
 
@@ -291,7 +279,6 @@ experiments = [
 ]
 lab = labtech.Lab(
     storage=None,
-    notebook=True,
     context={
         'DATASETS': DATASETS,
     },
@@ -340,7 +327,6 @@ experiments = [
 ]
 lab = labtech.Lab(
     storage=None,
-    notebook=True,
     context={
         'within_task_workers': 4,
     },
@@ -521,10 +507,7 @@ class TabularTask:
         })
 
 
-lab = labtech.Lab(
-    storage='storage/parquet_example',
-    notebook=True,
-)
+lab = labtech.Lab(storage='storage/parquet_example')
 lab.run_tasks([TabularTask()])
 ```
 
@@ -602,10 +585,7 @@ experiments = [
     )
     for seed in range(100)
 ]
-lab = labtech.Lab(
-    storage=LocalFsspecStorage('storage/fsspec_example'),
-    notebook=True,
-)
+lab = labtech.Lab(storage=LocalFsspecStorage('storage/fsspec_example'))
 results = lab.run_tasks(experiments)
 ```
 
@@ -676,10 +656,7 @@ experiments = [
 aggregation_task = AggregationTask(
     sub_tasks=experiments,
 )
-lab = labtech.Lab(
-    storage='storage/aggregation_lab',
-    notebook=True,
-)
+lab = labtech.Lab(storage='storage/aggregation_lab')
 result = lab.run_task(aggregation_task)
 ```
 
@@ -718,10 +695,7 @@ experiments = [
 aggregation_task = AggregationTask(
     sub_tasks=experiments,
 )
-lab = labtech.Lab(
-    storage=None,
-    notebook=True,
-)
+lab = labtech.Lab(storage=None)
 results = lab.run_tasks([
     aggregation_task,
     # Include intermediate tasks to access their results
@@ -751,10 +725,7 @@ experiments = [
 aggregation_task = AggregationTask(
     sub_tasks=experiments,
 )
-lab = labtech.Lab(
-    storage=None,
-    notebook=True,
-)
+lab = labtech.Lab(storage=None)
 result = lab.run_task(
     aggregation_task,
     keep_nested_results=True,
@@ -817,10 +788,7 @@ task_c = StepC(
     task_b=task_b,
 )
 
-lab = labtech.Lab(
-    storage=None,
-    notebook=True,
-)
+lab = labtech.Lab(storage=None)
 result = lab.run_task(task_c)
 print(result)
 ```
@@ -897,10 +865,7 @@ runs = [
 ]
 
 mlflow.set_experiment('example_labtech_experiment')
-lab = labtech.Lab(
-    storage=None,
-    notebook=True,
-)
+lab = labtech.Lab(storage=None)
 results = lab.run_tasks(runs)
 ```
 
@@ -956,10 +921,7 @@ def main():
         )
         for seed in range(1000)
     ]
-    lab = labtech.Lab(
-        storage='storage/guarded_lab',
-        notebook=True,
-    )
+    lab = labtech.Lab(storage='storage/guarded_lab')
     result = lab.run_tasks(experiments)
     print(result)
 

@@ -100,10 +100,7 @@ called `storage/tutorial/classification_lab_1` and to display
 notebook-friendly progress bars:
 
 ``` {.python .code}
-lab = labtech.Lab(
-    storage='storage/tutorial/classification_lab_1',
-    notebook=True,
-)
+lab = labtech.Lab(storage='storage/tutorial/classification_lab_1')
 ```
 
 Finally, we create a task instance of `ClassifierExperiment` and call
@@ -211,10 +208,7 @@ we'll keep caches for the new definition separate by constructing a
 new lab that uses a different storage directory:
 
 ``` {.python .code}
-lab = labtech.Lab(
-    storage='storage/tutorial/classification_lab_2',
-    notebook=True,
-)
+lab = labtech.Lab(storage='storage/tutorial/classification_lab_2')
 results = lab.run_tasks(classifier_experiments)
 ```
 
@@ -392,10 +386,7 @@ classifier_experiments = [
     ]
 ]
 
-lab = labtech.Lab(
-    storage='storage/tutorial/classification_lab_3',
-    notebook=True,
-)
+lab = labtech.Lab(storage='storage/tutorial/classification_lab_3')
 
 results = lab.run_tasks(classifier_experiments)
 for experiment, prob_y in results.items():
@@ -460,7 +451,6 @@ classifier_experiments = [
 
 lab = labtech.Lab(
     storage='storage/tutorial/classification_lab_4',
-    notebook=True,
     context={
         'DATASETS': DATASETS,
     },
@@ -668,7 +658,6 @@ import mlflow
 mlflow.set_experiment('example_labtech_experiment')
 lab = labtech.Lab(
     storage='storage/tutorial/classification_lab_final',
-    notebook=True,
     context={
         'DATASETS': DATASETS,
     },

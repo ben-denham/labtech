@@ -1,5 +1,6 @@
 """General labtech utilities."""
 
+import builtins
 import logging
 import re
 from typing import Dict, Generic, Optional, Sequence, Type, TypeVar, cast
@@ -109,9 +110,14 @@ def ensure_dict_key_str(value, *, exception_type: Type[Exception]) -> str:
     return cast(str, value)
 
 
+def is_ipython() -> bool:
+    return hasattr(builtins, '__IPYTHON__')
+
+
 __all__ = [
     'logger',
     'OrderedSet',
     'LoggerFileProxy',
     'ensure_dict_key_str',
+    'is_ipython',
 ]
