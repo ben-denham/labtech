@@ -874,6 +874,16 @@ results = lab.run_tasks(runs)
 > `mlflow.start_run()`, labtech wraps the entire call to the `run()`
 > method of your task in order to track execution times in mlflow.
 
+> Note: Because mlflow logging will be performed from a separate
+> process for each task, you must use an mlflow tracking backend that
+> supports multiple simultaneous connections. Specifically, using an
+> SQLite backend directly from multiple processes may result in
+> database locking errors. Instead, consider using local files (the
+> default used by mlflow), an SQL database that runs as a server (e.g.
+> postgresql, mysql, or mssql), or running a local mlflow tracking
+> server (which may itself connect to an sqlite database). For more
+> details, see the [mlflow backend
+> documentation](https://mlflow.org/docs/latest/tracking/backend-stores.html).
 
 ### Why do I see the following error: `An attempt has been made to start a new process before the current process has finished`?
 
