@@ -660,6 +660,66 @@ lab = labtech.Lab(storage='storage/aggregation_lab')
 result = lab.run_task(aggregation_task)
 ```
 
+### How can I optimise memory usage in labtech?
+
+Labtech needs to duplicate the results of dependent tasks and the lab
+context into each task's process. Therefore, to reduce memory usage
+(and the computational cost of [pickling and
+unpickling](https://docs.python.org/3/library/pickle.html) these
+values when copying them between processes), you should try to keep
+these values as small as possible.
+
+#### Sharing context with forked processes
+
+If you are running labtech on Linux with the [default *start method*
+of *fork*](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods),
+then you can rely on the memory shared between forked processes to
+share the lab context without duplicating it. To do so:
+
+1. Store your context in a global variable
+2. Define a global function that returns the context global variable
+3. Pass that context function as the lab's `context`
+4. From any task `run()` method that needs to use the context, call
+   the function now stored in `self.context` to access the context.
+
+The following code demonstrates this pattern:
+
+``` {.python .code}
+CONTEXT={
+    'DATASETS': {
+        'zeros': np.zeros((50, 10)),
+        'ones': np.ones((50, 10)),
+    },
+}
+
+
+def context_loader():
+    return CONTEXT
+
+
+@labtech.task
+class SumExperiment:
+    dataset_key: str
+
+    def run(self):
+        context = self.context()
+        dataset = context['DATASETS'][self.dataset_key]
+        return np.sum(dataset)
+
+
+experiments = [
+    SumExperiment(
+        dataset_key=dataset_key
+    )
+    for dataset_key in CONTEXT['DATASETS'].keys()
+]
+lab = labtech.Lab(
+    storage=None,
+    context=context_loader,
+)
+results = lab.run_tasks(experiments)
+```
+
 ### How can I see when a task was run and how long it took to execute?
 
 Once a task has been executed (or loaded from cache), you can see when
