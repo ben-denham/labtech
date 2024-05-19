@@ -57,7 +57,7 @@ class LocalStorage(Storage):
 
         disallowed_key_chars = ['.', '/', '\\', os.path.sep, os.path.altsep]
         for char in disallowed_key_chars:
-            if char in key:
+            if char is not None and char in key: # altsep can be None
                 raise StorageError(f"Key '{key}' must not contain the forbidden character '{char}'")
 
         key_path = (self._storage_path / key).resolve()
