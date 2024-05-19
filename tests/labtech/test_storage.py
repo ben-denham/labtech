@@ -73,11 +73,16 @@ class TestLocalStorage:
                 local_storage.exists(os.path.sep + "key")
 
         def test_backslash(self, local_storage: LocalStorage):
-            if os.path.sep == "\\":
-                with pytest.raises(StorageError):
-                    local_storage.exists("key\\with\\backslashes")
-            else:
-                assert not local_storage.exists("key\\with\\backslashes")
+            with pytest.raises(StorageError):
+                local_storage.exists("key\\with\\backslashes")
+
+        def test_dot(self, local_storage: LocalStorage):
+            with pytest.raises(StorageError):
+                local_storage.exists("key.with.dots")
+
+        def test_forwardslash(self, local_storage: LocalStorage):
+            with pytest.raises(StorageError):
+                local_storage.exists("key/with/forwardslashes")
 
         def test_relative_path_trickery(self, local_storage: LocalStorage):
             key = "other_key"
