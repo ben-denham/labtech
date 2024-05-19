@@ -3846,6 +3846,17 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<8.2)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
+name = "types-psutil"
+version = "5.9.5.20240516"
+description = "Typing stubs for psutil"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types-psutil-5.9.5.20240516.tar.gz", hash = "sha256:bb296f59fc56458891d0feb1994717e548a1bcf89936a2877df8792b822b4696"},
+    {file = "types_psutil-5.9.5.20240516-py3-none-any.whl", hash = "sha256:83146ded949a10167d9895e567b3b71e53ebc5e23fd8363eab62b3c76cce7b89"},
+]
+
+[[package]]
 name = "types-python-dateutil"
 version = "2.9.0.20240316"
 description = "Typing stubs for python-dateutil"
@@ -4075,4 +4086,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10"
-content-hash = "aeb1dcd9a4a9f0bf3ae2e25ad7cfcb3f52689cd19b307e6b7fcac437625e931a"
+content-hash = "246b59bf2813aae145828d74698787cfa45f3cbb20d2216b115f0deb69038de5"

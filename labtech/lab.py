@@ -14,8 +14,9 @@ from datetime import datetime
 from enum import Enum
 from logging.handlers import QueueHandler
 from pathlib import Path
+from queue import Queue
 from threading import Thread
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union, cast
 
 from frozendict import frozendict
 from tqdm import tqdm
@@ -24,6 +25,7 @@ from tqdm.notebook import tqdm as tqdm_notebook
 
 from .exceptions import LabError, TaskNotFound
 from .executors import SerialExecutor, wait_for_first_future
+from .monitor import TaskEndEvent, TaskMonitor, TaskStartEvent
 from .storage import LocalStorage, NullStorage
 from .tasks import find_tasks_in_param
 from .types import ResultMeta, ResultsMap, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
@@ -223,12 +225,18 @@ def init_task_worker(log_queue):
 class TaskRunner:
 
     def __init__(self, lab: 'Lab', bust_cache: bool, keep_nested_results: bool,
-                 disable_progress: bool):
+                 disable_progress: bool, disable_top: bool, top_format: str,
+                 top_sort: str, top_n: int):
         self.lab = lab
         self.bust_cache = bust_cache
         self.keep_nested_results = keep_nested_results
         self.disable_progress = disable_progress
+        self.disable_top = disable_top
+        self.top_format = top_format
+        self.top_sort = top_sort
+        self.top_n = top_n
         self.log_queue = multiprocessing.Manager().Queue(-1)
+        self.task_monitor_queue: Optional[Queue] = None
 
     def get_executor(self, serial: bool = False):
         if (self.lab.max_workers is not None and self.lab.max_workers == 1):
@@ -275,8 +283,16 @@ class TaskRunner:
     def run_or_load_task(self, process_name: str, task: Task) -> TaskResult:
         orig_process_name = multiprocessing.current_process().name
         try:
-            multiprocessing.current_process().name = process_name
-            if self.use_cache(task):
+            current_process = multiprocessing.current_process()
+            current_process.name = process_name
+            use_cache = self.use_cache(task)
+            if self.task_monitor_queue is not None:
+                self.task_monitor_queue.put(TaskStartEvent(
+                    process_name=process_name,
+                    pid=cast(int, current_process.pid),
+                    use_cache=use_cache,
+                ))
+            if use_cache:
                 logger.debug(f"Loading from cache: '{task}'")
                 task_result = task._lt.cache.load_result_with_meta(self.lab._storage, task)
                 return task_result
@@ -298,7 +314,11 @@ class TaskRunner:
                 logger.debug(f"Completed: '{task}'")
                 return task_result
         finally:
-            multiprocessing.current_process().name = orig_process_name
+            current_process.name = orig_process_name
+            if self.task_monitor_queue is not None:
+                self.task_monitor_queue.put(TaskEndEvent(
+                    process_name=process_name,
+                ))
 
     def logger_thread(self):
         # See: https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes
@@ -330,6 +350,20 @@ class TaskRunner:
             )
             for task_type, task_count in task_type_counts.items()
         }
+
+        task_monitor = None
+        if not self.disable_top:
+            self.task_monitor_queue = multiprocessing.Manager().Queue(-1)
+            task_monitor = TaskMonitor(
+                task_monitor_queue=self.task_monitor_queue,
+                top_format=self.top_format,
+                top_sort=self.top_sort,
+                top_n=self.top_n,
+                notebook=self.lab.notebook,
+            )
+            task_monitor.show()
+            task_monitor.start()
+
         executor = self.get_executor()
         serial_executor = self.get_executor(serial=True)
         future_to_task: Dict[concurrent.futures.Future, Task] = {}
@@ -388,6 +422,8 @@ class TaskRunner:
                 for pbar in pbars.values():
                     pbar.close()
                 self.log_queue.put(None)
+                if task_monitor is not None:
+                    task_monitor.close()
                 log_thread.join()
 
             raise KeyboardInterrupt
@@ -449,7 +485,11 @@ class Lab:
     def run_tasks(self, tasks: Sequence[TaskT], *,
                   bust_cache: bool = False,
                   keep_nested_results: bool = False,
-                  disable_progress: bool = False) -> Dict[TaskT, Any]:
+                  disable_progress: bool = False,
+                  disable_top: bool = False,
+                  top_format: str = '$name $status since $start_time CPU: $cpu MEM: $rss',
+                  top_sort: str = 'start_time',
+                  top_n: int = 10) -> Dict[TaskT, Any]:
         """Run the given tasks with as much process parallelism as possible.
         Loads task results from the cache storage where possible and
         caches results of executed tasks.
@@ -474,6 +514,33 @@ class Lab:
                 be cleared from memory once they are no longer needed.
             disable_progress: If `True`, do not display a tqdm progress bar
                 tracking task execution.
+            disable_top: If `True`, do not display the list of top active tasks.
+            top_format: Format for each top active task. Follows the format
+                rules for
+                [template strings](https://docs.python.org/3/library/string.html#template-strings)
+                and may include any of the following attributes for
+                substitution:
+
+                * `name`: The task's name displayed in logs.
+                * `pid`: The task's primary process id.
+                * `status`: Whether the task is being run or loaded from cache.
+                * `start_time`: The time the task's primary process started.
+                * `children`: The number of child tasks of the task's primary
+                  process.
+                * `threads`: The number of active CPU threads for the task
+                  (including across any child processes).
+                * `cpu`: The CPU percentage (1 core = 100%) being used by the
+                  task (including across any child processes).
+                * `rss`: The resident set size (RSS) memory percentage being
+                  used by the task (including across any child processes). RSS
+                  is the primary measure of memory usage.
+                * `vms`: The virtual memory size (VMS) percentage being used by
+                  the task (including across any child processes).
+            top_sort: Sort order for the top active tasks. Can be any of the
+                attributes available for use in `top_format`. If the string is
+                preceded by a `-`, the sort order will be reversed. Defaults to
+                showing oldest tasks first.
+            top_n: The maximum number of top active tasks to display.
 
         Returns:
             A dictionary mapping each of the provided tasks to its
@@ -484,7 +551,11 @@ class Lab:
         runner = TaskRunner(self,
                             bust_cache=bust_cache,
                             keep_nested_results=keep_nested_results,
-                            disable_progress=disable_progress)
+                            disable_progress=disable_progress,
+                            disable_top=disable_top,
+                            top_format=top_format,
+                            top_sort=top_sort,
+                            top_n=top_n)
         results = runner.run(tasks)
         # Return results in the same order as tasks
         return {task: results[task] for task in tasks}
