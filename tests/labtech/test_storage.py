@@ -33,13 +33,13 @@ class TestLocalStorage:
 
         def test_single_key(self, local_storage: LocalStorage):
             key = 'key'
-            (local_storage._storage_path / key).touch()
+            (local_storage._storage_path / key).mkdir(exist_ok=True)
             assert local_storage.find_keys() == [key]
 
         def test_multiple_keys_sorted(self, local_storage: LocalStorage):
             keys = ['b', 'a', 'c']
             for key in keys:
-                (local_storage._storage_path / key).touch()
+                (local_storage._storage_path / key).mkdir(exist_ok=True)
             assert local_storage.find_keys() == sorted(keys)
 
     class TestExists:

@@ -55,11 +55,10 @@ class LocalStorage(Storage):
         if not key:
             raise StorageError("Key cannot be empty")
 
-        if key.startswith('/') or key.endswith('/') or key.startswith(os.path.sep) or key.endswith(os.path.sep):
-            msg = f"Key '{key}' should not start or end with '/'"
-            if os.path.sep != '/':
-                msg += f" or '{os.path.sep}'"
-            raise StorageError(msg)
+        disallowed_key_chars = ['.', '/', '\\', os.path.sep, os.path.altsep]
+        for char in disallowed_key_chars:
+            if char in key:
+                raise StorageError(f"Key '{key}' must not contain the forbidden character '{char}'")
 
         key_path = (self._storage_path / key).resolve()
         if key_path.parent != self._storage_path:
