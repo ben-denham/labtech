@@ -49,6 +49,7 @@ class TerminalMultilineDisplay(MultilineDisplay):
         self.pbars = [
             tqdm(
                 bar_format='{desc}\033[K',
+                dynamic_ncols=True,
             )
             for _ in range(line_count)
         ]

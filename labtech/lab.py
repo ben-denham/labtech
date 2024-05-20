@@ -259,6 +259,7 @@ class TaskRunner:
             total=task_count,
             bar_format='{desc}: {n_fmt}/{total_fmt} [{elapsed}, {rate_fmt}{postfix}] |{bar}| {percentage:3.0f}% [{remaining} remaining]',
             disable=self.disable_progress,
+            dynamic_ncols=True,
         )
 
     def handle_failure(self, *, ex: Exception, message: str):
