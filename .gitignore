@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # Test coverage
-.coverage
+.coverage*
 tests/coverage/
 
 # Generated docs

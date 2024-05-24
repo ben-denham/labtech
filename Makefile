@@ -20,7 +20,8 @@ test:
 	poetry run pytest \
 		--cov="labtech" \
 		--cov-report="html:tests/coverage" \
-		--cov-report=term
+		--cov-report=term \
+		tests/
 check: sort-imports lint mypy test
 
 build:
