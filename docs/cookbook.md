@@ -948,9 +948,10 @@ results = lab.run_tasks(runs)
 ### Why do I see the following error: `An attempt has been made to start a new process before the current process has finished`?
 
 When running labtech in a Python script on Windows, macOS, or any
-Python environment using the `spawn` multiprocessing start method, you
-will see the following error if you do not guard your experiment and
-lab creation and other non-definition code with `__name__ ==
+Python environment using the
+[`spawn` multiprocessing start method](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods),
+you will see the following error if you do not guard your experiment
+and lab creation and other non-definition code with `__name__ ==
 '__main__'`:
 
 ```
@@ -1000,3 +1001,24 @@ if __name__ == '__main__':
 ```
 
 For details, see [Safe importing of main module](https://docs.python.org/3/library/multiprocessing.html#multiprocessing-safe-main-import).
+
+
+### Why do I see the following error: `AttributeError: Can't get attribute 'YOUR_TASK_CLASS' on <module '__main__' (built-in)>`?
+
+You will see this error (as part of a very long stack trace) when
+defining and running labtech tasks from an interactive Python shell on
+Windows or macOS (or more specifically, when
+[Python's multiprocessing start method](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods)
+has been set to `spawn` or `forkserver`).
+
+The solution to this error is to define all of your labtech `Task`
+types in a separate `.py` Python module file which you can import into
+your interactive shell session (e.g. `from my_module import MyTask`).
+
+The reason for this error is that `spawn` and `forkserver` start
+methods will not copy the current state of your `__main__` module
+(which contains the variables you declare interactively in the Python
+shell, including task definitions) into labtech's task subprocesses.
+This error does not occur for the `fork` start method (the current
+default on Linux) because forked subprocesses *do* receive the current
+state of all modules (including `__main__`) from the parent process.
