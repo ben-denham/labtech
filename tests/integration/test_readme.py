@@ -32,7 +32,7 @@ class TestReadmeExamples:
         )
 
         stdout = cproc.stdout.decode().replace("\r", "")
-        assert stdout.endswith(listout + diagram)
+        assert stdout == (listout + diagram)
 
 
 def _run_example_subprocess(name: str) -> subprocess.CompletedProcess:

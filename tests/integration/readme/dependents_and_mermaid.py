@@ -36,15 +36,15 @@ def main():
 if __name__ == '__main__':
     main()
 
-from labtech.diagram import display_task_diagram
+    from labtech.diagram import display_task_diagram
 
-some_slow_task = SlowTask(base=42)
-dependent_tasks = [
-    DependentTask(
-        slow_task=some_slow_task,
-        multiplier=multiplier,
-    )
-    for multiplier in range(10)
-]
+    some_slow_task = SlowTask(base=42)
+    dependent_tasks = [
+        DependentTask(
+            slow_task=some_slow_task,
+            multiplier=multiplier,
+        )
+        for multiplier in range(10)
+    ]
 
-display_task_diagram(dependent_tasks)
+    display_task_diagram(dependent_tasks)
