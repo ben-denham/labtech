@@ -52,6 +52,14 @@ class LocalStorage(Storage):
                 gitignore_file.write('*\n')
 
     def _key_path(self, key: str) -> Path:
+        if not key:
+            raise StorageError("Key cannot be empty")
+
+        disallowed_key_chars = ['.', '/', '\\', os.path.sep, os.path.altsep]
+        for char in disallowed_key_chars:
+            if char is not None and char in key: # altsep can be None
+                raise StorageError(f"Key '{key}' must not contain the forbidden character '{char}'")
+
         key_path = (self._storage_path / key).resolve()
         if key_path.parent != self._storage_path:
             raise StorageError((f"Key '{key}' should only reference a directory directly "
