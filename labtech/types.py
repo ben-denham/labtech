@@ -8,7 +8,6 @@ from typing import (
     IO,
     Any,
     Callable,
-    Dict,
     Generic,
     Literal,
     Optional,
@@ -31,7 +30,7 @@ CovariantResultT = TypeVar('CovariantResultT', covariant=True)
 ResultT = TypeVar('ResultT')
 """Type variable for result returned by the `run` method of a
 [`Task`][labtech.types.Task]."""
-ResultsMap = Dict['Task[CovariantResultT]', CovariantResultT]
+ResultsMap = dict['Task[CovariantResultT]', CovariantResultT]
 
 
 @dataclass(frozen=True)

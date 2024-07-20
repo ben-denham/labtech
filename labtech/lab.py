@@ -6,7 +6,7 @@ from collections import Counter, defaultdict
 from dataclasses import fields
 from pathlib import Path
 from queue import Queue
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
+from typing import Any, Iterable, Optional, Sequence, Set, Type, Union
 
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -48,27 +48,27 @@ class TaskState:
 
         self.pending_tasks: OrderedSet[Task] = OrderedSet()
         self.processed_task_ids: Set[int] = set()
-        self.task_to_direct_dependencies: Dict[Task, Set[Task]] = defaultdict(set)
-        self.task_to_pending_dependencies: Dict[Task, Set[Task]] = defaultdict(set)
-        self.task_to_pending_dependents: Dict[Task, Set[Task]] = defaultdict(set)
-        self.type_to_active_tasks: Dict[Type[Task], Set[Task]] = defaultdict(set)
+        self.task_to_direct_dependencies: dict[Task, Set[Task]] = defaultdict(set)
+        self.task_to_pending_dependencies: dict[Task, Set[Task]] = defaultdict(set)
+        self.task_to_pending_dependents: dict[Task, Set[Task]] = defaultdict(set)
+        self.type_to_active_tasks: dict[Type[Task], Set[Task]] = defaultdict(set)
         # We need to track all unique instances of a task (i.e. that
         # hash the same, but have different identities) so that we can
         # ensure all are updated. Duplicated task instances may occur
         # in dependencies of different tasks.
-        self.task_to_instances: Dict[Task, List[Task]] = defaultdict(list)
+        self.task_to_instances: dict[Task, list[Task]] = defaultdict(list)
 
         self.process_tasks(tasks)
         self.check_cyclic_dependences()
 
     def process_tasks(self, tasks: Iterable[Task]):
-        all_dependencies: List[Task] = []
+        all_dependencies: list[Task] = []
         for task in tasks:
             if id(task) in self.processed_task_ids:
                 continue
             self.processed_task_ids.add(id(task))
 
-            dependent_tasks: List[Task] = []
+            dependent_tasks: list[Task] = []
             if not self.coordinator.use_cache(task):
                 # Find all dependent tasks inside task fields
                 for field in fields(task):
@@ -197,7 +197,7 @@ class TaskCoordinator:
     def use_cache(self, task: Task) -> bool:
         return (not self.bust_cache) and self.lab.is_cached(task)
 
-    def run(self, tasks: Sequence[Task]) -> Dict[Task, Any]:
+    def run(self, tasks: Sequence[Task]) -> dict[Task, Any]:
         task_results = {}
 
         state = TaskState(coordinator=self, tasks=tasks)
@@ -340,7 +340,7 @@ class Lab:
                   disable_top: bool = False,
                   top_format: str = '$name $status since $start_time CPU: $cpu MEM: $rss',
                   top_sort: str = 'start_time',
-                  top_n: int = 10) -> Dict[TaskT, Any]:
+                  top_n: int = 10) -> dict[TaskT, Any]:
         """Run the given tasks with as much process parallelism as possible.
         Loads task results from the cache storage where possible and
         caches results of executed tasks.

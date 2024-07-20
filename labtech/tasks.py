@@ -4,7 +4,7 @@ from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
 from types import UnionType
-from typing import Any, Dict, Optional, Sequence, Set, TypeAlias, Union, cast
+from typing import Any, Optional, Sequence, TypeAlias, Union, cast
 
 from frozendict import frozendict
 
@@ -81,7 +81,7 @@ def _task_result(self: Task[ResultT]) -> ResultT:
     return self._results_map[self]
 
 
-def _task__getstate__(self: Task) -> Dict[str, Any]:
+def _task__getstate__(self: Task) -> dict[str, Any]:
     state = {
         **{f.name: getattr(self, f.name) for f in fields(self)},
         '_lt': self._lt,
@@ -99,7 +99,7 @@ def _task__getstate__(self: Task) -> Dict[str, Any]:
     return state
 
 
-def _task__setstate__(self: Task, state: Dict[str, Any]) -> None:
+def _task__setstate__(self: Task, state: dict[str, Any]) -> None:
     field_set = set(f.name for f in fields(self))
     for key, value in state.items():
         value = immutable_param_value(key, value) if key in field_set else value
@@ -229,7 +229,7 @@ def task(*args,
         return decorator
 
 
-def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] = None) -> Sequence[Task]:
+def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] = None) -> Sequence[Task]:
     """Given a parameter value, return all tasks within it found through a recursive search."""
     if searched_coll_ids is None:
         searched_coll_ids = set()

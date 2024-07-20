@@ -3,7 +3,7 @@
 import builtins
 import logging
 import re
-from typing import Dict, Generic, Optional, Sequence, Type, TypeVar, cast
+from typing import Generic, Optional, Sequence, Type, TypeVar, cast
 
 
 def get_logger():
@@ -48,7 +48,7 @@ class OrderedSet(Generic[T]):
     iterated over."""
 
     def __init__(self, items: Optional[Sequence[T]] = None):
-        self.values: Dict[T, T] = {}
+        self.values: dict[T, T] = {}
         if items is not None:
             for item in items:
                 self.add(item)

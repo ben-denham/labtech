@@ -5,7 +5,7 @@ from itertools import zip_longest
 from queue import Empty, Queue
 from string import Template
 from threading import Timer
-from typing import Any, Dict, List, Optional, Sequence, cast
+from typing import Any, Optional, Sequence, cast
 
 import psutil
 from tqdm import tqdm
@@ -105,8 +105,8 @@ class TaskMonitor:
             NotebookMultilineDisplay() if notebook
             else TerminalMultilineDisplay(line_count=(top_n + 1))
         )
-        self.active_task_events: Dict[str, TaskStartEvent] = {}
-        self.active_processes: Dict[str, psutil.Process] = {}
+        self.active_task_events: dict[str, TaskStartEvent] = {}
+        self.active_processes: dict[str, psutil.Process] = {}
         self.timer: Optional[Timer] = None
         self.stopped = True
 
@@ -160,8 +160,8 @@ class TaskMonitor:
             'vms': memory_vms_percent,
         }
 
-    def _top_task_lines(self) -> List[str]:
-        process_infos: List[dict[str, Any]] = []
+    def _top_task_lines(self) -> list[str]:
+        process_infos: list[dict[str, Any]] = []
         for start_event in self.active_task_events.values():
             process_info = self._get_process_info(start_event)
             if process_info is not None:
