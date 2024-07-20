@@ -19,14 +19,14 @@ class TaskEvent:
 
 @dataclass(frozen=True)
 class TaskStartEvent(TaskEvent):
-    process_name: str
+    task_name: str
     pid: int
     use_cache: bool
 
 
 @dataclass(frozen=True)
 class TaskEndEvent(TaskEvent):
-    process_name: str
+    task_name: str
 
 
 class MultilineDisplay(ABC):
@@ -118,21 +118,21 @@ class TaskMonitor:
                 break
 
             if isinstance(event, TaskStartEvent):
-                self.active_task_events[event.process_name] = event
+                self.active_task_events[event.task_name] = event
             elif isinstance(event, TaskEndEvent):
-                if event.process_name in self.active_task_events:
-                    del self.active_task_events[event.process_name]
-                    if event.process_name in self.active_processes:
-                        del self.active_processes[event.process_name]
+                if event.task_name in self.active_task_events:
+                    del self.active_task_events[event.task_name]
+                    if event.task_name in self.active_processes:
+                        del self.active_processes[event.task_name]
             else:
                 raise LabError(f'Unexpected task event: {event}')
 
     def _get_process_info(self, start_event: TaskStartEvent) -> Optional[dict[str, Any]]:
         pid = start_event.pid
         try:
-            if start_event.process_name not in self.active_processes:
-                self.active_processes[start_event.process_name] = psutil.Process(pid)
-            process = self.active_processes[start_event.process_name]
+            if start_event.task_name not in self.active_processes:
+                self.active_processes[start_event.task_name] = psutil.Process(pid)
+            process = self.active_processes[start_event.task_name]
             with process.oneshot():
                 start_datetime = datetime.fromtimestamp(process.create_time())
                 threads = process.num_threads()
@@ -149,7 +149,7 @@ class TaskMonitor:
         except psutil.NoSuchProcess:
             return None
         return {
-            'name': start_event.process_name,
+            'name': start_event.task_name,
             'pid': pid,
             'status': ('loading' if start_event.use_cache else 'running'),
             'start_time': start_datetime,

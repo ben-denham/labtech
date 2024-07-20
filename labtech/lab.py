@@ -1,37 +1,25 @@
 """Lab and related utilities responsible for running tasks."""
 
-import concurrent.futures
 import concurrent.futures.process
-import logging
 import math
-import multiprocessing
-import signal
-import sys
 from collections import Counter, defaultdict
-from contextlib import contextmanager
 from dataclasses import fields
-from datetime import datetime
-from enum import Enum
-from logging.handlers import QueueHandler
 from pathlib import Path
 from queue import Queue
-from threading import Thread
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union, cast
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Type, Union
 
-from frozendict import frozendict
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from tqdm.notebook import tqdm as tqdm_notebook
 
 from .exceptions import LabError, TaskNotFound
-from .executors import SerialExecutor, wait_for_first_future
-from .monitor import TaskEndEvent, TaskMonitor, TaskStartEvent
+
+# from .monitor import TaskEndEvent, TaskMonitor, TaskStartEvent
+from .runners import ForkProcessRunner
 from .storage import LocalStorage, NullStorage
 from .tasks import find_tasks_in_param
-from .types import ResultMeta, ResultsMap, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
-from .utils import LoggerFileProxy, OrderedSet, is_ipython, logger
-
-_IN_TASK_SUBPROCESS = False
+from .types import ResultsMap, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
+from .utils import OrderedSet, is_ipython, logger
 
 
 def check_tasks(tasks: Sequence[Task]) -> None:
@@ -52,54 +40,10 @@ def check_task_types(task_types: Sequence[Type[Task]]) -> None:
             )
 
 
-@contextmanager
-def optional_mlflow(task: Task):
-
-    def log_params(value: Any, *, path: str = ''):
-        prefix = path if path == '' else f'{path}.'
-        if is_task(value):
-            for field in fields(value):
-                log_params(getattr(value, field.name), path=f'{prefix}{field.name}')
-        elif isinstance(value, tuple):
-            for i, item in enumerate(value):
-                log_params(item, path=f'{prefix}{i}')
-        elif isinstance(value, frozendict):
-            for key, item in value.items():
-                log_params(item, path=f'{prefix}{key}')
-        elif isinstance(value, Enum):
-            mlflow.log_param(path, f'{type(value).__qualname__}.{value.name}')
-        elif ((value is None)
-              or isinstance(value, str)
-              or isinstance(value, bool)
-              or isinstance(value, float)
-              or isinstance(value, int)):
-            mlflow.log_param(path, value)
-        else:
-            raise LabError(
-                (f"Unable to mlflow log parameter '{path}' of type '{type(value).__qualname__}' "
-                 f"in task of type '{type(task).__qualname__}'.")
-            )
-
-    if task._lt.mlflow_run:
-        try:
-            import mlflow
-        except ImportError:
-            raise LabError(
-                (f"Task type '{type(task).__qualname__}' is configured with mlflow_run=True, but "
-                 "mlflow cannot be imported. You can install mlflow with `pip install mlflow`.")
-            )
-        with mlflow.start_run():
-            mlflow.set_tag('labtech_task_type', type(task).__qualname__)
-            log_params(task)
-            yield
-    else:
-        yield
-
-
 class TaskState:
 
-    def __init__(self, *, runner: 'TaskRunner', tasks: Sequence[Task]):
-        self.runner = runner
+    def __init__(self, *, coordinator: 'TaskCoordinator', tasks: Sequence[Task]):
+        self.coordinator = coordinator
         self.results_map: ResultsMap = {}
 
         self.pending_tasks: OrderedSet[Task] = OrderedSet()
@@ -125,7 +69,7 @@ class TaskState:
             self.processed_task_ids.add(id(task))
 
             dependent_tasks: List[Task] = []
-            if not self.runner.use_cache(task):
+            if not self.coordinator.use_cache(task):
                 # Find all dependent tasks inside task fields
                 for field in fields(task):
                     field_value = getattr(task, field.name)
@@ -172,7 +116,7 @@ class TaskState:
             self.remove_result(task)
 
     def remove_result(self, task: Task):
-        if self.runner.keep_nested_results or task not in self.results_map:
+        if self.coordinator.keep_nested_results or task not in self.results_map:
             return
         logger.debug(f"Removing result from in-memory cache for task: '{task}'")
         del self.results_map[task]
@@ -210,19 +154,7 @@ class TaskState:
             check_cycle(task, set())
 
 
-def init_task_worker(log_queue):
-    global _IN_TASK_SUBPROCESS
-    _IN_TASK_SUBPROCESS = True
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    # Sub-processes should log onto the queue in order to printed
-    # in serial by the main process.
-    logger.handlers = []
-    logger.addHandler(QueueHandler(log_queue))
-    sys.stdout = LoggerFileProxy(logger.info, 'Captured STDOUT:\n')
-    sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')
-
-
-class TaskRunner:
+class TaskCoordinator:
 
     def __init__(self, lab: 'Lab', bust_cache: bool, keep_nested_results: bool,
                  disable_progress: bool, disable_top: bool, top_format: str,
@@ -235,21 +167,8 @@ class TaskRunner:
         self.top_format = top_format
         self.top_sort = top_sort
         self.top_n = top_n
-        self.log_queue = multiprocessing.Manager().Queue(-1)
+
         self.task_monitor_queue: Optional[Queue] = None
-
-    def get_executor(self, serial: bool = False):
-        if (self.lab.max_workers is not None and self.lab.max_workers == 1):
-            serial = True
-
-        if serial:
-            return SerialExecutor()
-
-        return concurrent.futures.ProcessPoolExecutor(
-            max_workers=self.lab.max_workers,
-            initializer=init_task_worker,
-            initargs=(self.log_queue,),
-        )
 
     def get_pbar(self, *, task_type: Type[Task], task_count: int) -> tqdm:
         pbar_func = tqdm_notebook if self.lab.notebook else tqdm
@@ -273,77 +192,22 @@ class TaskRunner:
             logger.error(message)
 
         lab_error = LabError(str(ex))
-        if _IN_TASK_SUBPROCESS:
-            # Simplify traceback by clearing the exception chain.
-            raise lab_error from None
         raise lab_error from ex
 
     def use_cache(self, task: Task) -> bool:
         return (not self.bust_cache) and self.lab.is_cached(task)
 
-    def run_or_load_task(self, process_name: str, task: Task) -> TaskResult:
-        orig_process_name = multiprocessing.current_process().name
-        try:
-            current_process = multiprocessing.current_process()
-            current_process.name = process_name
-            use_cache = self.use_cache(task)
-            if self.task_monitor_queue is not None:
-                self.task_monitor_queue.put(TaskStartEvent(
-                    process_name=process_name,
-                    pid=cast(int, current_process.pid),
-                    use_cache=use_cache,
-                ))
-            if use_cache:
-                logger.debug(f"Loading from cache: '{task}'")
-                task_result = task._lt.cache.load_result_with_meta(self.lab._storage, task)
-                return task_result
-            else:
-                logger.debug(f"Running: '{task}'")
-                task.set_context(self.lab.context)
-                with optional_mlflow(task):
-                    start = datetime.now()
-                    result = task.run()
-                    end = datetime.now()
-                task_result = TaskResult(
-                    value=result,
-                    meta=ResultMeta(
-                        start=start,
-                        duration=(end - start),
-                    ),
-                )
-                task._lt.cache.save(self.lab._storage, task, task_result)
-                logger.debug(f"Completed: '{task}'")
-                return task_result
-        finally:
-            current_process.name = orig_process_name
-            if self.task_monitor_queue is not None:
-                self.task_monitor_queue.put(TaskEndEvent(
-                    process_name=process_name,
-                ))
-
-    def logger_thread(self):
-        # See: https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes
-        while True:
-            record = self.log_queue.get()
-            if record is None:
-                break
-            logger = logging.getLogger(record.name)
-            logger.handle(record)
-
     def run(self, tasks: Sequence[Task]) -> Dict[Task, Any]:
         task_results = {}
 
-        log_thread = Thread(target=self.logger_thread)
-        log_thread.start()
-
-        state = TaskState(runner=self, tasks=tasks)
+        state = TaskState(coordinator=self, tasks=tasks)
         task_type_counts = Counter([type(task) for task in state.pending_tasks])
         task_type_max_digits = {
             task_type: math.ceil(math.log10(task_type_counts[task_type]))
             for task_type, task_type_count
             in task_type_counts.items()
         }
-        task_type_process_counts = {task_type: 0 for task_type in task_type_counts.keys()}
+        task_type_to_task_count = {task_type: 0 for task_type in task_type_counts.keys()}
         pbars = {
             task_type: self.get_pbar(
                 task_type=task_type,
@@ -352,80 +216,66 @@ class TaskRunner:
             for task_type, task_count in task_type_counts.items()
         }
 
-        task_monitor = None
-        if not self.disable_top:
-            self.task_monitor_queue = multiprocessing.Manager().Queue(-1)
-            task_monitor = TaskMonitor(
-                task_monitor_queue=self.task_monitor_queue,
-                top_format=self.top_format,
-                top_sort=self.top_sort,
-                top_n=self.top_n,
-                notebook=self.lab.notebook,
-            )
-            task_monitor.show()
-            task_monitor.start()
+        # task_monitor = None
+        # if not self.disable_top:
+        #     self.task_monitor_queue = multiprocessing.Manager().Queue(-1)
+        #     task_monitor = TaskMonitor(
+        #         task_monitor_queue=self.task_monitor_queue,
+        #         top_format=self.top_format,
+        #         top_sort=self.top_sort,
+        #         top_n=self.top_n,
+        #         notebook=self.lab.notebook,
+        #     )
+        #     task_monitor.show()
+        #     task_monitor.start()
 
-        executor = self.get_executor()
-        serial_executor = self.get_executor(serial=True)
-        future_to_task: Dict[concurrent.futures.Future, Task] = {}
+        runner = ForkProcessRunner(
+            context=self.lab.context,
+            max_workers=self.lab.max_workers,
+            storage=self.lab._storage,
+        )
+
         redirected_loggers = [] if self.lab.notebook else [logger]
         with logging_redirect_tqdm(loggers=redirected_loggers):
             try:
                 try:
-                    while (len(state.pending_tasks) > 0) or (len(future_to_task) > 0):
+                    while (len(state.pending_tasks) > 0) or (runner.pending_task_count() > 0):
                         ready_tasks = state.get_ready_tasks()
                         for task in ready_tasks:
                             state.start_task(task)
-                            task_type_process_counts[type(task)] += 1
-                            process_id = (str(task_type_process_counts[type(task)])
-                                          .zfill(task_type_max_digits[type(task)]))
-                            process_name = f'{type(task).__name__}[{process_id}]'
-                            # Always use a serial executor to run tasks on the
-                            # main process if max_parallel=1
-                            future_executor = (
-                                serial_executor
-                                if task._lt.max_parallel is not None and task._lt.max_parallel == 1
-                                else executor
+                            task_type_to_task_count[type(task)] += 1
+                            task_number = (str(task_type_to_task_count[type(task)])
+                                           .zfill(task_type_max_digits[type(task)]))
+                            runner.start_task(
+                                task,
+                                task_name=f'{type(task).__name__}[{task_number}]',
+                                use_cache=self.use_cache(task),
                             )
-                            future = future_executor.submit(self.run_or_load_task, process_name, task)
-                            future_to_task[future] = task
-                        done, _ = wait_for_first_future(list(future_to_task.keys()))
-                        for future in done:
-                            task = future_to_task[future]
-                            try:
-                                task_result = future.result()
-                            except Exception as ex:
+                        for task, result in runner.wait_for_completed_tasks():
+                            if isinstance(result, Exception):
                                 state.complete_task(task, task_result=None)
-                                self.handle_failure(ex=ex, message=f"Task '{task}' failed.")
-                            else:
+                                self.handle_failure(ex=result, message=f"Task '{task}' failed.")
+                            elif isinstance(result, TaskResult):
                                 if task in tasks:
-                                    task_results[task] = task_result.value
-                                state.complete_task(task, task_result=task_result)
+                                    task_results[task] = result.value
+                                state.complete_task(task, task_result=result)
                                 pbars[type(task)].update(1)
-                        future_to_task = {future: future_to_task[future]
-                                          for future in future_to_task
-                                          if future not in done}
                 except KeyboardInterrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))
                 else:
                     return task_results
                 finally:
-                    for future in future_to_task:
-                        future.cancel()
-                    executor.shutdown(wait=True)
+                    runner.cancel()
             except KeyboardInterrupt:
                 logger.info('Terminating running tasks.')
-                for process in executor._processes.values():
-                    process.terminate()
-                executor.shutdown(wait=False)
+                runner.terminate()
             finally:
+                runner.close(wait=True)
                 for pbar in pbars.values():
                     pbar.close()
-                self.log_queue.put(None)
-                if task_monitor is not None:
-                    task_monitor.close()
-                log_thread.join()
+                # if task_monitor is not None:
+                #     task_monitor.close()
 
             raise KeyboardInterrupt
 
@@ -549,15 +399,15 @@ class Lab:
 
         """
         check_tasks(tasks)
-        runner = TaskRunner(self,
-                            bust_cache=bust_cache,
-                            keep_nested_results=keep_nested_results,
-                            disable_progress=disable_progress,
-                            disable_top=disable_top,
-                            top_format=top_format,
-                            top_sort=top_sort,
-                            top_n=top_n)
-        results = runner.run(tasks)
+        coordinator = TaskCoordinator(self,
+                                      bust_cache=bust_cache,
+                                      keep_nested_results=keep_nested_results,
+                                      disable_progress=disable_progress,
+                                      disable_top=disable_top,
+                                      top_format=top_format,
+                                      top_sort=top_sort,
+                                      top_n=top_n)
+        results = coordinator.run(tasks)
         # Return results in the same order as tasks
         return {task: results[task] for task in tasks}
 
