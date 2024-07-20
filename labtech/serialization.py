@@ -2,7 +2,7 @@
 
 from dataclasses import fields
 from enum import Enum
-from typing import Dict, List, Optional, Type, Union, cast
+from typing import Optional, Type, Union, cast
 
 from frozendict import frozendict
 
@@ -13,7 +13,7 @@ from .utils import ensure_dict_key_str
 # Type to represent any value that can be handled by Python's default
 # json encoder and decoder.
 jsonable = Union[None, str, bool, float, int,
-                 Dict[str, 'jsonable'], List['jsonable']]
+                 dict[str, 'jsonable'], list['jsonable']]
 
 
 class Serializer:
@@ -21,12 +21,12 @@ class Serializer:
     def is_serialized_task(self, serialized: jsonable) -> bool:
         return isinstance(serialized, dict) and bool(serialized.get('_is_task', False))
 
-    def serialize_task(self, task: Task) -> Dict[str, jsonable]:
+    def serialize_task(self, task: Task) -> dict[str, jsonable]:
         if not is_task(task):
             raise SerializationError(("serialize_task() must be called with a Task, "
                                       f"received: '{task}'"))
 
-        serialized: Dict[str, jsonable] = {
+        serialized: dict[str, jsonable] = {
             '_is_task': True,
             '__class__': self.serialize_class(task.__class__),
         }
@@ -38,7 +38,7 @@ class Serializer:
 
         return serialized
 
-    def deserialize_task(self, serialized: Dict[str, jsonable], *, result_meta: Optional[ResultMeta]) -> Task:
+    def deserialize_task(self, serialized: dict[str, jsonable], *, result_meta: Optional[ResultMeta]) -> Task:
         if not self.is_serialized_task(serialized):
             raise SerializationError(("deserialize_task() must be called with a "
                                       f"serialized Task, received: '{serialized}'"))
@@ -86,9 +86,9 @@ class Serializer:
 
     def deserialize_value(self, value: jsonable):
         if self.is_serialized_task(value):
-            return self.deserialize_task(cast(Dict[str, jsonable], value), result_meta=None)
+            return self.deserialize_task(cast(dict[str, jsonable], value), result_meta=None)
         elif self.is_serialized_enum(value):
-            return self.deserialize_enum(cast(Dict[str, jsonable], value))
+            return self.deserialize_enum(cast(dict[str, jsonable], value))
         return value
 
     def is_serialized_enum(self, serialized: jsonable) -> bool:
@@ -101,7 +101,7 @@ class Serializer:
             'name': value.name,
         }
 
-    def deserialize_enum(self, serialized: Dict[str, jsonable]) -> Enum:
+    def deserialize_enum(self, serialized: dict[str, jsonable]) -> Enum:
         enum_cls = self.deserialize_class(serialized['__class__'])
         return enum_cls[serialized['name']]
 

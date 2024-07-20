@@ -1,6 +1,6 @@
 from dataclasses import dataclass, fields
 from textwrap import indent
-from typing import Dict, Sequence, Type, get_args, get_origin, get_type_hints
+from typing import Sequence, Type, get_args, get_origin, get_type_hints
 
 from .tasks import find_tasks_in_param
 from .types import Task, is_task
@@ -23,7 +23,7 @@ class TaskStructure:
     between task types."""
 
     def __init__(self) -> None:
-        self.task_type_to_rels: Dict[Type[Task], Dict[TaskRelKey, TaskRelInfo]] = {}
+        self.task_type_to_rels: dict[Type[Task], dict[TaskRelKey, TaskRelInfo]] = {}
 
     def add_task_type(self, task_type: Type[Task]):
         self.task_type_to_rels.setdefault(task_type, {})
@@ -109,7 +109,7 @@ def diagram_task_type(task_type: Type[Task]) -> str:
     ])
 
 
-def diagram_task_relationship(from_task_type: Type[Task], relationships: Dict[TaskRelKey, TaskRelInfo]) -> str:
+def diagram_task_relationship(from_task_type: Type[Task], relationships: dict[TaskRelKey, TaskRelInfo]) -> str:
 
     def format_many(multi_cardinality: bool) -> str:
         if multi_cardinality:
