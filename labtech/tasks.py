@@ -11,7 +11,7 @@ from frozendict import frozendict
 from .cache import NullCache, PickleCache
 from .exceptions import TaskError
 from .types import Cache, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
-from .utils import ensure_dict_key_str
+from .utils import OrderedSet, ensure_dict_key_str
 
 ParamScalar: TypeAlias = None | str | bool | float | int | Enum
 
@@ -78,7 +78,7 @@ def _task_result(self: Task[ResultT]) -> ResultT:
         raise TaskError(f"Task '{self}' has no active results map")
     if self not in self._results_map:
         raise TaskError(f"Result for task '{self}' is not available in memory")
-    return self._results_map[self]
+    return self._results_map[self].value
 
 
 def _task__getstate__(self: Task) -> dict[str, Any]:
@@ -87,15 +87,10 @@ def _task__getstate__(self: Task) -> dict[str, Any]:
         '_lt': self._lt,
         '_is_task': self._is_task,
         'cache_key': self.cache_key,
-        # We will never pickle the full _results_map
+        # We will never pickle the full _results_map or _result
         '_results_map': None,
+        '_result': None,
     }
-    if hasattr(self, '_result'):
-        state['_result'] = self._result
-    elif self._results_map is not None:
-        # Avoid pickling the whole _results_map, and also avoid
-        # AttributeError when attempting to pickle self inside object.
-        state['_result'] = self._results_map.get(self)
     return state
 
 
@@ -260,3 +255,13 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] 
     # This should be impossible.
     msg = f"Unexpected type {type(param_value).__qualname__} encountered in task parameter value."
     raise TaskError(msg)
+
+
+def get_direct_dependencies(task: Task) -> OrderedSet[Task]:
+    """TODO"""
+    dependency_tasks: OrderedSet[Task] = OrderedSet()
+    for field in fields(task):
+        field_value = getattr(task, field.name)
+        for dependency_task in find_tasks_in_param(field_value):
+            dependency_tasks.add(dependency_task)
+    return dependency_tasks

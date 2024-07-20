@@ -9,6 +9,7 @@ from typing import (
     Any,
     Callable,
     Generic,
+    Iterator,
     Literal,
     Optional,
     Protocol,
@@ -30,7 +31,7 @@ CovariantResultT = TypeVar('CovariantResultT', covariant=True)
 ResultT = TypeVar('ResultT')
 """Type variable for result returned by the `run` method of a
 [`Task`][labtech.types.Task]."""
-ResultsMap = dict['Task[CovariantResultT]', CovariantResultT]
+LabContext = dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -49,6 +50,18 @@ class TaskResult(Generic[ResultT]):
     meta: ResultMeta
 
 
+class ResultsMap(Protocol, Generic[ResultT]):
+
+    def __getitem__(self, task: 'Task[ResultT]') -> TaskResult[ResultT]:
+        pass
+
+    def get(self, task: 'Task[ResultT]') -> Optional[TaskResult[ResultT]]:
+        pass
+
+    def __contains__(self, task: 'Task[ResultT]') -> bool:
+        pass
+
+
 @dataclass
 class Task(Protocol, Generic[CovariantResultT]):
     """Interface provided by any class that is decorated by
@@ -58,7 +71,7 @@ class Task(Protocol, Generic[CovariantResultT]):
     _results_map: Optional[ResultsMap]
     cache_key: str
     """The key that uniquely identifies the location for this task within cache storage."""
-    context: Optional[dict[str, Any]]
+    context: Optional[LabContext]
     """Context variables from the Lab that can be accessed when the task is running."""
     result_meta: Optional[ResultMeta]
     """Metadata about the execution of the task."""
@@ -74,7 +87,7 @@ class Task(Protocol, Generic[CovariantResultT]):
         """Returns the result executed/loaded for this task. If no result is
         available in memory, accessing this property raises a `TaskError`."""
 
-    def set_context(self, context: dict[str, Any]):
+    def set_context(self, context: LabContext):
         """Set the context that is made available to the task while it is
         running."""
 
@@ -176,4 +189,38 @@ class Cache(ABC):
 
 class Runner(ABC):
     """TODO"""
-    pass
+
+    @abstractmethod
+    def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
+        pass
+
+    @abstractmethod
+    def start_task(self, task: Task, task_name: str, use_cache: bool) -> None:
+        """TODO"""
+
+    @abstractmethod
+    def pending_task_count(self) -> int:
+        """TODO"""
+
+    @abstractmethod
+    def wait(self) -> Iterator[tuple[Task, TaskResult | Exception]]:
+        """TODO"""
+
+    @abstractmethod
+    def cancel(self) -> None:
+        """TODO"""
+
+    @abstractmethod
+    def terminate(self) -> None:
+        """TODO"""
+
+    @abstractmethod
+    def close(self, wait: bool) -> None:
+        """TODO"""
+
+
+class RunnerBackend(ABC):
+
+    @abstractmethod
+    def build_runner(self) -> Runner:
+        """TODO"""

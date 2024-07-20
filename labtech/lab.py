@@ -3,7 +3,6 @@
 import concurrent.futures.process
 import math
 from collections import Counter, defaultdict
-from dataclasses import fields
 from pathlib import Path
 from queue import Queue
 from typing import Any, Iterable, Optional, Sequence, Set, Type, Union
@@ -17,14 +16,13 @@ from .exceptions import LabError, TaskNotFound
 # from .monitor import TaskEndEvent, TaskMonitor, TaskStartEvent
 from .runners import ForkProcessRunner
 from .storage import LocalStorage, NullStorage
-from .tasks import find_tasks_in_param
-from .types import ResultsMap, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
+from .tasks import get_direct_dependencies
+from .types import LabContext, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
 from .utils import OrderedSet, is_ipython, logger
+
 
 # Disable tqdm monitoring, as we need to avoid threads if we'll be
 # using fork (see: https://docs.python.org/3/library/os.html#os.fork)
-
-
 class tqdm(orig_tqdm):
     monitor_interval = 0
 
@@ -55,7 +53,6 @@ class TaskState:
 
     def __init__(self, *, coordinator: 'TaskCoordinator', tasks: Sequence[Task]):
         self.coordinator = coordinator
-        self.results_map: ResultsMap = {}
 
         self.pending_tasks: OrderedSet[Task] = OrderedSet()
         self.processed_task_ids: Set[int] = set()
@@ -79,23 +76,19 @@ class TaskState:
                 continue
             self.processed_task_ids.add(id(task))
 
-            dependent_tasks: list[Task] = []
+            dependency_tasks: OrderedSet[Task] = OrderedSet()
             if not self.coordinator.use_cache(task):
-                # Find all dependent tasks inside task fields
-                for field in fields(task):
-                    field_value = getattr(task, field.name)
-                    dependent_tasks += find_tasks_in_param(field_value)
+                dependency_tasks = get_direct_dependencies(task)
 
             # We insert all of the top-level tasks before processing
             # discovered dependencies, so that we will attempt to run
             # higher-level tasks as soon as possible.
-            self.insert_task(task, dependent_tasks)
-            all_dependencies += dependent_tasks
+            self.insert_task(task, dependency_tasks)
+            all_dependencies += dependency_tasks
         if len(all_dependencies) > 0:
             self.process_tasks(all_dependencies)
 
     def insert_task(self, task: Task, dependencies: Iterable[Task]):
-        task._set_results_map(self.results_map)
         self.pending_tasks.add(task)
         self.task_to_instances[task].append(task)
         for dependency in dependencies:
@@ -107,30 +100,26 @@ class TaskState:
         self.pending_tasks.remove(task)
         self.type_to_active_tasks[type(task)].add(task)
 
-    def complete_task(self, task: Task, *, task_result: Optional[TaskResult]):
+    def complete_task(self, task: Task, *, task_result: Optional[TaskResult]) -> OrderedSet[Task]:
         # A task_result of None indicates task failure
         if task_result is not None:
             for task_instance in self.task_to_instances[task]:
                 task_instance._set_result_meta(task_result.meta)
-            self.results_map[task] = task_result.value
 
         self.type_to_active_tasks[type(task)].remove(task)
         for dependent in self.task_to_pending_dependents[task]:
             self.task_to_pending_dependencies[dependent].remove(task)
 
+        tasks_with_removable_results: OrderedSet[Task] = OrderedSet()
         for dependency in self.task_to_direct_dependencies[task]:
             self.task_to_pending_dependents[dependency].remove(task)
             if len(self.task_to_pending_dependents[dependency]) == 0:
-                self.remove_result(dependency)
+                tasks_with_removable_results.add(dependency)
 
         if len(self.task_to_pending_dependents[task]) == 0:
-            self.remove_result(task)
+            tasks_with_removable_results.add(task)
 
-    def remove_result(self, task: Task):
-        if self.coordinator.keep_nested_results or task not in self.results_map:
-            return
-        logger.debug(f"Removing result from in-memory cache for task: '{task}'")
-        del self.results_map[task]
+        return tasks_with_removable_results
 
     def get_ready_tasks(self) -> Sequence[Task]:
         ready_tasks = []
@@ -262,15 +251,21 @@ class TaskCoordinator:
                                 task_name=f'{type(task).__name__}[{task_number}]',
                                 use_cache=self.use_cache(task),
                             )
-                        for task, result in runner.wait_for_completed_tasks():
+                        for task, result in runner.wait():
                             if isinstance(result, Exception):
-                                state.complete_task(task, task_result=None)
+                                tasks_with_removable_results = state.complete_task(task, task_result=None)
                                 self.handle_failure(ex=result, message=f"Task '{task}' failed.")
                             elif isinstance(result, TaskResult):
                                 if task in tasks:
                                     task_results[task] = result.value
-                                state.complete_task(task, task_result=result)
+                                tasks_with_removable_results = state.complete_task(task, task_result=result)
                                 pbars[type(task)].update(1)
+                            else:
+                                raise LabError(f'Unexpected task result type: {type(result)}')
+
+                            if not self.keep_nested_results:
+                                for task_with_removable_result in tasks_with_removable_results:
+                                    runner.remove_result(task_with_removable_result)
                 except KeyboardInterrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))
@@ -309,7 +304,7 @@ class Lab:
                  continue_on_failure: bool = True,
                  max_workers: Optional[int] = None,
                  notebook: Optional[bool] = None,
-                 context: Optional[dict[str, Any]] = None):
+                 context: Optional[LabContext] = None):
         """
         Args:
             storage: Where task results should be cached to. A string or
