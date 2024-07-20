@@ -19,14 +19,14 @@ class TaskEvent:
 
 @dataclass(frozen=True)
 class TaskStartEvent(TaskEvent):
-    process_name: str
+    task_name: str
     pid: int
     use_cache: bool
 
 
 @dataclass(frozen=True)
 class TaskEndEvent(TaskEvent):
-    process_name: str
+    task_name: str
 
 
 class MultilineDisplay(ABC):
@@ -116,10 +116,10 @@ class TaskMonitor:
                 break
 
             if isinstance(event, TaskStartEvent):
-                self.active_task_events[event.process_name] = event
+                self.active_task_events[event.task_name] = event
             elif isinstance(event, TaskEndEvent):
-                if event.process_name in self.active_task_events:
-                    del self.active_task_events[event.process_name]
+                if event.task_name in self.active_task_events:
+                    del self.active_task_events[event.task_name]
             else:
                 raise LabError(f'Unexpected task event: {event}')
 
@@ -143,7 +143,7 @@ class TaskMonitor:
                 memory_rss_percent += child.memory_percent('rss')
                 memory_vms_percent += child.memory_percent('vms')
         return {
-            'name': start_event.process_name,
+            'name': start_event.task_name,
             'pid': pid,
             'status': ('loading' if start_event.use_cache else 'running'),
             'start_time': start_datetime,

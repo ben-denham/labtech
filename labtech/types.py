@@ -173,3 +173,8 @@ class Cache(ABC):
     def delete(self, storage: Storage, task: Task) -> None:
         """Deletes the cached result for the given `task` from the given
         `storage`."""
+
+
+class Runner(ABC):
+    """TODO"""
+    pass
