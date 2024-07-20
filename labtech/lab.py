@@ -17,7 +17,7 @@ from .exceptions import LabError, TaskNotFound
 from .runners import ForkProcessRunner
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
-from .types import LabContext, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
+from .types import LabContext, ResultMeta, ResultT, Storage, Task, TaskT, is_task, is_task_type
 from .utils import OrderedSet, is_ipython, logger
 
 
@@ -100,11 +100,11 @@ class TaskState:
         self.pending_tasks.remove(task)
         self.type_to_active_tasks[type(task)].add(task)
 
-    def complete_task(self, task: Task, *, task_result: Optional[TaskResult]) -> OrderedSet[Task]:
-        # A task_result of None indicates task failure
-        if task_result is not None:
+    def complete_task(self, task: Task, *, result_meta: Optional[ResultMeta]) -> OrderedSet[Task]:
+        # A result_meta of None indicates task failure
+        if result_meta is not None:
             for task_instance in self.task_to_instances[task]:
-                task_instance._set_result_meta(task_result.meta)
+                task_instance._set_result_meta(result_meta)
 
         self.type_to_active_tasks[type(task)].remove(task)
         for dependent in self.task_to_pending_dependents[task]:
@@ -251,17 +251,17 @@ class TaskCoordinator:
                                 task_name=f'{type(task).__name__}[{task_number}]',
                                 use_cache=self.use_cache(task),
                             )
-                        for task, result in runner.wait():
-                            if isinstance(result, Exception):
-                                tasks_with_removable_results = state.complete_task(task, task_result=None)
-                                self.handle_failure(ex=result, message=f"Task '{task}' failed.")
-                            elif isinstance(result, TaskResult):
+                        for task, res in runner.wait():
+                            if isinstance(res, Exception):
+                                tasks_with_removable_results = state.complete_task(task, result_meta=None)
+                                self.handle_failure(ex=res, message=f"Task '{task}' failed.")
+                            elif isinstance(res, ResultMeta):
                                 if task in tasks:
-                                    task_results[task] = result.value
-                                tasks_with_removable_results = state.complete_task(task, task_result=result)
+                                    task_results[task] = runner.get_result(task).value
+                                tasks_with_removable_results = state.complete_task(task, result_meta=res)
                                 pbars[type(task)].update(1)
                             else:
-                                raise LabError(f'Unexpected task result type: {type(result)}')
+                                raise LabError(f'Unexpected task res type: {type(res)}')
 
                             if not self.keep_nested_results:
                                 for task_with_removable_result in tasks_with_removable_results:
