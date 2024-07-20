@@ -8,9 +8,9 @@ from pathlib import Path
 from queue import Queue
 from typing import Any, Iterable, Optional, Sequence, Set, Type, Union
 
-from tqdm import tqdm
+from tqdm import tqdm as orig_tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from tqdm.notebook import tqdm as tqdm_notebook
+from tqdm.notebook import tqdm as orig_tqdm_notebook
 
 from .exceptions import LabError, TaskNotFound
 
@@ -20,6 +20,17 @@ from .storage import LocalStorage, NullStorage
 from .tasks import find_tasks_in_param
 from .types import ResultsMap, ResultT, Storage, Task, TaskResult, TaskT, is_task, is_task_type
 from .utils import OrderedSet, is_ipython, logger
+
+# Disable tqdm monitoring, as we need to avoid threads if we'll be
+# using fork (see: https://docs.python.org/3/library/os.html#os.fork)
+
+
+class tqdm(orig_tqdm):
+    monitor_interval = 0
+
+
+class tqdm_notebook(orig_tqdm_notebook):
+    monitor_interval = 0
 
 
 def check_tasks(tasks: Sequence[Task]) -> None:
