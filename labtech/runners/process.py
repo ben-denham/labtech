@@ -3,91 +3,62 @@ import multiprocessing
 import signal
 import sys
 from abc import ABC, abstractmethod
-from concurrent.futures import Executor, Future, ProcessPoolExecutor
-from contextlib import contextmanager
-from dataclasses import dataclass, fields
-from datetime import datetime
-from enum import Enum
+from concurrent.futures import FIRST_COMPLETED, Executor, Future, ProcessPoolExecutor, wait
+from dataclasses import dataclass
 from logging.handlers import QueueHandler
 from threading import Thread
-from typing import Any, Callable, Iterator, Optional
+from typing import Callable, Iterator, Optional, Sequence
 from uuid import UUID, uuid4
 
-from frozendict import frozendict
+from labtech.tasks import get_direct_dependencies
+from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBackend, Storage, Task, TaskResult
+from labtech.utils import LoggerFileProxy, logger
 
-from .exceptions import LabError
-from .executors import SerialExecutor, wait_for_first_future
-from .tasks import get_direct_dependencies, is_task
-from .types import LabContext, ResultMeta, ResultsMap, Runner, Storage, Task, TaskResult
-from .utils import LoggerFileProxy, logger
+from .base import run_or_load_task
 
 
-@contextmanager
-def optional_mlflow(task: Task):
+class SerialFuture(Future):
 
-    def log_params(value: Any, *, path: str = ''):
-        prefix = path if path == '' else f'{path}.'
-        if is_task(value):
-            for field in fields(value):
-                log_params(getattr(value, field.name), path=f'{prefix}{field.name}')
-        elif isinstance(value, tuple):
-            for i, item in enumerate(value):
-                log_params(item, path=f'{prefix}{i}')
-        elif isinstance(value, frozendict):
-            for key, item in value.items():
-                log_params(item, path=f'{prefix}{key}')
-        elif isinstance(value, Enum):
-            mlflow.log_param(path, f'{type(value).__qualname__}.{value.name}')
-        elif ((value is None)
-              or isinstance(value, str)
-              or isinstance(value, bool)
-              or isinstance(value, float)
-              or isinstance(value, int)):
-            mlflow.log_param(path, value)
-        else:
-            raise LabError(
-                (f"Unable to mlflow log parameter '{path}' of type '{type(value).__qualname__}' "
-                 f"in task of type '{type(task).__qualname__}'.")
-            )
+    def __init__(self, fn: Callable, /, *args, **kwargs):
+        super().__init__()
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
 
-    if task._lt.mlflow_run:
+    def run(self):
+        if not self.set_running_or_notify_cancel():
+            return
+
         try:
-            import mlflow
-        except ImportError:
-            raise LabError(
-                (f"Task type '{type(task).__qualname__}' is configured with mlflow_run=True, but "
-                 "mlflow cannot be imported. You can install mlflow with `pip install mlflow`.")
-            )
-        with mlflow.start_run():
-            mlflow.set_tag('labtech_task_type', type(task).__qualname__)
-            log_params(task)
-            yield
-    else:
-        yield
+            result = self.fn(*self.args, **self.kwargs)
+        except BaseException as ex:
+            self.set_exception(ex)
+        else:
+            self.set_result(result)
 
 
-def run_or_load_task(task: Task, task_name: str, use_cache: bool, context: LabContext, storage: Storage) -> TaskResult:
-    if use_cache:
-        logger.debug(f"Loading from cache: '{task}'")
-        task_result = task._lt.cache.load_result_with_meta(storage, task)
-        return task_result
-    else:
-        logger.debug(f"Running: '{task}'")
-        task.set_context(context)
-        with optional_mlflow(task):
-            start = datetime.now()
-            result = task.run()
-            end = datetime.now()
-        task_result = TaskResult(
-            value=result,
-            meta=ResultMeta(
-                start=start,
-                duration=(end - start),
-            ),
-        )
-        task._lt.cache.save(storage, task, task_result)
-        logger.debug(f"Completed: '{task}'")
-        return task_result
+class SerialExecutor(Executor):
+
+    def __init__(self) -> None:
+        self.futures: list[SerialFuture] = []
+
+    def submit(self, fn: Callable, /, *args, **kwargs):
+        future = SerialFuture(fn, *args, **kwargs)
+        self.futures.append(future)
+        return future
+
+    def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
+        if cancel_futures:
+            for future in self.futures:
+                future.cancel()
+
+
+def wait_for_first_future(futures: Sequence[Future]):
+    # If there are any serial futures, ensure at least one is completed.
+    serial_futures = [future for future in futures if isinstance(future, SerialFuture)]
+    if serial_futures and not serial_futures[0].done():
+        serial_futures[0].run()
+    return wait(futures, return_when=FIRST_COMPLETED)
 
 
 def init_task_subprocess(log_queue):
@@ -239,7 +210,6 @@ class ProcessRunner(Runner, ABC):
 
 
 class SpawnProcessRunner(ProcessRunner):
-    """TODO"""
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
         super().__init__(context=context, storage=storage, max_workers=max_workers)
@@ -265,6 +235,17 @@ class SpawnProcessRunner(ProcessRunner):
         )
 
 
+class SpawnRunnerBackend(RunnerBackend):
+    """TODO"""
+
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> SpawnProcessRunner:
+        return SpawnProcessRunner(
+            context=context,
+            storage=storage,
+            max_workers=max_workers,
+        )
+
+
 @dataclass
 class RunnerMemory:
     results_map: ResultsMap
@@ -276,7 +257,6 @@ _RUNNER_FORK_MEMORY: dict[UUID, RunnerMemory] = {}
 
 
 class ForkProcessRunner(ProcessRunner):
-    """TODO"""
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
         super().__init__(context=context, storage=storage, max_workers=max_workers)
@@ -315,3 +295,14 @@ class ForkProcessRunner(ProcessRunner):
     def close(self, *, wait: bool) -> None:
         del _RUNNER_FORK_MEMORY[self.uuid]
         super().close(wait=wait)
+
+
+class ForkRunnerBackend(RunnerBackend):
+    """TODO"""
+
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> ForkProcessRunner:
+        return ForkProcessRunner(
+            context=context,
+            storage=storage,
+            max_workers=max_workers,
+        )
