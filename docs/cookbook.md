@@ -767,36 +767,6 @@ print([
 ])
 ```
 
-You can also configure labtech to not remove intermediate results from
-memory by setting `keep_nested_results=True` when calling
-`run_tasks()`. Intermediate results can then be accessed from the
-`.result` attribute of all task objects. However, only results that
-needed to be executed or loaded from cache in order to produce the
-final result will be available, so you may need to set
-`bust_cache=True` to ensure all intermediate tasks are executed:
-
-``` {.python .code}
-experiments = [
-    Experiment(
-        seed=seed
-    )
-    for seed in range(10)
-]
-aggregation_task = AggregationTask(
-    sub_tasks=experiments,
-)
-lab = labtech.Lab(storage=None)
-result = lab.run_task(
-    aggregation_task,
-    keep_nested_results=True,
-    bust_cache=True,
-)
-print([
-    experiment.result
-    for experiment in experiments
-])
-```
-
 ### How can I construct a multi-step experiment pipeline?
 
 Say you want to model a multi-step experiment pipeline, where `StepA`
