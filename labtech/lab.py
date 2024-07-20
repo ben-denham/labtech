@@ -14,7 +14,7 @@ from tqdm.notebook import tqdm as orig_tqdm_notebook
 from .exceptions import LabError, TaskNotFound
 
 # from .monitor import TaskEndEvent, TaskMonitor, TaskStartEvent
-from .runners import ForkProcessRunner
+from .runners import ForkRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
 from .types import LabContext, ResultMeta, ResultT, Storage, Task, TaskT, is_task, is_task_type
@@ -227,7 +227,7 @@ class TaskCoordinator:
         #     task_monitor.show()
         #     task_monitor.start()
 
-        runner = ForkProcessRunner(
+        runner = ForkRunnerBackend().build_runner(
             context=self.lab.context,
             max_workers=self.lab.max_workers,
             storage=self.lab._storage,

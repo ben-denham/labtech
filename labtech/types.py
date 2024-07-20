@@ -230,5 +230,5 @@ class Runner(ABC):
 class RunnerBackend(ABC):
 
     @abstractmethod
-    def build_runner(self) -> Runner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> Runner:
         """TODO"""
