@@ -308,3 +308,7 @@ class ForkProcessRunner(ProcessRunner):
             use_cache=use_cache,
             uuid=self.uuid,
         )
+
+    def close(self) -> None:
+        del _RUNNER_FORK_MEMORY[self.uuid]
+        super().close()
