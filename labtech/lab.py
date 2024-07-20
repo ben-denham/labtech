@@ -156,12 +156,10 @@ class TaskState:
 
 class TaskCoordinator:
 
-    def __init__(self, lab: 'Lab', bust_cache: bool, keep_nested_results: bool,
-                 disable_progress: bool, disable_top: bool, top_format: str,
-                 top_sort: str, top_n: int):
+    def __init__(self, lab: 'Lab', bust_cache: bool, disable_progress: bool,
+                 disable_top: bool, top_format: str, top_sort: str, top_n: int):
         self.lab = lab
         self.bust_cache = bust_cache
-        self.keep_nested_results = keep_nested_results
         self.disable_progress = disable_progress
         self.disable_top = disable_top
         self.top_format = top_format
@@ -263,9 +261,8 @@ class TaskCoordinator:
                             else:
                                 raise LabError(f'Unexpected task res type: {type(res)}')
 
-                            if not self.keep_nested_results:
-                                for task_with_removable_result in tasks_with_removable_results:
-                                    runner.remove_result(task_with_removable_result)
+                            for task_with_removable_result in tasks_with_removable_results:
+                                runner.remove_result(task_with_removable_result)
                 except KeyboardInterrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))
@@ -341,7 +338,6 @@ class Lab:
 
     def run_tasks(self, tasks: Sequence[TaskT], *,
                   bust_cache: bool = False,
-                  keep_nested_results: bool = False,
                   disable_progress: bool = False,
                   disable_top: bool = False,
                   top_format: str = '$name $status since $start_time CPU: $cpu MEM: $rss',
@@ -358,17 +354,13 @@ class Lab:
         be executed/loaded once.
 
         As well as returning the results, each task's result will be
-        assigned to a `result` attribute on the task itself (including
-        nested tasks when `keep_nested_results` is `True`).
+        assigned to a `result` attribute on the task itself.
 
         Args:
             tasks: The tasks to execute. Each should be an instance of a class
                 decorated with [`labtech.task`][labtech.task].
             bust_cache: If `True`, no task results will be loaded from the
                 cache storage; all tasks will be re-executed.
-            keep_nested_results: If `False`, results of nested tasks that were
-                executed or loaded in order to complete the provided tasks will
-                be cleared from memory once they are no longer needed.
             disable_progress: If `True`, do not display a tqdm progress bar
                 tracking task execution.
             disable_top: If `True`, do not display the list of top active tasks.
@@ -407,7 +399,6 @@ class Lab:
         check_tasks(tasks)
         coordinator = TaskCoordinator(self,
                                       bust_cache=bust_cache,
-                                      keep_nested_results=keep_nested_results,
                                       disable_progress=disable_progress,
                                       disable_top=disable_top,
                                       top_format=top_format,
