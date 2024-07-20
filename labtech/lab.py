@@ -3,6 +3,7 @@
 import concurrent.futures.process
 import math
 from collections import Counter, defaultdict
+from multiprocessing import get_all_start_methods
 from pathlib import Path
 from queue import Queue
 from typing import Any, Iterable, Optional, Sequence, Set, Type, Union
@@ -14,10 +15,10 @@ from tqdm.notebook import tqdm as orig_tqdm_notebook
 from .exceptions import LabError, TaskNotFound
 
 # from .monitor import TaskEndEvent, TaskMonitor, TaskStartEvent
-from .runners import ForkRunnerBackend
+from .runners import ForkRunnerBackend, SpawnRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
-from .types import LabContext, ResultMeta, ResultT, Storage, Task, TaskT, is_task, is_task_type
+from .types import LabContext, ResultMeta, ResultT, RunnerBackend, Storage, Task, TaskT, is_task, is_task_type
 from .utils import OrderedSet, is_ipython, logger
 
 
@@ -227,7 +228,7 @@ class TaskCoordinator:
         #     task_monitor.show()
         #     task_monitor.start()
 
-        runner = ForkRunnerBackend().build_runner(
+        runner = self.lab.runner_backend.build_runner(
             context=self.lab.context,
             max_workers=self.lab.max_workers,
             storage=self.lab._storage,
@@ -301,7 +302,8 @@ class Lab:
                  continue_on_failure: bool = True,
                  max_workers: Optional[int] = None,
                  notebook: Optional[bool] = None,
-                 context: Optional[LabContext] = None):
+                 context: Optional[LabContext] = None,
+                 runner_backend: Optional[str | RunnerBackend] = None):
         """
         Args:
             storage: Where task results should be cached to. A string or
@@ -323,6 +325,7 @@ class Lab:
                 tasks. The context will not be cached, so the values should not
                 affect results (e.g. parallelism factors) or should be kept
                 constant between runs (e.g. datasets).
+            runner_backend: TODO
         """
         if isinstance(storage, str) or isinstance(storage, Path):
             storage = LocalStorage(storage)
@@ -335,6 +338,24 @@ class Lab:
         if context is None:
             context = {}
         self.context = context
+        if runner_backend is None:
+            start_methods = get_all_start_methods()
+            if 'fork' in start_methods:
+                runner_backend = ForkRunnerBackend()
+            elif 'spawn' in start_methods:
+                runner_backend = SpawnRunnerBackend()
+            else:
+                raise LabError(('Default \'fork\' and \'spawn\' multiprocessing runner '
+                                'backends are not supported on your system.'
+                                'Please specify a system-compatible runner_backend.'))
+        elif isinstance(runner_backend, str):
+            if runner_backend == 'fork':
+                runner_backend = ForkRunnerBackend()
+            elif runner_backend == 'spawn':
+                runner_backend = SpawnRunnerBackend()
+            else:
+                raise LabError(f'Unrecognised runner_backend: {runner_backend}')
+        self.runner_backend = runner_backend
 
     def run_tasks(self, tasks: Sequence[TaskT], *,
                   bust_cache: bool = False,
