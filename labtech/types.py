@@ -203,7 +203,7 @@ class Runner(ABC):
         """TODO"""
 
     @abstractmethod
-    def wait(self) -> Iterator[tuple[Task, TaskResult | Exception]]:
+    def wait(self) -> Iterator[tuple[Task, ResultMeta | Exception]]:
         """TODO"""
 
     @abstractmethod
@@ -215,7 +215,15 @@ class Runner(ABC):
         """TODO"""
 
     @abstractmethod
-    def close(self, wait: bool) -> None:
+    def close(self, *, wait: bool) -> None:
+        """TODO"""
+
+    @abstractmethod
+    def get_result(self, task: Task) -> TaskResult:
+        """TODO"""
+
+    @abstractmethod
+    def remove_result(self, task: Task) -> None:
         """TODO"""
 
 

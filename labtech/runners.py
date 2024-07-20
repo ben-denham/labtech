@@ -185,7 +185,7 @@ class ProcessRunner(Runner, ABC):
     def pending_task_count(self) -> int:
         return len(self.future_to_task)
 
-    def wait(self) -> Iterator[tuple[Task, TaskResult | Exception]]:
+    def wait(self) -> Iterator[tuple[Task, ResultMeta | Exception]]:
         done, _ = wait_for_first_future(list(self.future_to_task.keys()))
         for future in done:
             task = self.future_to_task[future]
@@ -195,7 +195,7 @@ class ProcessRunner(Runner, ABC):
                 yield (task, ex)
             else:
                 self.results_map[task] = task_result
-                yield (task, task_result)
+                yield (task, task_result.meta)
         self.future_to_task = {
             future: self.future_to_task[future]
             for future in self.future_to_task
@@ -211,13 +211,16 @@ class ProcessRunner(Runner, ABC):
             process.terminate()
         self.close(wait=False)
 
-    def close(self, wait: bool) -> None:
+    def close(self, *, wait: bool) -> None:
         if self.closed:
             return
         self.serial_executor.shutdown(wait=wait)
         self.executor.shutdown(wait=wait)
         self.log_queue.put(None)
         self.log_thread.join()
+
+    def get_result(self, task: Task) -> TaskResult:
+        return self.results_map[task]
 
     def remove_result(self, task: Task) -> None:
         if task not in self.results_map:
@@ -309,6 +312,6 @@ class ForkProcessRunner(ProcessRunner):
             uuid=self.uuid,
         )
 
-    def close(self) -> None:
+    def close(self, *, wait: bool) -> None:
         del _RUNNER_FORK_MEMORY[self.uuid]
-        super().close()
+        super().close(wait=wait)
