@@ -1,32 +1,25 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import datetime
 from itertools import zip_longest
-from queue import Empty, Queue
 from string import Template
 from threading import Timer
-from typing import Any, Optional, Sequence, cast
-
-import psutil
-from tqdm import tqdm
+from typing import Optional, Sequence, cast
 
 from .exceptions import LabError
+from .types import Runner, TaskMonitorInfoItem, TaskMonitorInfoValue
+from .utils import tqdm
 
 
-class TaskEvent:
-    pass
+def get_info_value(task_info_item: TaskMonitorInfoItem) -> TaskMonitorInfoValue:
+    if isinstance(task_info_item, tuple):
+        return task_info_item[0]
+    return task_info_item
 
 
-@dataclass(frozen=True)
-class TaskStartEvent(TaskEvent):
-    task_name: str
-    pid: int
-    use_cache: bool
-
-
-@dataclass(frozen=True)
-class TaskEndEvent(TaskEvent):
-    task_name: str
+def get_info_formatted(task_info_item: TaskMonitorInfoItem) -> str:
+    if isinstance(task_info_item, tuple):
+        return task_info_item[1]
+    return str(task_info_item)
 
 
 class MultilineDisplay(ABC):
@@ -88,10 +81,10 @@ class NotebookMultilineDisplay(MultilineDisplay):
 
 class TaskMonitor:
 
-    def __init__(self, *, task_monitor_queue: Queue, notebook: bool,
+    def __init__(self, *, runner: Runner, notebook: bool,
                  top_format: str, top_sort: str, top_n: int,
                  update_interval_seconds: float = 0.5):
-        self.task_monitor_queue = task_monitor_queue
+        self.runner = runner
         self.top_template = Template(top_format)
         self.top_sort = top_sort
         self.top_sort_key = top_sort
@@ -105,105 +98,44 @@ class TaskMonitor:
             NotebookMultilineDisplay() if notebook
             else TerminalMultilineDisplay(line_count=(top_n + 1))
         )
-        self.active_task_events: dict[str, TaskStartEvent] = {}
-        self.active_processes: dict[str, psutil.Process] = {}
         self.timer: Optional[Timer] = None
         self.stopped = True
 
-    def _consume_monitor_queue(self):
-        while True:
-            try:
-                event = self.task_monitor_queue.get_nowait()
-            except Empty:
-                break
-
-            if isinstance(event, TaskStartEvent):
-                self.active_task_events[event.task_name] = event
-            elif isinstance(event, TaskEndEvent):
-                if event.task_name in self.active_task_events:
-                    del self.active_task_events[event.task_name]
-                    if event.task_name in self.active_processes:
-                        del self.active_processes[event.task_name]
-            else:
-                raise LabError(f'Unexpected task event: {event}')
-
-    def _get_process_info(self, start_event: TaskStartEvent) -> Optional[dict[str, Any]]:
-        pid = start_event.pid
-        try:
-            if start_event.task_name not in self.active_processes:
-                self.active_processes[start_event.task_name] = psutil.Process(pid)
-            process = self.active_processes[start_event.task_name]
-            with process.oneshot():
-                start_datetime = datetime.fromtimestamp(process.create_time())
-                threads = process.num_threads()
-                cpu_percent = process.cpu_percent()
-                memory_rss_percent = process.memory_percent('rss')
-                memory_vms_percent = process.memory_percent('vms')
-                children = process.children(recursive=True)
-            for child in children:
-                with child.oneshot():
-                    threads += child.num_threads()
-                    cpu_percent += child.cpu_percent()
-                    memory_rss_percent += child.memory_percent('rss')
-                    memory_vms_percent += child.memory_percent('vms')
-        except psutil.NoSuchProcess:
-            return None
-        return {
-            'name': start_event.task_name,
-            'pid': pid,
-            'status': ('loading' if start_event.use_cache else 'running'),
-            'start_time': start_datetime,
-            'children': len(children),
-            'threads': threads,
-            'cpu': cpu_percent,
-            'rss': memory_rss_percent,
-            'vms': memory_vms_percent,
-        }
-
     def _top_task_lines(self) -> list[str]:
-        process_infos: list[dict[str, Any]] = []
-        for start_event in self.active_task_events.values():
-            process_info = self._get_process_info(start_event)
-            if process_info is not None:
-                process_infos.append(process_info)
+        task_infos = self.runner.get_task_infos()
         # Sort order
-        process_infos = sorted(process_infos, key=lambda info: info[self.top_sort_key])
+        task_infos = sorted(task_infos, key=lambda info: get_info_value(info[self.top_sort_key]))
         if self.top_sort_reversed:
-            process_infos = list(reversed(process_infos))
+            task_infos = list(reversed(task_infos))
         # Take top
-        process_infos = process_infos[:self.top_n]
-        # Value formatting
-        for process_info in process_infos:
-            process_info['start_time'] = process_info['start_time'].strftime('%H:%M:%S')
-            process_info['cpu'] = f'{process_info["cpu"]/100:.1%}'
-            process_info['rss'] = f'{process_info["rss"]/100:.1%}'
-            process_info['vms'] = f'{process_info["vms"]/100:.1%}'
+        task_infos = task_infos[:self.top_n]
 
-        if len(process_infos) == 0:
+        if len(task_infos) == 0:
             return []
 
         # Pad keys to consistent lengths
-        left_align_keys = {'name', 'status'}
-        for key in process_infos[0].keys():
-            max_len = max([len(str(process_info[key])) for process_info in process_infos])
-            for process_info in process_infos:
-                align = '<' if key in left_align_keys else '>'
-                process_info[key] = (f'{{:{align}{max_len}}}').format(process_info[key])
+        for key, item in task_infos[0].items():
+            # Left-align keys that contain string values
+            left_align = isinstance(get_info_value(item), str)
+            max_len = max([len(str(task_info[key])) for task_info in task_infos])
+            for task_info in task_infos:
+                align = '<' if left_align else '>'
+                task_info[key] = (f'{{:{align}{max_len}}}').format(task_info[key])
 
         # Final templating
         return [
-            self.top_template.substitute(process_info)
-            for process_info in process_infos
+            self.top_template.substitute(task_info)
+            for task_info in task_infos
         ]
 
     def _update(self) -> None:
-        self._consume_monitor_queue()
         # Update display
+        top_task_lines = self._top_task_lines()
         self.display.update([
-            (f'{len(self.active_task_events)} active tasks '
+            (f'{len(top_task_lines)} active tasks '
              f'as at {datetime.now().strftime("%H:%M:%S")}. '
              f'Up to top {self.top_n} by {self.top_sort}:'),
-            *self._top_task_lines(),
+            *top_task_lines,
         ])
         # Schedule next update
         if not self.stopped:

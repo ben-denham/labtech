@@ -8,28 +8,15 @@ from pathlib import Path
 from queue import Queue
 from typing import Any, Iterable, Optional, Sequence, Set, Type, Union
 
-from tqdm import tqdm as orig_tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from tqdm.notebook import tqdm as orig_tqdm_notebook
 
 from .exceptions import LabError, TaskNotFound
-
-# from .monitor import TaskEndEvent, TaskMonitor, TaskStartEvent
+from .monitor import TaskMonitor
 from .runners import ForkRunnerBackend, SpawnRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
 from .types import LabContext, ResultMeta, ResultT, RunnerBackend, Storage, Task, TaskT, is_task, is_task_type
-from .utils import OrderedSet, is_ipython, logger
-
-
-# Disable tqdm monitoring, as we need to avoid threads if we'll be
-# using fork (see: https://docs.python.org/3/library/os.html#os.fork)
-class tqdm(orig_tqdm):
-    monitor_interval = 0
-
-
-class tqdm_notebook(orig_tqdm_notebook):
-    monitor_interval = 0
+from .utils import OrderedSet, is_ipython, logger, tqdm, tqdm_notebook
 
 
 def check_tasks(tasks: Sequence[Task]) -> None:
@@ -215,24 +202,23 @@ class TaskCoordinator:
             for task_type, task_count in task_type_counts.items()
         }
 
-        # task_monitor = None
-        # if not self.disable_top:
-        #     self.task_monitor_queue = multiprocessing.Manager().Queue(-1)
-        #     task_monitor = TaskMonitor(
-        #         task_monitor_queue=self.task_monitor_queue,
-        #         top_format=self.top_format,
-        #         top_sort=self.top_sort,
-        #         top_n=self.top_n,
-        #         notebook=self.lab.notebook,
-        #     )
-        #     task_monitor.show()
-        #     task_monitor.start()
-
         runner = self.lab.runner_backend.build_runner(
             context=self.lab.context,
             max_workers=self.lab.max_workers,
             storage=self.lab._storage,
         )
+
+        task_monitor = None
+        if not self.disable_top:
+            task_monitor = TaskMonitor(
+                runner=runner,
+                top_format=self.top_format,
+                top_sort=self.top_sort,
+                top_n=self.top_n,
+                notebook=self.lab.notebook,
+            )
+            task_monitor.show()
+            task_monitor.start()
 
         redirected_loggers = [] if self.lab.notebook else [logger]
         with logging_redirect_tqdm(loggers=redirected_loggers):
@@ -278,8 +264,8 @@ class TaskCoordinator:
                 runner.close(wait=True)
                 for pbar in pbars.values():
                     pbar.close()
-                # if task_monitor is not None:
-                #     task_monitor.close()
+                if task_monitor is not None:
+                    task_monitor.close()
 
             raise KeyboardInterrupt
 

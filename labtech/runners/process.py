@@ -5,13 +5,18 @@ import sys
 from abc import ABC, abstractmethod
 from concurrent.futures import FIRST_COMPLETED, Executor, Future, ProcessPoolExecutor, wait
 from dataclasses import dataclass
+from datetime import datetime
 from logging.handlers import QueueHandler
+from queue import Empty, Queue
 from threading import Thread
-from typing import Callable, Iterator, Optional, Sequence
+from typing import Callable, Iterator, Optional, Sequence, cast
 from uuid import UUID, uuid4
 
+import psutil
+
+from labtech.exceptions import RunnerError
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBackend, Storage, Task, TaskResult
+from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
 from labtech.utils import LoggerFileProxy, logger
 
 from .base import run_or_load_task
@@ -71,10 +76,96 @@ def init_task_subprocess(log_queue):
     sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')
 
 
+class ProcessEvent:
+    pass
+
+
+@dataclass(frozen=True)
+class ProcessStartEvent(ProcessEvent):
+    task_name: str
+    pid: int
+    use_cache: bool
+
+
+@dataclass(frozen=True)
+class ProcessEndEvent(ProcessEvent):
+    task_name: str
+
+
+class ProcessMonitor:
+
+    def __init__(self, *, process_event_queue: Queue):
+        self.process_event_queue = process_event_queue
+        self.active_process_events: dict[str, ProcessStartEvent] = {}
+        self.active_processes: dict[str, psutil.Process] = {}
+
+    def _consume_monitor_queue(self):
+        while True:
+            try:
+                event = self.process_event_queue.get_nowait()
+            except Empty:
+                break
+
+            if isinstance(event, ProcessStartEvent):
+                self.active_process_events[event.task_name] = event
+            elif isinstance(event, ProcessEndEvent):
+                if event.task_name in self.active_process_events:
+                    del self.active_process_events[event.task_name]
+                    if event.task_name in self.active_processes:
+                        del self.active_processes[event.task_name]
+            else:
+                raise RunnerError(f'Unexpected process event: {event}')
+
+    def _get_process_info(self, start_event: ProcessStartEvent) -> Optional[TaskMonitorInfo]:
+        pid = start_event.pid
+        try:
+            if start_event.task_name not in self.active_processes:
+                self.active_processes[start_event.task_name] = psutil.Process(pid)
+            process = self.active_processes[start_event.task_name]
+            with process.oneshot():
+                start_datetime = datetime.fromtimestamp(process.create_time())
+                threads = process.num_threads()
+                cpu_percent = process.cpu_percent()
+                memory_rss_percent = process.memory_percent('rss')
+                memory_vms_percent = process.memory_percent('vms')
+                children = process.children(recursive=True)
+            for child in children:
+                with child.oneshot():
+                    threads += child.num_threads()
+                    cpu_percent += child.cpu_percent()
+                    memory_rss_percent += child.memory_percent('rss')
+                    memory_vms_percent += child.memory_percent('vms')
+        except psutil.NoSuchProcess:
+            return None
+        return {
+            'name': start_event.task_name,
+            'pid': pid,
+            'status': ('loading' if start_event.use_cache else 'running'),
+            'start_time': (start_datetime, start_datetime.strftime('%H:%M:%S')),
+            'children': len(children),
+            'threads': threads,
+            'cpu': (cpu_percent, f'{cpu_percent/100:.1%}'),
+            'rss': (memory_rss_percent, f'{memory_rss_percent/100:.1%}'),
+            'vms': (memory_vms_percent, f'{memory_vms_percent/100:.1%}'),
+        }
+
+    def get_process_infos(self) -> list[TaskMonitorInfo]:
+        self._consume_monitor_queue()
+        process_infos: list[TaskMonitorInfo] = []
+        for start_event in self.active_process_events.values():
+            process_info = self._get_process_info(start_event)
+            if process_info is not None:
+                process_infos.append(process_info)
+        return process_infos
+
+
 class ProcessRunner(Runner, ABC):
     """TODO"""
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
+        self.process_event_queue = multiprocessing.Manager().Queue(-1)
+        self.process_monitor = ProcessMonitor(process_event_queue = self.process_event_queue)
+
         self.log_queue = multiprocessing.Manager().Queue(-1)
         self.log_thread = Thread(target=self._logger_thread)
         self.log_thread.start()
@@ -107,18 +198,17 @@ class ProcessRunner(Runner, ABC):
     @staticmethod
     def _subprocess_func(*, task: Task, task_name: str, use_cache: bool,
                          results_map: ResultsMap, context: LabContext,
-                         storage: Storage) -> TaskResult:
+                         storage: Storage, process_event_queue: Queue) -> TaskResult:
         orig_process_name = multiprocessing.current_process().name
         try:
             current_process = multiprocessing.current_process()
             current_process.name = task_name
 
-            # if self.task_monitor_queue is not None:
-            #     self.task_monitor_queue.put(TaskStartEvent(
-            #         task_name=task_name,
-            #         pid=cast(int, current_process.pid),
-            #         use_cache=use_cache,
-            #     ))
+            process_event_queue.put(ProcessStartEvent(
+                task_name=task_name,
+                pid=cast(int, current_process.pid),
+                use_cache=use_cache,
+            ))
 
             for dependency_task in get_direct_dependencies(task):
                 dependency_task._set_results_map(results_map)
@@ -132,10 +222,9 @@ class ProcessRunner(Runner, ABC):
             )
         finally:
             current_process.name = orig_process_name
-            # if self.task_monitor_queue is not None:
-            #     self.task_monitor_queue.put(TaskEndEvent(
-            #         task_name=task_name,
-            #     ))
+            process_event_queue.put(ProcessEndEvent(
+                task_name=task_name,
+            ))
 
     def start_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         # Always use a serial executor to run tasks on the
@@ -150,6 +239,7 @@ class ProcessRunner(Runner, ABC):
             task=task,
             task_name=task_name,
             use_cache=use_cache,
+            process_event_queue=self.process_event_queue,
         )
         self.future_to_task[future] = task
 
@@ -199,12 +289,16 @@ class ProcessRunner(Runner, ABC):
         logger.debug(f"Removing result from in-memory cache for task: '{task}'")
         del self.results_map[task]
 
+    def get_task_infos(self) -> list[TaskMonitorInfo]:
+        return self.process_monitor.get_process_infos()
+
     @abstractmethod
     def _get_mp_context(self) -> multiprocessing.context.BaseContext:
         pass
 
     @abstractmethod
-    def _submit_task(self, executor: Executor, task: Task, task_name: str, use_cache: bool) -> Future:
+    def _submit_task(self, executor: Executor, task: Task, task_name: str,
+                     use_cache: bool, process_event_queue: Queue) -> Future:
         # Should call _subprocess_func()
         pass
 
@@ -219,7 +313,8 @@ class SpawnProcessRunner(ProcessRunner):
     def _get_mp_context(self) -> multiprocessing.context.SpawnContext:
         return multiprocessing.get_context('spawn')
 
-    def _submit_task(self, executor: Executor, task: Task, task_name: str, use_cache: bool) -> Future:
+    def _submit_task(self, executor: Executor, task: Task, task_name: str,
+                     use_cache: bool, process_event_queue: Queue) -> Future:
         return executor.submit(
             self._subprocess_func,
             task=task,
@@ -232,6 +327,7 @@ class SpawnProcessRunner(ProcessRunner):
             # TODO: Allow a task to specify which context keys it needs
             context=self.context,
             storage=self.storage,
+            process_event_queue=process_event_queue,
         )
 
 
@@ -271,7 +367,8 @@ class ForkProcessRunner(ProcessRunner):
         return multiprocessing.get_context('fork')
 
     @staticmethod
-    def _fork_subprocess_func(*, _subprocess_func: Callable, task: Task, task_name: str, use_cache: bool, uuid: UUID) -> TaskResult:
+    def _fork_subprocess_func(*, _subprocess_func: Callable, task: Task, task_name: str,
+                              use_cache: bool, process_event_queue: Queue, uuid: UUID) -> TaskResult:
         runner_memory = _RUNNER_FORK_MEMORY[uuid]
         return _subprocess_func(
             task=task,
@@ -280,9 +377,11 @@ class ForkProcessRunner(ProcessRunner):
             context=runner_memory.context,
             storage=runner_memory.storage,
             results_map=runner_memory.results_map,
+            process_event_queue=process_event_queue,
         )
 
-    def _submit_task(self, executor: Executor, task: Task, task_name: str, use_cache: bool) -> Future:
+    def _submit_task(self, executor: Executor, task: Task, task_name: str,
+                     use_cache: bool, process_event_queue: Queue) -> Future:
         return executor.submit(
             self._fork_subprocess_func,
             _subprocess_func=self._subprocess_func,
@@ -290,6 +389,7 @@ class ForkProcessRunner(ProcessRunner):
             task_name=task_name,
             use_cache=use_cache,
             uuid=self.uuid,
+            process_event_queue=process_event_queue,
         )
 
     def close(self, *, wait: bool) -> None:

@@ -8,6 +8,8 @@ class LabtechError(Exception):
 class LabError(LabtechError):
     """Raised for failures when interacting with or running Lab objects."""
 
+class RunnerError(LabtechError):
+    """Raised for failures when interacting with or running Lab objects."""
 
 class TaskError(LabtechError):
     """Raised for failures when handling Task objects."""
