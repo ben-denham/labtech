@@ -218,7 +218,6 @@ class TaskCoordinator:
                 notebook=self.lab.notebook,
             )
             task_monitor.show()
-            task_monitor.start()
 
         redirected_loggers = [] if self.lab.notebook else [logger]
         with logging_redirect_tqdm(loggers=redirected_loggers):
@@ -236,7 +235,7 @@ class TaskCoordinator:
                                 task_name=f'{type(task).__name__}[{task_number}]',
                                 use_cache=self.use_cache(task),
                             )
-                        for task, res in runner.wait():
+                        for task, res in runner.wait(timeout=0.5):
                             if isinstance(res, Exception):
                                 tasks_with_removable_results = state.complete_task(task, result_meta=None)
                                 self.handle_failure(ex=res, message=f"Task '{task}' failed.")
@@ -250,6 +249,9 @@ class TaskCoordinator:
 
                             for task_with_removable_result in tasks_with_removable_results:
                                 runner.remove_result(task_with_removable_result)
+
+                            if task_monitor is not None:
+                                task_monitor.update()
                 except KeyboardInterrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))
@@ -261,6 +263,8 @@ class TaskCoordinator:
                 logger.info('Terminating running tasks.')
                 runner.terminate()
             finally:
+                if task_monitor is not None:
+                    task_monitor.update()
                 runner.close(wait=True)
                 for pbar in pbars.values():
                     pbar.close()

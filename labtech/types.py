@@ -208,7 +208,7 @@ class Runner(ABC):
         """TODO"""
 
     @abstractmethod
-    def wait(self) -> Iterator[tuple[Task, ResultMeta | Exception]]:
+    def wait(self, *, timeout: Optional[float]) -> Iterator[tuple[Task, ResultMeta | Exception]]:
         """TODO"""
 
     @abstractmethod

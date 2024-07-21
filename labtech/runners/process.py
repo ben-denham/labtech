@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from logging.handlers import QueueHandler
 from queue import Empty, Queue
-from threading import Thread
 from typing import Callable, Iterator, Optional, Sequence, cast
 from uuid import UUID, uuid4
 
@@ -58,12 +57,12 @@ class SerialExecutor(Executor):
                 future.cancel()
 
 
-def wait_for_first_future(futures: Sequence[Future]):
+def wait_for_first_future(futures: Sequence[Future], *, timeout: Optional[float]):
     # If there are any serial futures, ensure at least one is completed.
     serial_futures = [future for future in futures if isinstance(future, SerialFuture)]
     if serial_futures and not serial_futures[0].done():
         serial_futures[0].run()
-    return wait(futures, return_when=FIRST_COMPLETED)
+    return wait(futures, return_when=FIRST_COMPLETED, timeout=timeout)
 
 
 def init_task_subprocess(log_queue):
@@ -167,8 +166,6 @@ class ProcessRunner(Runner, ABC):
         self.process_monitor = ProcessMonitor(process_event_queue = self.process_event_queue)
 
         self.log_queue = multiprocessing.Manager().Queue(-1)
-        self.log_thread = Thread(target=self._logger_thread)
-        self.log_thread.start()
 
         self.serial_executor = SerialExecutor()
         self.executor: Executor
@@ -186,11 +183,12 @@ class ProcessRunner(Runner, ABC):
         self.future_to_task: dict[Future, Task] = {}
         self.closed = False
 
-    def _logger_thread(self):
+    def _consume_log_queue(self):
         # See: https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes
         while True:
-            record = self.log_queue.get()
-            if record is None:
+            try:
+                record = self.log_queue.get_nowait()
+            except Empty:
                 break
             logger = logging.getLogger(record.name)
             logger.handle(record)
@@ -246,8 +244,11 @@ class ProcessRunner(Runner, ABC):
     def pending_task_count(self) -> int:
         return len(self.future_to_task)
 
-    def wait(self) -> Iterator[tuple[Task, ResultMeta | Exception]]:
-        done, _ = wait_for_first_future(list(self.future_to_task.keys()))
+    def wait(self, *, timeout: Optional[float]) -> Iterator[tuple[Task, ResultMeta | Exception]]:
+        done, _ = wait_for_first_future(list(self.future_to_task.keys()), timeout=timeout)
+
+
+
         for future in done:
             task = self.future_to_task[future]
             try:
@@ -277,8 +278,6 @@ class ProcessRunner(Runner, ABC):
             return
         self.serial_executor.shutdown(wait=wait)
         self.executor.shutdown(wait=wait)
-        self.log_queue.put(None)
-        self.log_thread.join()
 
     def get_result(self, task: Task) -> TaskResult:
         return self.results_map[task]
@@ -294,12 +293,12 @@ class ProcessRunner(Runner, ABC):
 
     @abstractmethod
     def _get_mp_context(self) -> multiprocessing.context.BaseContext:
-        pass
+        """TODO"""
 
     @abstractmethod
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue) -> Future:
-        # Should call _subprocess_func()
+        """TODO: Should call _subprocess_func()"""
         pass
 
 

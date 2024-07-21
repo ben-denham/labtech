@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from itertools import zip_longest
 from string import Template
-from threading import Timer
-from typing import Optional, Sequence, cast
+from typing import Sequence, cast
 
 from .exceptions import LabError
 from .types import Runner, TaskMonitorInfoItem, TaskMonitorInfoValue
@@ -82,8 +81,7 @@ class NotebookMultilineDisplay(MultilineDisplay):
 class TaskMonitor:
 
     def __init__(self, *, runner: Runner, notebook: bool,
-                 top_format: str, top_sort: str, top_n: int,
-                 update_interval_seconds: float = 0.5):
+                 top_format: str, top_sort: str, top_n: int):
         self.runner = runner
         self.top_template = Template(top_format)
         self.top_sort = top_sort
@@ -93,13 +91,10 @@ class TaskMonitor:
             self.top_sort_key = self.top_sort_key[1:]
             self.top_sort_reversed = True
         self.top_n = top_n
-        self.update_interval_seconds = update_interval_seconds
         self.display = (
             NotebookMultilineDisplay() if notebook
             else TerminalMultilineDisplay(line_count=(top_n + 1))
         )
-        self.timer: Optional[Timer] = None
-        self.stopped = True
 
     def _top_task_lines(self) -> list[str]:
         task_infos = self.runner.get_task_infos()
@@ -117,10 +112,10 @@ class TaskMonitor:
         for key, item in task_infos[0].items():
             # Left-align keys that contain string values
             left_align = isinstance(get_info_value(item), str)
-            max_len = max([len(str(task_info[key])) for task_info in task_infos])
+            max_len = max([len(get_info_formatted(task_info[key])) for task_info in task_infos])
             for task_info in task_infos:
                 align = '<' if left_align else '>'
-                task_info[key] = (f'{{:{align}{max_len}}}').format(task_info[key])
+                task_info[key] = (f'{{:{align}{max_len}}}').format(get_info_formatted(task_info[key]))
 
         # Final templating
         return [
@@ -128,7 +123,7 @@ class TaskMonitor:
             for task_info in task_infos
         ]
 
-    def _update(self) -> None:
+    def update(self) -> None:
         # Update display
         top_task_lines = self._top_task_lines()
         self.display.update([
@@ -137,19 +132,8 @@ class TaskMonitor:
              f'Up to top {self.top_n} by {self.top_sort}:'),
             *top_task_lines,
         ])
-        # Schedule next update
-        if not self.stopped:
-            self.timer = Timer(self.update_interval_seconds, self._update)
-            self.timer.start()
-
-    def start(self) -> None:
-        self.stopped = False
-        self._update()
 
     def close(self) -> None:
-        self.stopped = True
-        if self.timer is not None:
-            self.timer.join()
         self.display.close()
 
     def show(self) -> None:
