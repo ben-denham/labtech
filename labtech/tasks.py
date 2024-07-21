@@ -89,7 +89,6 @@ def _task__getstate__(self: Task) -> dict[str, Any]:
         'cache_key': self.cache_key,
         # We will never pickle the full _results_map or _result
         '_results_map': None,
-        '_result': None,
     }
     return state
 
