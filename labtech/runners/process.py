@@ -343,7 +343,6 @@ class SpawnRunnerBackend(RunnerBackend):
 
 @dataclass
 class RunnerMemory:
-    results_map: ResultsMap
     context: LabContext
     storage: Storage
 
@@ -357,7 +356,6 @@ class ForkProcessRunner(ProcessRunner):
         super().__init__(context=context, storage=storage, max_workers=max_workers)
         self.uuid = uuid4()
         _RUNNER_FORK_MEMORY[self.uuid] = RunnerMemory(
-            results_map=self.results_map,
             context=context,
             storage=storage,
         )
@@ -367,7 +365,8 @@ class ForkProcessRunner(ProcessRunner):
 
     @staticmethod
     def _fork_subprocess_func(*, _subprocess_func: Callable, task: Task, task_name: str,
-                              use_cache: bool, process_event_queue: Queue, uuid: UUID) -> TaskResult:
+                              use_cache: bool, process_event_queue: Queue, uuid: UUID,
+                              results_map: ResultsMap) -> TaskResult:
         runner_memory = _RUNNER_FORK_MEMORY[uuid]
         return _subprocess_func(
             task=task,
@@ -375,7 +374,7 @@ class ForkProcessRunner(ProcessRunner):
             use_cache=use_cache,
             context=runner_memory.context,
             storage=runner_memory.storage,
-            results_map=runner_memory.results_map,
+            results_map=results_map,
             process_event_queue=process_event_queue,
         )
 
@@ -387,8 +386,21 @@ class ForkProcessRunner(ProcessRunner):
             task=task,
             task_name=task_name,
             use_cache=use_cache,
-            uuid=self.uuid,
             process_event_queue=process_event_queue,
+            uuid=self.uuid,
+            # TODO: Ideally we should be able to share the results_map
+            # via _RUNNER_FORK_MEMORY, but concurrent.futures forks
+            # all processes up front instead of as each task is
+            # started, so we'd need to move away from
+            # concurrent.futures to fork for each task. While
+            # concurrent.futures can't fork on-demand because it uses
+            # a manager thread, we should be able to safely do it if
+            # we don't use any threads. See:
+            # https://github.com/python/cpython/issues/90622#issuecomment-1093942931
+            results_map={
+                dependency_task: self.results_map[dependency_task]
+                for dependency_task in get_direct_dependencies(task)
+            },
         )
 
     def close(self, *, wait: bool) -> None:
