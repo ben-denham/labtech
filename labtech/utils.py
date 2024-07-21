@@ -5,6 +5,9 @@ import logging
 import re
 from typing import Generic, Optional, Sequence, Type, TypeVar, cast
 
+from tqdm import tqdm as orig_tqdm
+from tqdm.notebook import tqdm as orig_tqdm_notebook
+
 
 def get_logger():
     logger = logging.getLogger('labtech')
@@ -114,10 +117,22 @@ def is_ipython() -> bool:
     return hasattr(builtins, '__IPYTHON__')
 
 
+# Disable tqdm monitoring, as we need to avoid threads if we'll be
+# using fork (see: https://docs.python.org/3/library/os.html#os.fork)
+class tqdm(orig_tqdm):
+    monitor_interval = 0
+
+
+class tqdm_notebook(orig_tqdm_notebook):
+    monitor_interval = 0
+
+
 __all__ = [
     'logger',
     'OrderedSet',
     'LoggerFileProxy',
     'ensure_dict_key_str',
     'is_ipython',
+    'tqdm',
+    'tqdm_notebook',
 ]

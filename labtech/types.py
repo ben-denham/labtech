@@ -187,6 +187,11 @@ class Cache(ABC):
         `storage`."""
 
 
+TaskMonitorInfoValue = datetime | str | int | float
+TaskMonitorInfoItem = TaskMonitorInfoValue | tuple[TaskMonitorInfoValue, str]
+TaskMonitorInfo = dict[str, TaskMonitorInfoItem]
+
+
 class Runner(ABC):
     """TODO"""
 
@@ -224,6 +229,10 @@ class Runner(ABC):
 
     @abstractmethod
     def remove_result(self, task: Task) -> None:
+        """TODO"""
+
+    @abstractmethod
+    def get_task_infos(self) -> list[TaskMonitorInfo]:
         """TODO"""
 
 
