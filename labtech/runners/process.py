@@ -246,9 +246,6 @@ class ProcessRunner(Runner, ABC):
 
     def wait(self, *, timeout: Optional[float]) -> Iterator[tuple[Task, ResultMeta | Exception]]:
         done, _ = wait_for_first_future(list(self.future_to_task.keys()), timeout=timeout)
-
-
-
         for future in done:
             task = self.future_to_task[future]
             try:
@@ -314,17 +311,25 @@ class SpawnProcessRunner(ProcessRunner):
 
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue) -> Future:
+        context: LabContext = {}
+        results_map: dict[Task, TaskResult] = {}
+        if not use_cache:
+            # Only transfer context and results to the subprocess if
+            # we are going to run the task (and not just load its
+            # result from cache).
+            context = self.context
+            results_map = {
+                dependency_task: self.results_map[dependency_task]
+                for dependency_task in get_direct_dependencies(task)
+            }
         return executor.submit(
             self._subprocess_func,
             task=task,
             task_name=task_name,
             use_cache=use_cache,
-            results_map={
-                dependency_task: self.results_map[dependency_task]
-                for dependency_task in get_direct_dependencies(task)
-            },
+            results_map=results_map,
             # TODO: Allow a task to specify which context keys it needs
-            context=self.context,
+            context=context,
             storage=self.storage,
             process_event_queue=process_event_queue,
         )
@@ -380,14 +385,8 @@ class ForkProcessRunner(ProcessRunner):
 
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue) -> Future:
-        return executor.submit(
-            self._fork_subprocess_func,
-            _subprocess_func=self._subprocess_func,
-            task=task,
-            task_name=task_name,
-            use_cache=use_cache,
-            process_event_queue=process_event_queue,
-            uuid=self.uuid,
+        results_map: dict[Task, TaskResult] = {}
+        if not use_cache:
             # TODO: Ideally we should be able to share the results_map
             # via _RUNNER_FORK_MEMORY, but concurrent.futures forks
             # all processes up front instead of as each task is
@@ -397,10 +396,20 @@ class ForkProcessRunner(ProcessRunner):
             # a manager thread, we should be able to safely do it if
             # we don't use any threads. See:
             # https://github.com/python/cpython/issues/90622#issuecomment-1093942931
-            results_map={
+            results_map = {
                 dependency_task: self.results_map[dependency_task]
                 for dependency_task in get_direct_dependencies(task)
-            },
+            }
+
+        return executor.submit(
+            self._fork_subprocess_func,
+            _subprocess_func=self._subprocess_func,
+            task=task,
+            task_name=task_name,
+            use_cache=use_cache,
+            process_event_queue=process_event_queue,
+            uuid=self.uuid,
+            results_map=results_map,
         )
 
     def close(self, *, wait: bool) -> None:
