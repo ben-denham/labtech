@@ -212,7 +212,3 @@ plugins = labtech.mypy_plugin
     * Build docs: `make docs-build`
     * Deploy docs to GitHub Pages: `make docs-github`
     * Docstring style follows the [Google style guide](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
-
-## TODO
-
-* Add unit tests

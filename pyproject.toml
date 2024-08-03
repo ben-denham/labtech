@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "labtech"
-version = "0.6.0"
+version = "0.6.1"
 license = "GPL-3.0-only"
 description = "Easily run experiment permutations with multi-processing and caching."
 authors = ["Ben Denham <ben@denham.nz>"]
