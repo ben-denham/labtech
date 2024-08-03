@@ -106,6 +106,7 @@ class TaskMonitor:
             else TerminalMultilineDisplay(line_count=(top_n + 1))
         )
         self.active_task_events: Dict[str, TaskStartEvent] = {}
+        self.active_processes: Dict[str, psutil.Process] = {}
         self.timer: Optional[Timer] = None
         self.stopped = True
 
@@ -121,28 +122,32 @@ class TaskMonitor:
             elif isinstance(event, TaskEndEvent):
                 if event.process_name in self.active_task_events:
                     del self.active_task_events[event.process_name]
+                    if event.process_name in self.active_processes:
+                        del self.active_processes[event.process_name]
             else:
                 raise LabError(f'Unexpected task event: {event}')
 
     def _get_process_info(self, start_event: TaskStartEvent) -> Optional[dict[str, Any]]:
         pid = start_event.pid
         try:
-            process = psutil.Process(pid)
+            if start_event.process_name not in self.active_processes:
+                self.active_processes[start_event.process_name] = psutil.Process(pid)
+            process = self.active_processes[start_event.process_name]
+            with process.oneshot():
+                start_datetime = datetime.fromtimestamp(process.create_time())
+                threads = process.num_threads()
+                cpu_percent = process.cpu_percent()
+                memory_rss_percent = process.memory_percent('rss')
+                memory_vms_percent = process.memory_percent('vms')
+                children = process.children(recursive=True)
+            for child in children:
+                with child.oneshot():
+                    threads += child.num_threads()
+                    cpu_percent += child.cpu_percent()
+                    memory_rss_percent += child.memory_percent('rss')
+                    memory_vms_percent += child.memory_percent('vms')
         except psutil.NoSuchProcess:
             return None
-        with process.oneshot():
-            start_datetime = datetime.fromtimestamp(process.create_time())
-            threads = process.num_threads()
-            cpu_percent = process.cpu_percent()
-            memory_rss_percent = process.memory_percent('rss')
-            memory_vms_percent = process.memory_percent('vms')
-            children = process.children(recursive=True)
-        for child in children:
-            with child.oneshot():
-                threads += child.num_threads()
-                cpu_percent += child.cpu_percent()
-                memory_rss_percent += child.memory_percent('rss')
-                memory_vms_percent += child.memory_percent('vms')
         return {
             'name': start_event.process_name,
             'pid': pid,
