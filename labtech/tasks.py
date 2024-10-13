@@ -257,7 +257,8 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] 
 
 
 def get_direct_dependencies(task: Task) -> OrderedSet[Task]:
-    """TODO"""
+    """Return an OrderedSet of tasks that are direct (first-level)
+    dependencies of the given task in its attributes."""
     dependency_tasks: OrderedSet[Task] = OrderedSet()
     for field in fields(task):
         field_value = getattr(task, field.name)

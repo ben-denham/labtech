@@ -159,7 +159,7 @@ class ProcessMonitor:
 
 
 class ProcessRunner(Runner, ABC):
-    """TODO"""
+    """Base class for Runner's based on Python multiprocessing."""
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
         self.process_event_queue = multiprocessing.Manager().Queue(-1)
@@ -279,24 +279,30 @@ class ProcessRunner(Runner, ABC):
     def get_result(self, task: Task) -> TaskResult:
         return self.results_map[task]
 
-    def remove_result(self, task: Task) -> None:
-        if task not in self.results_map:
-            return
-        logger.debug(f"Removing result from in-memory cache for task: '{task}'")
-        del self.results_map[task]
+    def remove_results(self, tasks: Sequence[Task]) -> None:
+        for task in tasks:
+            if task not in self.results_map:
+                return
+            logger.debug(f"Removing result from in-memory cache for task: '{task}'")
+            del self.results_map[task]
 
     def get_task_infos(self) -> list[TaskMonitorInfo]:
         return self.process_monitor.get_process_infos()
 
     @abstractmethod
     def _get_mp_context(self) -> multiprocessing.context.BaseContext:
-        """TODO"""
+        """Return a multiprocessing context from which to start subprocesses."""
 
     @abstractmethod
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue) -> Future:
-        """TODO: Should call _subprocess_func()"""
-        pass
+        """Should submit the execution of self._subprocess_func() on the given
+        task to the given executor and return the resulting Future.
+
+        Sub-classes can use the implementation of this method to load
+        or otherwise prepare context or dependency results for the task.
+
+        """
 
 
 class SpawnProcessRunner(ProcessRunner):
@@ -336,7 +342,13 @@ class SpawnProcessRunner(ProcessRunner):
 
 
 class SpawnRunnerBackend(RunnerBackend):
-    """TODO"""
+    """
+    Runner Backend that runs each task in a spawned subprocess.
+
+    The context and dependency task results are copied/duplicated into
+    the memory of each subprocess.
+
+    """
 
     def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> SpawnProcessRunner:
         return SpawnProcessRunner(
@@ -418,7 +430,13 @@ class ForkProcessRunner(ProcessRunner):
 
 
 class ForkRunnerBackend(RunnerBackend):
-    """TODO"""
+    """
+    Runner Backend that runs each task in a forked subprocess.
+
+    The context and dependency task results are copied/duplicated into
+    the memory of each subprocess.
+
+    """
 
     def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> ForkProcessRunner:
         return ForkProcessRunner(

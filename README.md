@@ -188,6 +188,7 @@ To learn more, dive into the following resources:
 * [Cookbook of common patterns](https://ben-denham.github.io/labtech/cookbook) ([as an interactive notebook](https://mybinder.org/v2/gh/ben-denham/labtech/main?filepath=examples/cookbook.ipynb))
 * [API reference for Labs and Tasks](https://ben-denham.github.io/labtech/core)
 * [More options for cache formats and storage providers](https://ben-denham.github.io/labtech/caching)
+* [Option for customising task execution backends](https://ben-denham.github.io/labtech/runners)
 * [Diagramming tools](https://ben-denham.github.io/labtech/diagram)
 * [More examples](https://github.com/ben-denham/labtech/tree/main/examples)
 

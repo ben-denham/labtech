@@ -228,7 +228,7 @@ class Runner(ABC):
         """TODO"""
 
     @abstractmethod
-    def remove_result(self, task: Task) -> None:
+    def remove_results(self, tasks: Sequence[Task]) -> None:
         """TODO"""
 
     @abstractmethod

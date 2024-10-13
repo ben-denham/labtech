@@ -235,6 +235,7 @@ class TaskCoordinator:
                                 task_name=f'{type(task).__name__}[{task_number}]',
                                 use_cache=self.use_cache(task),
                             )
+                        # TODO: Why have a timeout of 0.5?
                         for task, res in runner.wait(timeout=0.5):
                             if isinstance(res, Exception):
                                 tasks_with_removable_results = state.complete_task(task, result_meta=None)
@@ -247,8 +248,7 @@ class TaskCoordinator:
                             else:
                                 raise LabError(f'Unexpected task res type: {type(res)}')
 
-                            for task_with_removable_result in tasks_with_removable_results:
-                                runner.remove_result(task_with_removable_result)
+                            runner.remove_results(tasks_with_removable_results)
 
                             if task_monitor is not None:
                                 task_monitor.update()
@@ -315,7 +315,32 @@ class Lab:
                 tasks. The context will not be cached, so the values should not
                 affect results (e.g. parallelism factors) or should be kept
                 constant between runs (e.g. datasets).
-            runner_backend: TODO
+            runner_backend: Controls how tasks are run in parallel. It can
+                optionally be set to one of the following options:
+
+                * `'fork'`: Uses the
+                  [`ForkRunnerBackend`][labtech.runners.ForkRunnerBackend]
+                  to run each task in a forked subprocess. Memory use
+                  is reduced by sharing the context and (TODO)
+                  dependency task results between tasks with memory
+                  inherited from the parent process. The default on
+                  platforms that support forked Python subprocesses:
+                  Linux and other POSIX systems, but not macOS or
+                  Windows.
+                * `'spawn'`: Uses the
+                  [`SpawnRunnerBackend`][labtech.runners.SpawnRunnerBackend]
+                  to run each task in a spawned subprocess. The
+                  context and dependency task results are
+                  copied/duplicated into the memory of each
+                  subprocess. The default on macOS and Windows.
+                * Any instance of a
+                  [`RunnerBackend`][labtech.types.RunnerBackend],
+                  allowing for custom task management implementations.
+
+                For details on the differences between `'fork'` and
+                `'spawn'` backends, see [the Python documentation on
+                `multiprocessing` start methods](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods).
+
         """
         if isinstance(storage, str) or isinstance(storage, Path):
             storage = LocalStorage(storage)
@@ -408,13 +433,15 @@ class Lab:
 
         """
         check_tasks(tasks)
-        coordinator = TaskCoordinator(self,
-                                      bust_cache=bust_cache,
-                                      disable_progress=disable_progress,
-                                      disable_top=disable_top,
-                                      top_format=top_format,
-                                      top_sort=top_sort,
-                                      top_n=top_n)
+        coordinator = TaskCoordinator(
+            self,
+            bust_cache=bust_cache,
+            disable_progress=disable_progress,
+            disable_top=disable_top,
+            top_format=top_format,
+            top_sort=top_sort,
+            top_n=top_n,
+        )
         results = coordinator.run(tasks)
         # Return results in the same order as tasks
         return {task: results[task] for task in tasks}
