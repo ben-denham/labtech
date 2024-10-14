@@ -167,10 +167,9 @@ class ProcessRunner(Runner, ABC):
 
         self.log_queue = multiprocessing.Manager().Queue(-1)
 
-        self.serial_executor = SerialExecutor()
         self.executor: Executor
         if max_workers is not None and max_workers == 1:
-            self.executor = self.serial_executor
+            self.executor = SerialExecutor()
         else:
             self.executor = ProcessPoolExecutor(
                 mp_context=self._get_mp_context(),
@@ -225,21 +224,13 @@ class ProcessRunner(Runner, ABC):
             ))
 
     def start_task(self, task: Task, task_name: str, use_cache: bool) -> None:
-        # Always use a serial executor to run tasks on the
-        # main process if max_parallel=1
-        executor = (
-            self.serial_executor
-            if task._lt.max_parallel is not None and task._lt.max_parallel == 1
-            else self.executor
-        )
-        future = self._submit_task(
-            executor=executor,
+        self.future_to_task[future] = self._submit_task(
+            executor=self.executor,
             task=task,
             task_name=task_name,
             use_cache=use_cache,
             process_event_queue=self.process_event_queue,
         )
-        self.future_to_task[future] = task
 
     def pending_task_count(self) -> int:
         return len(self.future_to_task)
@@ -273,7 +264,6 @@ class ProcessRunner(Runner, ABC):
     def close(self, *, wait: bool) -> None:
         if self.closed:
             return
-        self.serial_executor.shutdown(wait=wait)
         self.executor.shutdown(wait=wait)
 
     def get_result(self, task: Task) -> TaskResult:

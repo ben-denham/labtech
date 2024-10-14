@@ -171,8 +171,6 @@ def task(*args,
             are allowed to run simultaneously in separate sub-processes. Useful
             to set if running too many instances of this particular task
             simultaneously will exhaust system memory or processing resources.
-            When `max_parallel=1`, all tasks will be run in the main process,
-            without multi-processing.
         mlflow_run: If True, the execution of each instance of this task type
             will be wrapped with `mlflow.start_run()`, tags the run with
             `labtech_task_type` equal to the task class name, and all parameters
