@@ -235,7 +235,9 @@ class TaskCoordinator:
                                 task_name=f'{type(task).__name__}[{task_number}]',
                                 use_cache=self.use_cache(task),
                             )
-                        # TODO: Why have a timeout of 0.5?
+
+                        # Wait up to a short delay before allowing the
+                        # task monitor to update.
                         for task, res in runner.wait(timeout=0.5):
                             if isinstance(res, Exception):
                                 tasks_with_removable_results = state.complete_task(task, result_meta=None)
@@ -250,8 +252,8 @@ class TaskCoordinator:
 
                             runner.remove_results(tasks_with_removable_results)
 
-                            if task_monitor is not None:
-                                task_monitor.update()
+                        if task_monitor is not None:
+                            task_monitor.update()
                 except KeyboardInterrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))

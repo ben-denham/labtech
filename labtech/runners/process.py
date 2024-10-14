@@ -65,16 +65,6 @@ def wait_for_first_future(futures: Sequence[Future], *, timeout: Optional[float]
     return wait(futures, return_when=FIRST_COMPLETED, timeout=timeout)
 
 
-def init_task_subprocess(log_queue):
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    # Sub-processes should log onto the queue in order to printed
-    # in serial by the main process.
-    logger.handlers = []
-    logger.addHandler(QueueHandler(log_queue))
-    sys.stdout = LoggerFileProxy(logger.info, 'Captured STDOUT:\n')
-    sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')
-
-
 class ProcessEvent:
     pass
 
@@ -174,8 +164,6 @@ class ProcessRunner(Runner, ABC):
             self.executor = ProcessPoolExecutor(
                 mp_context=self._get_mp_context(),
                 max_workers=max_workers,
-                initializer=init_task_subprocess,
-                initargs=(self.log_queue,),
             )
 
         self.results_map: dict[Task, TaskResult] = {}
@@ -195,7 +183,16 @@ class ProcessRunner(Runner, ABC):
     @staticmethod
     def _subprocess_func(*, task: Task, task_name: str, use_cache: bool,
                          results_map: ResultsMap, context: LabContext,
-                         storage: Storage, process_event_queue: Queue) -> TaskResult:
+                         storage: Storage, process_event_queue: Queue,
+                         log_queue: Queue) -> TaskResult:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        # Sub-processes should log onto the queue in order to printed
+        # in serial by the main process.
+        logger.handlers = []
+        logger.addHandler(QueueHandler(log_queue))
+        sys.stdout = LoggerFileProxy(logger.info, 'Captured STDOUT:\n')
+        sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')
+
         orig_process_name = multiprocessing.current_process().name
         try:
             current_process = multiprocessing.current_process()
@@ -230,6 +227,7 @@ class ProcessRunner(Runner, ABC):
             task_name=task_name,
             use_cache=use_cache,
             process_event_queue=self.process_event_queue,
+            log_queue=self.log_queue,
         )
 
     def pending_task_count(self) -> int:
@@ -285,7 +283,7 @@ class ProcessRunner(Runner, ABC):
 
     @abstractmethod
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
-                     use_cache: bool, process_event_queue: Queue) -> Future:
+                     use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
         """Should submit the execution of self._subprocess_func() on the given
         task to the given executor and return the resulting Future.
 
@@ -306,7 +304,7 @@ class SpawnProcessRunner(ProcessRunner):
         return multiprocessing.get_context('spawn')
 
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
-                     use_cache: bool, process_event_queue: Queue) -> Future:
+                     use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
         context: LabContext = {}
         results_map: dict[Task, TaskResult] = {}
         if not use_cache:
@@ -328,6 +326,7 @@ class SpawnProcessRunner(ProcessRunner):
             context=context,
             storage=self.storage,
             process_event_queue=process_event_queue,
+            log_queue=log_queue,
         )
 
 
@@ -372,8 +371,8 @@ class ForkProcessRunner(ProcessRunner):
 
     @staticmethod
     def _fork_subprocess_func(*, _subprocess_func: Callable, task: Task, task_name: str,
-                              use_cache: bool, process_event_queue: Queue, uuid: UUID,
-                              results_map: ResultsMap) -> TaskResult:
+                              use_cache: bool, process_event_queue: Queue, log_queue: Queue,
+                              uuid: UUID, results_map: ResultsMap) -> TaskResult:
         runner_memory = _RUNNER_FORK_MEMORY[uuid]
         return _subprocess_func(
             task=task,
@@ -383,10 +382,11 @@ class ForkProcessRunner(ProcessRunner):
             storage=runner_memory.storage,
             results_map=results_map,
             process_event_queue=process_event_queue,
+            log_queue=log_queue,
         )
 
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
-                     use_cache: bool, process_event_queue: Queue) -> Future:
+                     use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
         results_map: dict[Task, TaskResult] = {}
         if not use_cache:
             # TODO: Ideally we should be able to share the results_map
@@ -410,6 +410,7 @@ class ForkProcessRunner(ProcessRunner):
             task_name=task_name,
             use_cache=use_cache,
             process_event_queue=process_event_queue,
+            log_queue=log_queue,
             uuid=self.uuid,
             results_map=results_map,
         )
