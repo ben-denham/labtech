@@ -572,7 +572,7 @@ class ForkProcessRunner(ProcessRunner):
             task=task,
             task_name=task_name,
             use_cache=use_cache,
-            context=runner_memory.context,
+            context=task.filter_context(runner_memory.context),
             storage=runner_memory.storage,
             results_map=runner_memory.results_map,
             process_event_queue=process_event_queue,

@@ -213,7 +213,7 @@ class Runner(ABC):
         """
         Args:
             context: A dictionary of additional variables made available to
-                tasks.
+                tasks. It is the responsibility of the Runner to ensure a ta.
             storage: Where task results should be cached to.
             max_workers: The maximum number of parallel worker processes for
                 running tasks.
@@ -223,12 +223,16 @@ class Runner(ABC):
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         """Submit the given task object for execution.
 
+        The implementation of this method must transform the cotnext
+        passed to the task with `task.filter_context()`.
+
         Args:
             task: The task to execute.
             task_name: Name to use when referring to the task in logs.
             use_cache: If True, the task's result should be fetched from the
                 cache if it is available (fetching should still be done in a
                 delegated process).
+
         """
 
     @abstractmethod
