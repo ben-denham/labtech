@@ -5,7 +5,6 @@ import math
 from collections import Counter, defaultdict
 from multiprocessing import get_all_start_methods
 from pathlib import Path
-from queue import Queue
 from typing import Any, Iterable, Optional, Sequence, Set, Type, Union
 
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -154,8 +153,6 @@ class TaskCoordinator:
         self.top_sort = top_sort
         self.top_n = top_n
 
-        self.task_monitor_queue: Optional[Queue] = None
-
     def get_pbar(self, *, task_type: Type[Task], task_count: int) -> tqdm:
         pbar_func = tqdm_notebook if self.lab.notebook else tqdm
         return pbar_func(
@@ -219,51 +216,58 @@ class TaskCoordinator:
             )
             task_monitor.show()
 
+        def process_completed_tasks():
+            # Wait up to a short delay before allowing the
+            # task monitor to update.
+            for task, res in runner.wait(timeout_seconds=0.5):
+                if isinstance(res, Exception):
+                    tasks_with_removable_results = state.complete_task(task, result_meta=None)
+                    self.handle_failure(ex=res, message=f"Task '{task}' failed.")
+                elif isinstance(res, ResultMeta):
+                    if task in tasks:
+                        task_results[task] = runner.get_result(task).value
+                    tasks_with_removable_results = state.complete_task(task, result_meta=res)
+                    pbars[type(task)].update(1)
+                else:
+                    raise LabError(f'Unexpected task res type: {type(res)}')
+
+                runner.remove_results(tasks_with_removable_results)
+
+            if task_monitor is not None:
+                task_monitor.update()
+
         redirected_loggers = [] if self.lab.notebook else [logger]
         with logging_redirect_tqdm(loggers=redirected_loggers):
             try:
                 try:
-                    while (len(state.pending_tasks) > 0) or (runner.pending_task_count() > 0):
+                    while (len(state.pending_tasks) > 0) or (runner.submitted_task_count() > 0):
                         ready_tasks = state.get_ready_tasks()
                         for task in ready_tasks:
                             state.start_task(task)
                             task_type_to_task_count[type(task)] += 1
                             task_number = (str(task_type_to_task_count[type(task)])
                                            .zfill(task_type_max_digits[type(task)]))
-                            runner.start_task(
+                            runner.submit_task(
                                 task,
                                 task_name=f'{type(task).__name__}[{task_number}]',
                                 use_cache=self.use_cache(task),
                             )
-
-                        # Wait up to a short delay before allowing the
-                        # task monitor to update.
-                        for task, res in runner.wait(timeout=0.5):
-                            if isinstance(res, Exception):
-                                tasks_with_removable_results = state.complete_task(task, result_meta=None)
-                                self.handle_failure(ex=res, message=f"Task '{task}' failed.")
-                            elif isinstance(res, ResultMeta):
-                                if task in tasks:
-                                    task_results[task] = runner.get_result(task).value
-                                tasks_with_removable_results = state.complete_task(task, result_meta=res)
-                                pbars[type(task)].update(1)
-                            else:
-                                raise LabError(f'Unexpected task res type: {type(res)}')
-
-                            runner.remove_results(tasks_with_removable_results)
-
-                        if task_monitor is not None:
-                            task_monitor.update()
+                            process_completed_tasks()
                 except KeyboardInterrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))
+                    runner.close(wait=True)
+                    # Process completed tasks one last time after
+                    # final tasks have completed.
+                    process_completed_tasks()
                 else:
                     return task_results
-                finally:
-                    runner.cancel()
             except KeyboardInterrupt:
                 logger.info('Terminating running tasks.')
-                runner.terminate()
+                runner.close(wait=False)
+                # Process completed tasks one last time after final
+                # tasks have completed.
+                process_completed_tasks()
             finally:
                 if task_monitor is not None:
                     task_monitor.update()
@@ -323,12 +327,11 @@ class Lab:
                 * `'fork'`: Uses the
                   [`ForkRunnerBackend`][labtech.runners.ForkRunnerBackend]
                   to run each task in a forked subprocess. Memory use
-                  is reduced by sharing the context and (TODO)
-                  dependency task results between tasks with memory
-                  inherited from the parent process. The default on
-                  platforms that support forked Python subprocesses:
-                  Linux and other POSIX systems, but not macOS or
-                  Windows.
+                  is reduced by sharing the context and dependency task
+                  results between tasks with memory inherited from the
+                  parent process. The default on platforms that support
+                  forked Python subprocesses: Linux and other POSIX systems,
+                  but not macOS or Windows.
                 * `'spawn'`: Uses the
                   [`SpawnRunnerBackend`][labtech.runners.SpawnRunnerBackend]
                   to run each task in a spawned subprocess. The

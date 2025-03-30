@@ -8,12 +8,12 @@ from datetime import datetime
 from enum import StrEnum, auto
 from logging.handlers import QueueHandler
 from queue import Empty, Queue
-from typing import Callable, Iterator, Mapping, Optional, Sequence, cast
+from typing import Any, Callable, Iterator, Mapping, Optional, Sequence, cast
 from uuid import UUID, uuid4
 
 import psutil
 
-from labtech.exceptions import RunnerError
+from labtech.exceptions import RunnerError, TaskDiedError
 from labtech.tasks import get_direct_dependencies
 from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
 from labtech.utils import LoggerFileProxy, logger
@@ -27,65 +27,87 @@ class FutureStateError(Exception):
 
 class FutureState(StrEnum):
     PENDING = auto()
-    RUNNING = auto()
     CANCELLED = auto()
     FINISHED = auto()
 
 
-@dataclass
+@dataclass(eq=False)
 class Future:
-    """TODO: Describe finite state machine."""
-    _state: FutureState = FutureState.PENDING
-    _ex: Optional[Exception] = None
+    """Representation of a result to be returned in the future by runner.
+
+    A Future's state transitions between states according to the following
+    finite state machine:
+
+    * A Future starts in a PENDING state
+    * A PENDING Future can be transitioned to FINISHED by calling
+      set_result() or set_exception()
+    * Any Future can be transitioned to CANCELLED by calling cancel()
+    * result() can only be called on a FINISHED Future, and it will either
+      return the result set by set_result() or raise the exception set by
+      set_exception()
+
+    """
+    state: FutureState = FutureState.PENDING
+    _ex: Optional[BaseException] = None
     _result: Optional[Any] = None
 
     @property
     def done(self) -> bool:
-        return (self._ex is not None) or (self._result is not None)
-
-    def set_running(self):
-        if self._state in {FutureState.FINISHED, FutureState.CANCELLED}:
-            raise FutureStateError(f'Attempted to set a {self._state} future to running.')
-        self._state = FutureState.RUNNING
+        return self.state in {FutureState.FINISHED, FutureState.CANCELLED}
 
     def set_result(self, result: Any):
-        if self._state in {FutureState.FINISHED, FutureState.CANCELLED}:
-            raise FutureStateError(f'Attempted to set a result on a {self._state} future.')
+        if self.done:
+            raise FutureStateError(f'Attempted to set a result on a {self.state} future.')
         self._result = result
-        self._state = FutureState.FINISHED
+        self.state = FutureState.FINISHED
 
-    def set_exception(self, ex: Exception):
-        if self._state in {FutureState.FINISHED, FutureState.CANCELLED}:
-            raise FutureStateError(f'Attempted to set an exception on a {self._state} future.')
-        self._result = result
-        self._state = FutureState.FINISHED
+    def set_exception(self, ex: BaseException):
+        if self.done:
+            raise FutureStateError(f'Attempted to set an exception on a {self.state} future.')
+        self._ex = ex
+        self.state = FutureState.FINISHED
 
     def cancel(self):
-        if self._state in {FutureState.FINISHED, FutureState.CANCELLED}:
-            raise FutureStateError(f'Attempted to cancel a {self._state} future.')
-        self._state = FutureState.CANCELLED
+        self.state = FutureState.CANCELLED
 
     def result(self) -> Any:
-        if self._state != FutureState.FINISHED:
-            raise FutureStateError(f'Attempted to get result from a {self._state} future.')
+        if self.state != FutureState.FINISHED:
+            raise FutureStateError(f'Attempted to get result from a {self.state} future.')
         if self._ex is not None:
             raise self._ex
         return self._result
+
+
+def split_done_futures(futures: Sequence[Future]) -> tuple[list[Future], list[Future]]:
+    done_futures = []
+    not_done_futures = []
+    for future in futures:
+        if future.done:
+            done_futures.append(future)
+        else:
+            not_done_futures.append(future)
+    return (done_futures, not_done_futures)
 
 
 class Executor(ABC):
 
     @abstractmethod
     def submit(self, fn: Callable, /, *args, **kwargs) -> Future:
-        """TODO"""
-        pass
+        """Schedule the given fn to be called with the given *args and
+        **kwargs, and return a Future that will be updated with the
+        outcome of function call."""
+
+    def stop(self, *, wait: bool):
+        """If wait=True, cancel all PENDING futures and wait() until
+        all running futures are FINISHED. If wait=False, then also
+        cancel all RUNNING futures and immediately terminate their
+        execution."""
 
     @abstractmethod
-    def wait(self, futures: Sequence[Future], timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
-        """TODO"""
-
-    def shutdown(self, wait: bool):
-        """TODO"""
+    def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
+        """Wait up to timeout_seconds or until at least one of the
+        given futures is done, then return a list of futures in a done
+        state and a list of futures in all other states."""
 
 
 @dataclass(frozen=True)
@@ -95,9 +117,18 @@ class Thunk:
     kwargs: Mapping[str, Any]
 
 
+def _subprocess_target(*, future: Future, thunk: Thunk, result_queue: Queue) -> None:
+    try:
+        result = thunk.fn(*thunk.args, **thunk.kwargs)
+    except BaseException as ex:
+        result_queue.put((future, ex))
+    else:
+        result_queue.put((future, result))
+
+
 class ProcessExecutor(Executor):
 
-    def __init__(self, mp_context: multiprocessing.context.BaseContext, max_workers: int):
+    def __init__(self, mp_context: multiprocessing.context.BaseContext, max_workers: Optional[int]):
         self.mp_context = mp_context
         self.max_workers = max_workers
         self._pending_future_to_thunk: dict[Future, Thunk] = {}
@@ -106,87 +137,127 @@ class ProcessExecutor(Executor):
         self._result_queue: Queue = multiprocessing.Manager().Queue(-1)
 
     def _start_processes(self):
-        """TODO"""
-        start_count = max(0, self.max_workers - len(self._future_to_process))
-        futures_to_start = list(self._pending_futures.keys())[:start_count]
+        """Start processes for the oldest pending futures to bring
+        running process count up to max_workers."""
+        if self.max_workers is None:
+            start_count = len(self._pending_future_to_thunk)
+        else:
+            start_count = max(0, self.max_workers - len(self._future_to_process))
+        futures_to_start = list(self._pending_future_to_thunk.keys())[:start_count]
         for future in futures_to_start:
-            thunk = self._pending_futures[future]
-            del self._pending_futures[future]
-            self._running_future_to_process[future] = Process(
-                target=thunk.fn,
-                args=thunk.args,
-                kwargs=thunk.kwargs,
+            thunk = self._pending_future_to_thunk[future]
+            del self._pending_future_to_thunk[future]
+            process = multiprocessing.Process(
+                target=_subprocess_target,
+                kwargs=dict(
+                    future=future,
+                    thunk=thunk,
+                    result_queue=self._result_queue,
+                ),
             )
-            future.set_running()
+            self._running_future_to_process[future] = process
+            process.start()
 
     def submit(self, fn: Callable, /, *args, **kwargs) -> Future:
         future = Future()
-        self._pending_futures[future] = Thunk(fn=fn, args=args, kwargs=kwargs)
+        self._pending_future_to_thunk[future] = Thunk(fn=fn, args=args, kwargs=kwargs)
         self._start_processes()
         return future
 
-    def shutdown(self, wait: bool):
-        # TODO
-        # Process.join() when wait=True?
-        # terminate() when wait=False?
-        pass
+    def stop(self, *, wait: bool):
+        # Cancel pending futures
+        pending_futures = list(self._pending_future_to_thunk.keys())
+        for future in pending_futures:
+            future.cancel()
+            del self._pending_future_to_thunk[future]
 
-    def wait(self, futures: Sequence[Future], timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
-        # TODO: Check plan against what concurrent futures does
-        # If any running futures have an inactive process, then set exception on them as "died", and add them to the list to return
-        # Wait (timeout=0 if we had an inactive process) on latest results from the queue, set_result() on them, and remove from running future list
-        # Return done() futures
-        pass
+        # Wait for or terminate+cancel running futures
+        future_process_pairs = list(self._running_future_to_process.items())
+        for future, process in future_process_pairs:
+            if wait:
+                process.join()
+            else:
+                process.terminate()
+                future.cancel()
+                del self._running_future_to_process[future]
 
+    def _consume_result_queue(self, *, timeout_seconds: Optional[float]):
+        # Avoid race condition of a process finishing after we have
+        # consumed the result_queue by fetching process statuses
+        # before checking for process completion.
+        dead_process_futures = [
+            future for future, process in self._running_future_to_process.items()
+            if not process.is_alive()
+        ]
 
-class SerialFuture(Future):
+        wait_timeout = True
+        while True:
+            try:
+                future, result_or_ex = self._result_queue.get(wait_timeout, timeout=timeout_seconds)
+            except Empty:
+                break
 
-    def __init__(self, fn: Callable, /, *args, **kwargs):
-        super().__init__()
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
+            # Don't wait for the timeout on subsequent calls to
+            # self._result_queue.get()
+            wait_timeout = False
 
-    def run(self):
-        self.set_running()
-        try:
-            result = self.fn(*self.args, **self.kwargs)
-        except BaseException as ex:
-            self.set_exception(ex)
-        else:
-            self.set_result(result)
+            if not future.done:
+                del self._running_future_to_process[future]
+                if isinstance(result_or_ex, BaseException):
+                    future.set_exception(result_or_ex)
+                else:
+                    future.set_result(result_or_ex)
+
+        # If any processes have died without the future being
+        # cancelled or finished, then set an exception for it.
+        for future in dead_process_futures:
+            if future.done:
+                continue
+            future.set_exception(TaskDiedError())
+            del self._running_future_to_process[future]
+
+    def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
+        self._consume_result_queue(timeout_seconds=timeout_seconds)
+        return split_done_futures(futures)
 
 
 class SerialExecutor(Executor):
 
     def __init__(self) -> None:
-        self.futures: list[SerialFuture] = []
+        self._pending_future_to_thunk: dict[Future, Thunk] = {}
 
     def submit(self, fn: Callable, /, *args, **kwargs):
-        future = SerialFuture(fn, *args, **kwargs)
-        self.futures.append(future)
+        future = Future()
+        self._pending_future_to_thunk[future] = Thunk(fn=fn, args=args, kwargs=kwargs)
         return future
 
-    def wait(self, futures: Sequence[Future], timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
-        # Safety check
-        non_serial_futures = [future for future in futures if not isinstance(future, SerialFuture)]
-        if non_serial_futures:
-            raise ValueError('SerialExecutor.wait received non-serial futures: {non_serial_futures}')
+    def stop(self, *, wait: bool):
+        # Cancel pending futures
+        pending_futures = list(self._pending_future_to_thunk.keys())
+        for future in pending_futures:
+            future.cancel()
+            del self._pending_future_to_thunk[future]
 
+    def _run_future(self, future: Future):
+        thunk = self._pending_future_to_thunk[future]
+        try:
+            result = thunk.fn(*thunk.args, **thunk.kwargs)
+        except BaseException as ex:
+            future.set_exception(ex)
+        else:
+            future.set_result(result)
+        del self._pending_future_to_thunk[future]
+
+    def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
         if not futures:
-            return ([], [])
-        # Ensure at least one future is completed.
-        if not futures[0].done():
-            futures[0].run()
+            return [], []
 
-        done_futures = []
-        pending_futures = []
-        for future in futures:
-            if future.done():
-                done_futures.append(future)
-            else:
-                pending_futures.append(future)
-        return (done_futures, pending_futures)
+        # Ensure at least one future is completed.
+        completed_futures = [future for future in futures if future.done]
+        if not completed_futures:
+            self._run_future(futures[0])
+
+        return split_done_futures(futures)
 
 
 class ProcessEvent:
@@ -314,8 +385,9 @@ class ProcessRunner(Runner, ABC):
         # in serial by the main process.
         logger.handlers = []
         logger.addHandler(QueueHandler(log_queue))
-        sys.stdout = LoggerFileProxy(logger.info, 'Captured STDOUT:\n')
-        sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')
+        # Ignore type errors for type of value used to override stdout and stderr
+        sys.stdout = LoggerFileProxy(logger.info, 'Captured STDOUT:\n')  # type: ignore[assignment]
+        sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')  # type: ignore[assignment]
 
         orig_process_name = multiprocessing.current_process().name
         try:
@@ -333,7 +405,6 @@ class ProcessRunner(Runner, ABC):
 
             return run_or_load_task(
                 task=task,
-                task_name=task_name,
                 use_cache=use_cache,
                 context=context,
                 storage=storage
@@ -344,8 +415,8 @@ class ProcessRunner(Runner, ABC):
                 task_name=task_name,
             ))
 
-    def start_task(self, task: Task, task_name: str, use_cache: bool) -> None:
-        self.future_to_task[future] = self._submit_task(
+    def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
+        future = self._submit_task(
             executor=self.executor,
             task=task,
             task_name=task_name,
@@ -353,17 +424,15 @@ class ProcessRunner(Runner, ABC):
             process_event_queue=self.process_event_queue,
             log_queue=self.log_queue,
         )
+        self.future_to_task[future] = task
 
-    def pending_task_count(self) -> int:
-        return len(self.future_to_task)
-
-    def wait(self, *, timeout: Optional[float]) -> Iterator[tuple[Task, ResultMeta | Exception]]:
-        done, _ = wait_for_first_future(list(self.future_to_task.keys()), timeout=timeout)
+    def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
+        done, _ = self.executor.wait(list(self.future_to_task.keys()), timeout_seconds=timeout_seconds)
         for future in done:
             task = self.future_to_task[future]
             try:
                 task_result = future.result()
-            except Exception as ex:
+            except BaseException as ex:
                 yield (task, ex)
             else:
                 self.results_map[task] = task_result
@@ -374,21 +443,18 @@ class ProcessRunner(Runner, ABC):
             if future not in done
         }
 
-    def cancel(self) -> None:
-        for future in self.future_to_task:
-            future.cancel()
-
-    def terminate(self) -> None:
-        # TODO
-        for process in self.executor._processes.values():  # type: ignore[attr-defined]
-            process.terminate()
-        self.close(wait=False)
-
     def close(self, *, wait: bool) -> None:
         if self.closed:
             return
-        self.executor.shutdown(wait=wait)
+        self.executor.stop(wait=wait)
+        if wait:
+            # If we wait for tasks to finish, then handle their
+            # results.
+            self.wait(timeout_seconds=0)
         self.closed = True
+
+    def submitted_task_count(self) -> int:
+        return len(self.future_to_task)
 
     def get_result(self, task: Task) -> TaskResult:
         return self.results_map[task]
@@ -436,8 +502,9 @@ class SpawnProcessRunner(ProcessRunner):
         if not use_cache:
             # Only transfer context and results to the subprocess if
             # we are going to run the task (and not just load its
-            # result from cache).
-            context = self.context
+            # result from cache). And allow the task to filter the
+            # context to only what it needs.
+            context = task.filter_context(self.context)
             results_map = {
                 dependency_task: self.results_map[dependency_task]
                 for dependency_task in get_direct_dependencies(task)
@@ -448,7 +515,6 @@ class SpawnProcessRunner(ProcessRunner):
             task_name=task_name,
             use_cache=use_cache,
             results_map=results_map,
-            # TODO: Allow a task to specify which context keys it needs
             context=context,
             storage=self.storage,
             process_event_queue=process_event_queue,
@@ -477,6 +543,7 @@ class SpawnRunnerBackend(RunnerBackend):
 class RunnerMemory:
     context: LabContext
     storage: Storage
+    results_map: ResultsMap
 
 
 _RUNNER_FORK_MEMORY: dict[UUID, RunnerMemory] = {}
@@ -490,6 +557,7 @@ class ForkProcessRunner(ProcessRunner):
         _RUNNER_FORK_MEMORY[self.uuid] = RunnerMemory(
             context=context,
             storage=storage,
+            results_map=self.results_map,
         )
 
     def _get_mp_context(self) -> multiprocessing.context.ForkContext:
@@ -498,7 +566,7 @@ class ForkProcessRunner(ProcessRunner):
     @staticmethod
     def _fork_subprocess_func(*, _subprocess_func: Callable, task: Task, task_name: str,
                               use_cache: bool, process_event_queue: Queue, log_queue: Queue,
-                              uuid: UUID, results_map: ResultsMap) -> TaskResult:
+                              uuid: UUID) -> TaskResult:
         runner_memory = _RUNNER_FORK_MEMORY[uuid]
         return _subprocess_func(
             task=task,
@@ -506,29 +574,13 @@ class ForkProcessRunner(ProcessRunner):
             use_cache=use_cache,
             context=runner_memory.context,
             storage=runner_memory.storage,
-            results_map=results_map,
+            results_map=runner_memory.results_map,
             process_event_queue=process_event_queue,
             log_queue=log_queue,
         )
 
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
-        results_map: dict[Task, TaskResult] = {}
-        if not use_cache:
-            # TODO: Ideally we should be able to share the results_map
-            # via _RUNNER_FORK_MEMORY, but concurrent.futures forks
-            # all processes up front instead of as each task is
-            # started, so we'd need to move away from
-            # concurrent.futures to fork for each task. While
-            # concurrent.futures can't fork on-demand because it uses
-            # a manager thread, we should be able to safely do it if
-            # we don't use any threads. See:
-            # https://github.com/python/cpython/issues/90622#issuecomment-1093942931
-            results_map = {
-                dependency_task: self.results_map[dependency_task]
-                for dependency_task in get_direct_dependencies(task)
-            }
-
         return executor.submit(
             self._fork_subprocess_func,
             _subprocess_func=self._subprocess_func,
@@ -538,7 +590,6 @@ class ForkProcessRunner(ProcessRunner):
             process_event_queue=process_event_queue,
             log_queue=log_queue,
             uuid=self.uuid,
-            results_map=results_map,
         )
 
     def close(self, *, wait: bool) -> None:

@@ -10,7 +10,7 @@ from frozendict import frozendict
 
 from .cache import NullCache, PickleCache
 from .exceptions import TaskError
-from .types import Cache, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
+from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
 from .utils import OrderedSet, ensure_dict_key_str
 
 ParamScalar: TypeAlias = None | str | bool | float | int | Enum
@@ -67,8 +67,12 @@ def _task_set_result_meta(self: Task, result_meta: ResultMeta):
     object.__setattr__(self, 'result_meta', result_meta)
 
 
-def _task_set_context(self: Task, context: dict[str, Any]):
+def _task_set_context(self: Task, context: LabContext):
     object.__setattr__(self, 'context', context)
+
+
+def _task_filter_context_default(self: Task, context: LabContext) -> LabContext:
+    return context
 
 
 def _task_result(self: Task[ResultT]) -> ResultT:
@@ -161,6 +165,15 @@ def task(*args,
     attributes can only be assigned to the task with
     `object.__setattr__(self, attribute_name, attribute_value)`.
 
+    If a `filter_context(self, context: LabContext) -> LabContext`
+    method is defined, it will be called to transform the context
+    provided to each task. This can be useful for selecting subsets of
+    large contexts in order to reduce data transferred to non-forked
+    subprocesses or other kinds of processes in parallel processing
+    frameworks. The filtering may take into account the values of the
+    task's attributes. If `filter_context()` is not defined, the full
+    context will be provided to each task.
+
     Args:
         cache: The Cache that controls how task results are formatted for
             caching. Can be set to an instance of any
@@ -213,6 +226,8 @@ def task(*args,
         cls._set_result_meta = _task_set_result_meta
         cls.result = property(_task_result)
         cls.set_context = _task_set_context
+        if not hasattr(cls, 'filter_context'):
+            cls.filter_context = _task_filter_context_default
         return cls
 
     if len(args) > 0 and isclass(args[0]):

@@ -160,6 +160,29 @@ class TestTask:
         assert task_info.orig_post_init is not None
         assert task_info.orig_post_init(task) == "It's me!"
 
+    def test_filter_context(self) -> None:
+        @labtech.task
+        class SimpleTask:
+            def filter_context(self, context):
+                return {
+                    'b': context['b'],
+                }
+
+            def run(self) -> None:
+                pass
+
+        task = SimpleTask()
+        assert task.filter_context({'a': 1, 'b': 2}) == {'b': 2}
+
+    def test_default_filter_context(self) -> None:
+        @labtech.task
+        class SimpleTask:
+            def run(self) -> None:
+                pass
+
+        task = SimpleTask()
+        assert task.filter_context({'a': 1, 'b': 2}) == {'a': 1, 'b': 2}
+
     def test_frozen(self) -> None:
         @labtech.task
         class SimpleTask:

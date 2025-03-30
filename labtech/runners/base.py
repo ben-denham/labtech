@@ -14,6 +14,8 @@ from labtech.utils import logger
 
 @contextmanager
 def optional_mlflow(task: Task):
+    """Context manager to set mlflow "run" configuration for a task if
+    mlflow_run=True is set for the task type."""
 
     def log_params(value: Any, *, path: str = ''):
         prefix = path if path == '' else f'{path}.'
@@ -56,7 +58,13 @@ def optional_mlflow(task: Task):
         yield
 
 
-def run_or_load_task(task: Task, task_name: str, use_cache: bool, context: LabContext, storage: Storage) -> TaskResult:
+def run_or_load_task(task: Task, use_cache: bool, context: LabContext, storage: Storage) -> TaskResult:
+    """Called by a Runner to either:
+
+    1. Run the task with the given context and cache its result in the given
+       storage and return the result OR
+    2. Load and return the task's result from the cache if it is present
+       and use_cache=True"""
     if use_cache:
         logger.debug(f"Loading from cache: '{task}'")
         task_result = task._lt.cache.load_result_with_meta(storage, task)

@@ -98,6 +98,18 @@ def task_tag_callback(ctx: ClassDefContext):
     add_attribute_to_class(
         api=ctx.api,
         cls=ctx.cls,
+        name='filter_context',
+        typ=CallableType(
+            arg_types=[context_type],
+            arg_kinds=[ArgKind.ARG_POS],
+            arg_names=['context'],
+            ret_type=context_type,
+            fallback=ctx.api.named_type('builtins.function'),
+        ),
+    )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
         name='context',
         typ=UnionType([NoneType(), context_type])
     )

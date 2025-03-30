@@ -124,7 +124,7 @@ class TaskMonitor:
         ]
 
     def update(self) -> None:
-        # Update display
+        """Called to update the monitor's displayed content."""
         top_task_lines = self._top_task_lines()
         self.display.update([
             (f'{len(top_task_lines)} active tasks '

@@ -91,6 +91,18 @@ class Task(Protocol, Generic[CovariantResultT]):
         """Set the context that is made available to the task while it is
         running."""
 
+    def filter_context(self, context: LabContext) -> LabContext:
+        """User-overridable method to filter/transform the context to
+        be provided to the task. The default implementation provides
+        the full context to the task. The filtering may take into
+        account the values of the task's attributes.
+
+        This can be useful for selecting subsets of large contexts in
+        order to reduce data transferred to non-forked subprocesses or
+        other kinds of processes in parallel processing frameworks.
+
+        """
+
     def run(self):
         """User-provided method that executes the task parameterised by the
         attributes of the task.
@@ -193,51 +205,76 @@ TaskMonitorInfo = dict[str, TaskMonitorInfoItem]
 
 
 class Runner(ABC):
-    """TODO"""
+    """Manages the execution of [Tasks][labtech.types.Task], typically
+    by delegating to a parallel processing framework."""
 
     @abstractmethod
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
-        pass
+        """
+        Args:
+            context: A dictionary of additional variables made available to
+                tasks.
+            storage: Where task results should be cached to.
+            max_workers: The maximum number of parallel worker processes for
+                running tasks.
+        """
 
     @abstractmethod
-    def start_task(self, task: Task, task_name: str, use_cache: bool) -> None:
-        """TODO"""
+    def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
+        """Submit the given task object for execution.
+
+        Args:
+            task: The task to execute.
+            task_name: Name to use when referring to the task in logs.
+            use_cache: If True, the task's result should be fetched from the
+                cache if it is available (fetching should still be done in a
+                delegated process).
+        """
 
     @abstractmethod
-    def pending_task_count(self) -> int:
-        """TODO"""
+    def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
+        """Wait up to timeout_seconds or until at least one of the
+        submitted tasks is done, then return a list of tasks in a done
+        state and a list of tasks in all other states.
 
-    @abstractmethod
-    def wait(self, *, timeout: Optional[float]) -> Iterator[tuple[Task, ResultMeta | Exception]]:
-        """TODO"""
+        Each task is returned as a pair where the first value is the
+        task itself, and the second value is either:
 
-    @abstractmethod
-    def cancel(self) -> None:
-        """TODO"""
+        * For a successfully completed task: Metadata of the result.
+        * For a failed or cancelled task: The exception that was raised.
 
-    @abstractmethod
-    def terminate(self) -> None:
-        """TODO"""
+        """
 
     @abstractmethod
     def close(self, *, wait: bool) -> None:
-        """TODO"""
+        """Halt execution of all tasks and clean up resources. If
+        wait=True, wait for currently running tasks to finish."""
+
+    @abstractmethod
+    def submitted_task_count(self) -> int:
+        """Returns the number of tasks that have been submitted but
+        not yet returned from a call to wait()."""
 
     @abstractmethod
     def get_result(self, task: Task) -> TaskResult:
-        """TODO"""
+        """Returns the in-memory result for a task that was
+        successfully run by this Runner. Raises a KeyError for a
+        result with no in-memory result."""
 
     @abstractmethod
     def remove_results(self, tasks: Sequence[Task]) -> None:
-        """TODO"""
+        """Removes the in-memory results for tasks that were
+        sucessfully run by this Runner. Ignores tasks that have no
+        in-memory result."""
 
     @abstractmethod
     def get_task_infos(self) -> list[TaskMonitorInfo]:
-        """TODO"""
+        """Returns monitoring information about all tasks that are
+        currently being executed."""
 
 
 class RunnerBackend(ABC):
 
     @abstractmethod
     def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> Runner:
-        """TODO"""
+        """Return a Runner prepared with the given configuration."""
