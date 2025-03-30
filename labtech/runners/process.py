@@ -1,5 +1,6 @@
 import logging
 import multiprocessing
+import os
 import signal
 import sys
 from abc import ABC, abstractmethod
@@ -130,7 +131,7 @@ class ProcessExecutor(Executor):
 
     def __init__(self, mp_context: multiprocessing.context.BaseContext, max_workers: Optional[int]):
         self.mp_context = mp_context
-        self.max_workers = max_workers
+        self.max_workers = os.cpu_count() if max_workers is None else max_workers
         self._pending_future_to_thunk: dict[Future, Thunk] = {}
         self._running_future_to_process: dict[Future, multiprocessing.Process] = {}
         # Use a Manager().Queue() to be able to share with subprocesses
@@ -142,7 +143,7 @@ class ProcessExecutor(Executor):
         if self.max_workers is None:
             start_count = len(self._pending_future_to_thunk)
         else:
-            start_count = max(0, self.max_workers - len(self._future_to_process))
+            start_count = max(0, self.max_workers - len(self._running_future_to_process))
         futures_to_start = list(self._pending_future_to_thunk.keys())[:start_count]
         for future in futures_to_start:
             thunk = self._pending_future_to_thunk[future]

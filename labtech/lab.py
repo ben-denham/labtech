@@ -310,10 +310,11 @@ class Lab:
             continue_on_failure: If `True`, exceptions raised by tasks will be
                 logged, but execution of other tasks will continue.
             max_workers: The maximum number of parallel worker processes for
-                running tasks. Uses the same default as
-                `concurrent.futures.ProcessPoolExecutor`: the number of
-                processors on the machine. When `max_workers=1`, all tasks will
-                be run in the main process, without multi-processing.
+                running tasks. A sensible default will be determined by the
+                runner_backend (`'fork'` and `'spawn'` use the number of
+                processors on the machine given by `os.cpu_count()`).
+                When `max_workers=1`, all tasks will be run in the main process,
+                without multi-processing.
             notebook: Determines whether to use notebook-friendly graphical
                 progress bars. When set to `None` (the default), labtech will
                 detect whether the code is being run from an IPython notebook.
