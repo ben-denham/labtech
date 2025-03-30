@@ -1,3 +1,4 @@
+from tempfile import TemporaryDirectory
 from time import sleep
 
 import labtech
@@ -16,7 +17,7 @@ class Experiment:
         # sleep(1)
         return self.base ** self.power
 
-def main():
+def main(storage_dir):
     # Configure Experiment parameter permutations
     experiments = [
         Experiment(
@@ -31,7 +32,7 @@ def main():
     lab = labtech.Lab(
         # Specify a directory to cache results in (running the experiments a second
         # time will just load results from the cache!):
-        storage='demo_lab',
+        storage=storage_dir,
         # Control the degree of parallelism:
         max_workers=5,
     )
@@ -41,4 +42,5 @@ def main():
     print([results[experiment] for experiment in experiments])
 
 if __name__ == '__main__':
-    main()
+    with TemporaryDirectory() as storage_dir:
+        main(storage_dir)

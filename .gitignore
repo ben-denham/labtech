@@ -19,6 +19,3 @@ dist/
 
 # Virtual Environments
 .venv/
-
-# lab used during tests for README examples
-demo_lab/
