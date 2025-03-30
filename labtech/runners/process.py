@@ -4,9 +4,10 @@ import os
 import signal
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum, auto
+from itertools import count
 from logging.handlers import QueueHandler
 from queue import Empty, Queue
 from typing import Any, Callable, Iterator, Mapping, Optional, Sequence, cast
@@ -32,7 +33,7 @@ class FutureState(StrEnum):
     FINISHED = auto()
 
 
-@dataclass(eq=False)
+@dataclass
 class Future:
     """Representation of a result to be returned in the future by runner.
 
@@ -51,6 +52,15 @@ class Future:
     state: FutureState = FutureState.PENDING
     _ex: Optional[BaseException] = None
     _result: Optional[Any] = None
+    # Auto-incrementing ID (does not need to be process-safe because
+    # all futures are generated in the main process):
+    _id: int = field(default_factory=count().__next__, init=False)
+
+    def __eq__(self, other: 'Future') -> bool:
+        return id(self._id) == id(other._id)
+
+    def __hash__(self) -> int:
+        return hash(self._id)
 
     @property
     def done(self) -> bool:
