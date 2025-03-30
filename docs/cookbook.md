@@ -662,63 +662,19 @@ result = lab.run_task(aggregation_task)
 
 ### How can I optimise memory usage in labtech?
 
-Labtech needs to duplicate the results of dependent tasks and the lab
-context into each task's process. Therefore, to reduce memory usage
-(and the computational cost of [pickling and
-unpickling](https://docs.python.org/3/library/pickle.html) these
+If you are running a Lab with with `runner_backend='spawn'` (the
+default on macOS and Windows), Labtech duplicates the results of
+dependent tasks and the lab context into each task's process.
+Therefore, to reduce memory usage (and the computational cost of
+[pickling and unpickling](https://docs.python.org/3/library/pickle.html) these
 values when copying them between processes), you should try to keep
-these values as small as possible.
+these values as small as possible. One way to achieve this is to
+define a [`filter_context()`][labtech.types.Task.filter_context] in
+order to only pass necessary parts of the context to each task.
 
-#### Sharing context with forked processes
-
-If you are running labtech on Linux with the [default *start method*
-of *fork*](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods),
-then you can rely on the memory shared between forked processes to
-share the lab context without duplicating it. To do so:
-
-1. Store your context in a global variable
-2. Define a global function that returns the context global variable
-3. Pass that context function as the lab's `context`
-4. From any task `run()` method that needs to use the context, call
-   the function now stored in `self.context` to access the context.
-
-The following code demonstrates this pattern:
-
-``` {.python .code}
-CONTEXT={
-    'DATASETS': {
-        'zeros': np.zeros((50, 10)),
-        'ones': np.ones((50, 10)),
-    },
-}
-
-
-def context_loader():
-    return CONTEXT
-
-
-@labtech.task
-class SumExperiment:
-    dataset_key: str
-
-    def run(self):
-        context = self.context()
-        dataset = context['DATASETS'][self.dataset_key]
-        return np.sum(dataset)
-
-
-experiments = [
-    SumExperiment(
-        dataset_key=dataset_key
-    )
-    for dataset_key in CONTEXT['DATASETS'].keys()
-]
-lab = labtech.Lab(
-    storage=None,
-    context=context_loader,
-)
-results = lab.run_tasks(experiments)
-```
+If you are running a Lab with with `runner_backend='fork'` (the
+default on Linux), then you can rely on Labtech to share results and
+context between task processes using shared memory.
 
 ### How can I see when a task was run and how long it took to execute?
 
@@ -917,12 +873,10 @@ results = lab.run_tasks(runs)
 
 ### Why do I see the following error: `An attempt has been made to start a new process before the current process has finished`?
 
-When running labtech in a Python script on Windows, macOS, or any
-Python environment using the
-[`spawn` multiprocessing start method](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods),
-you will see the following error if you do not guard your experiment
-and lab creation and other non-definition code with `__name__ ==
-'__main__'`:
+When running a Lab with `runner_backend='spawn'` (the default on macOS
+and Windows), you will see the following error if you do not guard
+your experiment and lab creation and other non-definition code with
+`__name__ == '__main__'`:
 
 ```
 RuntimeError:
@@ -976,19 +930,17 @@ For details, see [Safe importing of main module](https://docs.python.org/3/libra
 ### Why do I see the following error: `AttributeError: Can't get attribute 'YOUR_TASK_CLASS' on <module '__main__' (built-in)>`?
 
 You will see this error (as part of a very long stack trace) when
-defining and running labtech tasks from an interactive Python shell on
-Windows or macOS (or more specifically, when
-[Python's multiprocessing start method](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods)
-has been set to `spawn` or `forkserver`).
+running a Lab with `runner_backend='spawn'` (the default on macOS and
+Windows) from an interactive Python shell.
 
 The solution to this error is to define all of your labtech `Task`
 types in a separate `.py` Python module file which you can import into
 your interactive shell session (e.g. `from my_module import MyTask`).
 
-The reason for this error is that `spawn` and `forkserver` start
-methods will not copy the current state of your `__main__` module
-(which contains the variables you declare interactively in the Python
-shell, including task definitions) into labtech's task subprocesses.
-This error does not occur for the `fork` start method (the current
-default on Linux) because forked subprocesses *do* receive the current
-state of all modules (including `__main__`) from the parent process.
+The reason for this error is that "spawned" task subprocesses will not
+receive a copy the current state of your `__main__` module (which
+contains the variables you declare interactively in the Python shell,
+including task definitions). This error does not occur with
+`runner_backend='fork'` (the default on Linux) because forked
+subprocesses *do* receive the current state of all modules (including
+`__main__`) from the parent process.
