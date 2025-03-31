@@ -228,6 +228,7 @@ class TaskCoordinator:
                         task_results[task] = runner.get_result(task).value
                     tasks_with_removable_results = state.complete_task(task, result_meta=res)
                     pbars[type(task)].update(1)
+                    pbars[type(task)].refresh(nolock=True)
                 else:
                     raise LabError(f'Unexpected task res type: {type(res)}')
 
