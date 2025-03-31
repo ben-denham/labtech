@@ -229,6 +229,8 @@ class ProcessExecutor(Executor):
 
     def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
         self._consume_result_queue(timeout_seconds=timeout_seconds)
+        # Having consumed completed results, start new processes
+        self._start_processes()
         return split_done_futures(futures)
 
 
@@ -438,6 +440,7 @@ class ProcessRunner(Runner, ABC):
         self.future_to_task[future] = task
 
     def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
+        self._consume_log_queue()
         done, _ = self.executor.wait(list(self.future_to_task.keys()), timeout_seconds=timeout_seconds)
         for future in done:
             task = self.future_to_task[future]

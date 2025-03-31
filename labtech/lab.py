@@ -252,7 +252,7 @@ class TaskCoordinator:
                                 task_name=f'{type(task).__name__}[{task_number}]',
                                 use_cache=self.use_cache(task),
                             )
-                            process_completed_tasks()
+                        process_completed_tasks()
                 except KeyboardInterrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))
