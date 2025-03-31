@@ -49,41 +49,43 @@ class Future:
       set_exception()
 
     """
-    state: FutureState = FutureState.PENDING
-    _ex: Optional[BaseException] = None
-    _result: Optional[Any] = None
     # Auto-incrementing ID (does not need to be process-safe because
     # all futures are generated in the main process):
-    _id: int = field(default_factory=count().__next__, init=False)
+    id: int = field(default_factory=count().__next__, init=False)
+    _state: FutureState = FutureState.PENDING
+    _ex: Optional[BaseException] = None
+    _result: Optional[Any] = None
 
-    def __eq__(self, other: 'Future') -> bool:
-        return id(self._id) == id(other._id)
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+        return id(self.id) == id(other.id)
 
     def __hash__(self) -> int:
-        return hash(self._id)
+        return hash(self.id)
 
     @property
     def done(self) -> bool:
-        return self.state in {FutureState.FINISHED, FutureState.CANCELLED}
+        return self._state in {FutureState.FINISHED, FutureState.CANCELLED}
 
     def set_result(self, result: Any):
         if self.done:
-            raise FutureStateError(f'Attempted to set a result on a {self.state} future.')
+            raise FutureStateError(f'Attempted to set a result on a {self._state} future.')
         self._result = result
-        self.state = FutureState.FINISHED
+        self._state = FutureState.FINISHED
 
     def set_exception(self, ex: BaseException):
         if self.done:
-            raise FutureStateError(f'Attempted to set an exception on a {self.state} future.')
+            raise FutureStateError(f'Attempted to set an exception on a {self._state} future.')
         self._ex = ex
-        self.state = FutureState.FINISHED
+        self._state = FutureState.FINISHED
 
     def cancel(self):
-        self.state = FutureState.CANCELLED
+        self._state = FutureState.CANCELLED
 
     def result(self) -> Any:
-        if self.state != FutureState.FINISHED:
-            raise FutureStateError(f'Attempted to get result from a {self.state} future.')
+        if self._state != FutureState.FINISHED:
+            raise FutureStateError(f'Attempted to get result from a {self._state} future.')
         if self._ex is not None:
             raise self._ex
         return self._result
@@ -128,13 +130,13 @@ class Thunk:
     kwargs: Mapping[str, Any]
 
 
-def _subprocess_target(*, future: Future, thunk: Thunk, result_queue: Queue) -> None:
+def _subprocess_target(*, future_id: int, thunk: Thunk, result_queue: Queue) -> None:
     try:
         result = thunk.fn(*thunk.args, **thunk.kwargs)
     except BaseException as ex:
-        result_queue.put((future, ex))
+        result_queue.put((future_id, ex))
     else:
-        result_queue.put((future, result))
+        result_queue.put((future_id, result))
 
 
 class ProcessExecutor(Executor):
@@ -144,6 +146,7 @@ class ProcessExecutor(Executor):
         self.max_workers = os.cpu_count() if max_workers is None else max_workers
         self._pending_future_to_thunk: dict[Future, Thunk] = {}
         self._running_future_to_process: dict[Future, multiprocessing.Process] = {}
+        self._running_future_id_to_future: dict[int, Future] = {}
         # Use a Manager().Queue() to be able to share with subprocesses
         self._result_queue: Queue = multiprocessing.Manager().Queue(-1)
 
@@ -161,12 +164,13 @@ class ProcessExecutor(Executor):
             process = multiprocessing.Process(
                 target=_subprocess_target,
                 kwargs=dict(
-                    future=future,
+                    future_id=future.id,
                     thunk=thunk,
                     result_queue=self._result_queue,
                 ),
             )
             self._running_future_to_process[future] = process
+            self._running_future_id_to_future[future.id] = future
             process.start()
 
     def submit(self, fn: Callable, /, *args, **kwargs) -> Future:
@@ -191,6 +195,7 @@ class ProcessExecutor(Executor):
                 process.terminate()
                 future.cancel()
                 del self._running_future_to_process[future]
+                del self._running_future_id_to_future[future.id]
 
     def _consume_result_queue(self, *, timeout_seconds: Optional[float]):
         # Avoid race condition of a process finishing after we have
@@ -204,7 +209,7 @@ class ProcessExecutor(Executor):
         wait_timeout = True
         while True:
             try:
-                future, result_or_ex = self._result_queue.get(wait_timeout, timeout=timeout_seconds)
+                future_id, result_or_ex = self._result_queue.get(wait_timeout, timeout=timeout_seconds)
             except Empty:
                 break
 
@@ -212,8 +217,10 @@ class ProcessExecutor(Executor):
             # self._result_queue.get()
             wait_timeout = False
 
+            future = self._running_future_id_to_future[future_id]
+            del self._running_future_to_process[future]
+            del self._running_future_id_to_future[future_id]
             if not future.done:
-                del self._running_future_to_process[future]
                 if isinstance(result_or_ex, BaseException):
                     future.set_exception(result_or_ex)
                 else:
