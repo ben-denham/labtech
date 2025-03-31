@@ -614,7 +614,11 @@ class ForkProcessRunner(ProcessRunner):
         )
 
     def close(self, *, wait: bool) -> None:
-        del _RUNNER_FORK_MEMORY[self.uuid]
+        try:
+            del _RUNNER_FORK_MEMORY[self.uuid]
+        except KeyError:
+            # uuid not may be found if close() is called twice.
+            pass
         super().close(wait=wait)
 
 
