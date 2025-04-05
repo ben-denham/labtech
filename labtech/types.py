@@ -230,6 +230,11 @@ class Runner(ABC):
         effectively calling:
 
         ```
+        for dependency_task in get_direct_dependencies(task):
+            # Where results_map is expected to contain the result for
+            # each dependency_task.
+            dependency_task._set_results_map(results_map)
+
         labtech.runners.base.run_or_load_task(
             task=task,
             task_name=task_name,
@@ -251,14 +256,15 @@ class Runner(ABC):
     @abstractmethod
     def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
         """Wait up to timeout_seconds or until at least one of the
-        submitted tasks is done, then return a list of tasks in a done
-        state and a list of tasks in all other states.
+        submitted tasks is done, then return an iterator of tasks in a
+        done state and a list of tasks in all other states.
 
         Each task is returned as a pair where the first value is the
         task itself, and the second value is either:
 
         * For a successfully completed task: Metadata of the result.
-        * For a failed task: The exception that was raised.
+        * For a task that fails with any BaseException descendant: The exception
+          that was raised.
 
         Cancelled tasks are never returned.
 
