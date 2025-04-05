@@ -11,7 +11,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 from .exceptions import LabError, TaskNotFound
 from .monitor import TaskMonitor
-from .runners import ForkRunnerBackend, SpawnRunnerBackend
+from .runners import ForkRunnerBackend, SerialRunnerBackend, SpawnRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
 from .types import LabContext, ResultMeta, ResultT, RunnerBackend, Storage, Task, TaskT, is_task, is_task_type
@@ -326,6 +326,10 @@ class Lab:
             runner_backend: Controls how tasks are run in parallel. It can
                 optionally be set to one of the following options:
 
+                * `'serial'`: Uses the
+                  [`SerialRunnerBackend`][labtech.runners.SerialRunnerBackend]
+                  to run each task serially in the main process. The default
+                  when `max_workers=1`.
                 * `'fork'`: Uses the
                   [`ForkRunnerBackend`][labtech.runners.ForkRunnerBackend]
                   to run each task in a forked subprocess. Memory use
@@ -361,6 +365,8 @@ class Lab:
             context = {}
         self.context = context
         if runner_backend is None:
+            if self.max_workers == 1:
+                runner_backend = SerialRunnerBackend()
             start_methods = get_all_start_methods()
             if 'fork' in start_methods:
                 runner_backend = ForkRunnerBackend()
@@ -371,7 +377,9 @@ class Lab:
                                 'backends are not supported on your system.'
                                 'Please specify a system-compatible runner_backend.'))
         elif isinstance(runner_backend, str):
-            if runner_backend == 'fork':
+            if runner_backend == 'serial':
+                runner_backend = SerialRunnerBackend()
+            elif runner_backend == 'fork':
                 runner_backend = ForkRunnerBackend()
             elif runner_backend == 'spawn':
                 runner_backend = SpawnRunnerBackend()
