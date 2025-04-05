@@ -170,12 +170,11 @@ class TaskCoordinator:
             ex = ex.__cause__
 
         if self.lab.continue_on_failure:
-            logger.error(f"{message} Skipping: {ex}")
+            logger.error(f"{message} Skipping task. Failure cause: {ex}")
         else:
             logger.error(message)
-
-        lab_error = LabError(str(ex))
-        raise lab_error from ex
+            lab_error = LabError(str(ex))
+            raise lab_error from ex
 
     def use_cache(self, task: Task) -> bool:
         return (not self.bust_cache) and self.lab.is_cached(task)
@@ -254,21 +253,26 @@ class TaskCoordinator:
                                 use_cache=self.use_cache(task),
                             )
                         process_completed_tasks()
-                except KeyboardInterrupt:
+                except KeyboardInterrupt as first_keyboard_interrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))
-                    runner.close(wait=True)
-                    # Process completed tasks one last time after
-                    # final tasks have completed.
-                    process_completed_tasks()
+                    try:
+                        runner.close(wait=True)
+                        # Process completed tasks until running tasks
+                        # have completed.
+                        while runner.submitted_task_count() > 0:
+                            process_completed_tasks()
+                    except KeyboardInterrupt:
+                        logger.info('Terminating running tasks.')
+                        runner.close(wait=False)
+                        # Process completed tasks one last time after
+                        # tasks have been killed.
+                        process_completed_tasks()
+                        raise
+                    else:
+                        raise first_keyboard_interrupt
                 else:
                     return task_results
-            except KeyboardInterrupt:
-                logger.info('Terminating running tasks.')
-                runner.close(wait=False)
-                # Process completed tasks one last time after final
-                # tasks have completed.
-                process_completed_tasks()
             finally:
                 if task_monitor is not None:
                     task_monitor.update()
@@ -277,8 +281,6 @@ class TaskCoordinator:
                     pbar.close()
                 if task_monitor is not None:
                     task_monitor.close()
-
-            raise KeyboardInterrupt
 
 
 class Lab:

@@ -16,6 +16,9 @@ class RunnerError(LabtechError):
 class TaskDiedError(RunnerError):
     """Raised when the execution of a task died unexpectedly."""
 
+    def __init__(self):
+        super().__init__('Task died')
+
 
 class TaskError(LabtechError):
     """Raised for failures when handling Task objects."""
