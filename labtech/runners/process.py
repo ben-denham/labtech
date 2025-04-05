@@ -37,7 +37,7 @@ class FutureState(StrEnum):
 
 @dataclass
 class Future:
-    """Representation of a result to be returned in the future by runner.
+    """Representation of a result to be returned in the future by a runner.
 
     A Future's state transitions between states according to the following
     finite state machine:
@@ -130,10 +130,7 @@ class ProcessExecutor:
     def _start_processes(self):
         """Start processes for the oldest pending futures to bring
         running process count up to max_workers."""
-        if self.max_workers is None:
-            start_count = len(self._pending_future_to_thunk)
-        else:
-            start_count = max(0, self.max_workers - len(self._running_id_to_future_and_process))
+        start_count = max(0, self.max_workers - len(self._running_id_to_future_and_process))
         futures_to_start = list(self._pending_future_to_thunk.keys())[:start_count]
         for future in futures_to_start:
             thunk = self._pending_future_to_thunk[future]
@@ -184,7 +181,6 @@ class ProcessExecutor:
 
         def _consume():
             inner_timeout_seconds = timeout_seconds
-
             while True:
                 try:
                     future_id, result_or_ex = self._result_queue.get(True, timeout=inner_timeout_seconds)
@@ -302,9 +298,7 @@ class ProcessRunner(Runner, ABC):
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
         self.process_event_queue = multiprocessing.Manager().Queue(-1)
         self.process_monitor = ProcessMonitor(process_event_queue = self.process_event_queue)
-
         self.log_queue = multiprocessing.Manager().Queue(-1)
-
         self.executor = ProcessExecutor(
             mp_context=self._get_mp_context(),
             max_workers=max_workers,
@@ -329,7 +323,7 @@ class ProcessRunner(Runner, ABC):
                          storage: Storage, process_event_queue: Queue,
                          log_queue: Queue) -> TaskResult:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-        # Sub-processes should log onto the queue in order to printed
+        # Subprocesses should log onto the queue in order to printed
         # in serial by the main process.
         logger.handlers = []
         logger.addHandler(QueueHandler(log_queue))
@@ -447,10 +441,10 @@ class SpawnProcessRunner(ProcessRunner):
         filtered_context: LabContext = {}
         results_map: dict[Task, TaskResult] = {}
         if not use_cache:
-            # Only transfer context and results to the subprocess if
-            # we are going to run the task (and not just load its
-            # result from cache). And allow the task to filter the
-            # context to only what it needs.
+            # In order to minimise memory use, only transfer context
+            # and results to the subprocess if we are going to run the
+            # task (and not just load its result from cache) and allow
+            # the task to filter the context to only what it needs.
             filtered_context = task.filter_context(self.context)
             results_map = {
                 dependency_task: self.results_map[dependency_task]
@@ -473,8 +467,8 @@ class SpawnRunnerBackend(RunnerBackend):
     """
     Runner Backend that runs each task in a spawned subprocess.
 
-    The context and dependency task results are copied/duplicated into
-    the memory of each subprocess.
+    The required context and dependency task results are
+    copied/duplicated into the memory of each subprocess.
 
     """
 
