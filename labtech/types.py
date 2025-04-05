@@ -245,7 +245,9 @@ class Runner(ABC):
         task itself, and the second value is either:
 
         * For a successfully completed task: Metadata of the result.
-        * For a failed or cancelled task: The exception that was raised.
+        * For a failed task: The exception that was raised.
+
+        Cancelled tasks are never returned.
 
         """
 

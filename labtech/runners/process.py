@@ -68,6 +68,10 @@ class Future:
     def done(self) -> bool:
         return self._state in {FutureState.FINISHED, FutureState.CANCELLED}
 
+    @property
+    def cancelled(self) -> bool:
+        return self._state == FutureState.CANCELLED
+
     def set_result(self, result: Any):
         if self.done:
             raise FutureStateError(f'Attempted to set a result on a {self._state} future.')
@@ -110,10 +114,13 @@ class Executor(ABC):
         **kwargs, and return a Future that will be updated with the
         outcome of function call."""
 
-    def stop(self, *, wait: bool):
-        """If wait=True, cancel all PENDING futures and wait() until
-        all running futures are FINISHED. If wait=False, then also
-        cancel all RUNNING futures and immediately terminate their
+    @abstractmethod
+    def cancel(self):
+        """Cancel all PENDING futures."""
+
+    @abstractmethod
+    def stop(self):
+        """Cancel all RUNNING futures and immediately terminate their
         execution."""
 
     @abstractmethod
@@ -179,23 +186,19 @@ class ProcessExecutor(Executor):
         self._start_processes()
         return future
 
-    def stop(self, *, wait: bool):
-        # Cancel pending futures
+    def cancel(self) -> None:
         pending_futures = list(self._pending_future_to_thunk.keys())
         for future in pending_futures:
             future.cancel()
             del self._pending_future_to_thunk[future]
 
-        # Wait for or terminate+cancel running futures
+    def stop(self) -> None:
         future_process_pairs = list(self._running_future_to_process.items())
         for future, process in future_process_pairs:
-            if wait:
-                process.join()
-            else:
-                process.terminate()
-                future.cancel()
-                del self._running_future_to_process[future]
-                del self._running_future_id_to_future[future.id]
+            process.terminate()
+            future.cancel()
+            del self._running_future_to_process[future]
+            del self._running_future_id_to_future[future.id]
 
     def _consume_result_queue(self, *, timeout_seconds: Optional[float]):
         # Avoid race condition of a process finishing after we have
@@ -251,12 +254,14 @@ class SerialExecutor(Executor):
         self._pending_future_to_thunk[future] = Thunk(fn=fn, args=args, kwargs=kwargs)
         return future
 
-    def stop(self, *, wait: bool):
-        # Cancel pending futures
+    def cancel(self) -> None:
         pending_futures = list(self._pending_future_to_thunk.keys())
         for future in pending_futures:
             future.cancel()
             del self._pending_future_to_thunk[future]
+
+    def stop(self) -> None:
+        pass
 
     def _run_future(self, future: Future):
         thunk = self._pending_future_to_thunk[future]
@@ -383,7 +388,6 @@ class ProcessRunner(Runner, ABC):
 
         self.results_map: dict[Task, TaskResult] = {}
         self.future_to_task: dict[Future, Task] = {}
-        self.closed = False
 
     def _consume_log_queue(self):
         # See: https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes
@@ -451,6 +455,8 @@ class ProcessRunner(Runner, ABC):
         done, _ = self.executor.wait(list(self.future_to_task.keys()), timeout_seconds=timeout_seconds)
         for future in done:
             task = self.future_to_task[future]
+            if future.cancelled:
+                continue
             try:
                 task_result = future.result()
             except BaseException as ex:
@@ -465,14 +471,9 @@ class ProcessRunner(Runner, ABC):
         }
 
     def close(self, *, wait: bool) -> None:
-        if self.closed:
-            return
-        self.executor.stop(wait=wait)
-        if wait:
-            # If we wait for tasks to finish, then handle their
-            # results.
-            self.wait(timeout_seconds=0)
-        self.closed = True
+        self.executor.cancel()
+        if not wait:
+            self.executor.stop()
 
     def submitted_task_count(self) -> int:
         return len(self.future_to_task)
