@@ -212,8 +212,8 @@ class Runner(ABC):
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
         """
         Args:
-            context: A dictionary of additional variables made available to
-                tasks. It is the responsibility of the Runner to ensure a ta.
+            context: Additional variables made available to tasks that aren't
+                considered when saving to/loading from the cache.
             storage: Where task results should be cached to.
             max_workers: The maximum number of parallel worker processes for
                 running tasks.
@@ -221,10 +221,23 @@ class Runner(ABC):
 
     @abstractmethod
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
-        """Submit the given task object for execution.
+        """Submit the given task object to be run and have its result cached.
 
-        The implementation of this method must transform the cotnext
-        passed to the task with `task.filter_context()`.
+        It is up to the Runner to decide when to start running the
+        task (i.e. when resources become available).
+
+        The implementation of this method should run the task by
+        effectively calling:
+
+        ```
+        labtech.runners.base.run_or_load_task(
+            task=task,
+            task_name=task_name,
+            use_cache=use_cache,
+            filtered_context=task.filter_context(self.context),
+            storage=self.storage,
+        )
+        ```
 
         Args:
             task: The task to execute.
@@ -252,14 +265,22 @@ class Runner(ABC):
         """
 
     @abstractmethod
-    def close(self, *, wait: bool) -> None:
-        """Halt execution of all tasks and clean up resources. If
-        wait=True, wait for currently running tasks to finish."""
+    def cancel(self) -> None:
+        """Cancel all submitted tasks that have not yet been started."""
 
     @abstractmethod
-    def submitted_task_count(self) -> int:
+    def stop(self) -> None:
+        """Stop all currently running tasks."""
+
+    @abstractmethod
+    def close(self) -> None:
+        """Clean up any resources used by the Runner after all tasks
+        are finished, cancelled, or stopped."""
+
+    @abstractmethod
+    def pending_task_count(self) -> int:
         """Returns the number of tasks that have been submitted but
-        not yet returned from a call to wait()."""
+        not yet cancelled or returned from a call to wait()."""
 
     @abstractmethod
     def get_result(self, task: Task) -> TaskResult:
@@ -275,11 +296,12 @@ class Runner(ABC):
 
     @abstractmethod
     def get_task_infos(self) -> list[TaskMonitorInfo]:
-        """Returns monitoring information about all tasks that are
-        currently being executed."""
+        """Returns a snapshot of monitoring information about each
+        task that is currently running."""
 
 
 class RunnerBackend(ABC):
+    """Factory class to construct [Runner][labtech.types.Runner] objects."""
 
     @abstractmethod
     def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> Runner:

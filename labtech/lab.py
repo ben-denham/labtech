@@ -240,7 +240,7 @@ class TaskCoordinator:
         with logging_redirect_tqdm(loggers=redirected_loggers):
             try:
                 try:
-                    while (len(state.pending_tasks) > 0) or (runner.submitted_task_count() > 0):
+                    while (len(state.pending_tasks) > 0) or (runner.pending_task_count() > 0):
                         ready_tasks = state.get_ready_tasks()
                         for task in ready_tasks:
                             state.start_task(task)
@@ -257,14 +257,14 @@ class TaskCoordinator:
                     logger.info(('Interrupted. Finishing running tasks. '
                                  'Press Ctrl-C again to terminate running tasks immediately.'))
                     try:
-                        runner.close(wait=True)
+                        runner.cancel()
                         # Process completed tasks until running tasks
                         # have completed.
-                        while runner.submitted_task_count() > 0:
+                        while runner.pending_task_count() > 0:
                             process_completed_tasks()
                     except KeyboardInterrupt:
                         logger.info('Terminating running tasks.')
-                        runner.close(wait=False)
+                        runner.stop()
                         # Process completed tasks one last time after
                         # tasks have been killed.
                         process_completed_tasks()
@@ -276,7 +276,7 @@ class TaskCoordinator:
             finally:
                 if task_monitor is not None:
                     task_monitor.update()
-                runner.close(wait=True)
+                runner.close()
                 for pbar in pbars.values():
                     pbar.close()
                 if task_monitor is not None:

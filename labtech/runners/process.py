@@ -410,7 +410,7 @@ class ProcessRunner(Runner, ABC):
 
     @staticmethod
     def _subprocess_func(*, task: Task, task_name: str, use_cache: bool,
-                         results_map: ResultsMap, context: LabContext,
+                         results_map: ResultsMap, filtered_context: LabContext,
                          storage: Storage, process_event_queue: Queue,
                          log_queue: Queue) -> TaskResult:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -422,11 +422,8 @@ class ProcessRunner(Runner, ABC):
         sys.stdout = LoggerFileProxy(logger.info, 'Captured STDOUT:\n')  # type: ignore[assignment]
         sys.stderr = LoggerFileProxy(logger.error, 'Captured STDERR:\n')  # type: ignore[assignment]
 
-        orig_process_name = multiprocessing.current_process().name
         try:
             current_process = multiprocessing.current_process()
-            current_process.name = task_name
-
             process_event_queue.put(ProcessStartEvent(
                 task_name=task_name,
                 pid=cast(int, current_process.pid),
@@ -438,12 +435,12 @@ class ProcessRunner(Runner, ABC):
 
             return run_or_load_task(
                 task=task,
+                task_name=task_name,
                 use_cache=use_cache,
-                context=context,
+                filtered_context=filtered_context,
                 storage=storage
             )
         finally:
-            current_process.name = orig_process_name
             process_event_queue.put(ProcessEndEvent(
                 task_name=task_name,
             ))
@@ -479,12 +476,16 @@ class ProcessRunner(Runner, ABC):
             if future not in done
         }
 
-    def close(self, *, wait: bool) -> None:
+    def cancel(self) -> None:
         self.executor.cancel()
-        if not wait:
-            self.executor.stop()
 
-    def submitted_task_count(self) -> int:
+    def stop(self) -> None:
+        self.executor.stop()
+
+    def close(self) -> None:
+        pass
+
+    def pending_task_count(self) -> int:
         return len(self.future_to_task)
 
     def get_result(self, task: Task) -> TaskResult:
@@ -528,14 +529,14 @@ class SpawnProcessRunner(ProcessRunner):
 
     def _submit_task(self, executor: Executor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
-        context: LabContext = {}
+        filtered_context: LabContext = {}
         results_map: dict[Task, TaskResult] = {}
         if not use_cache:
             # Only transfer context and results to the subprocess if
             # we are going to run the task (and not just load its
             # result from cache). And allow the task to filter the
             # context to only what it needs.
-            context = task.filter_context(self.context)
+            filtered_context = task.filter_context(self.context)
             results_map = {
                 dependency_task: self.results_map[dependency_task]
                 for dependency_task in get_direct_dependencies(task)
@@ -546,7 +547,7 @@ class SpawnProcessRunner(ProcessRunner):
             task_name=task_name,
             use_cache=use_cache,
             results_map=results_map,
-            context=context,
+            filtered_context=filtered_context,
             storage=self.storage,
             process_event_queue=process_event_queue,
             log_queue=log_queue,
@@ -603,7 +604,7 @@ class ForkProcessRunner(ProcessRunner):
             task=task,
             task_name=task_name,
             use_cache=use_cache,
-            context=task.filter_context(runner_memory.context),
+            filtered_context=task.filter_context(runner_memory.context),
             storage=runner_memory.storage,
             results_map=runner_memory.results_map,
             process_event_queue=process_event_queue,
@@ -623,13 +624,12 @@ class ForkProcessRunner(ProcessRunner):
             uuid=self.uuid,
         )
 
-    def close(self, *, wait: bool) -> None:
+    def close(self) -> None:
         try:
             del _RUNNER_FORK_MEMORY[self.uuid]
         except KeyError:
             # uuid not may be found if close() is called twice.
             pass
-        super().close(wait=wait)
 
 
 class ForkRunnerBackend(RunnerBackend):
