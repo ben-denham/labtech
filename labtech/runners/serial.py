@@ -26,8 +26,6 @@ class SerialRunner(Runner):
         self.task_submissions: deque[TaskSubmission] = deque()
         self.results_map: dict[Task, TaskResult] = {}
 
-        self.current_task_submission = None
-
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         self.task_submissions.append(TaskSubmission(
             task=task,
@@ -36,13 +34,10 @@ class SerialRunner(Runner):
         ))
 
     def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
-        # TODO: Run each task in a separate thread to allow monitoring
-        # while running. Remove task_submission when processing started.
-
         try:
             task_submission = self.task_submissions.popleft()
         except IndexError:
-            pass
+            return
 
         task = task_submission.task
         try:
@@ -55,6 +50,8 @@ class SerialRunner(Runner):
                 filtered_context=task.filter_context(self.context),
                 storage=self.storage,
             )
+        except KeyboardInterrupt:
+            raise
         except BaseException as ex:
             yield (task, ex)
         else:
@@ -71,10 +68,7 @@ class SerialRunner(Runner):
         pass
 
     def pending_task_count(self) -> int:
-        count = len(self.task_submissions)
-        if self.current_task_submission is not None:
-            count += 1
-        return count
+        return len(self.task_submissions)
 
     def get_result(self, task: Task) -> TaskResult:
         return self.results_map[task]
@@ -87,14 +81,16 @@ class SerialRunner(Runner):
             del self.results_map[task]
 
     def get_task_infos(self) -> list[TaskMonitorInfo]:
-        if self.current_task_submission is None:
+        try:
+            next_task_submission = self.task_submissions[0]
+        except IndexError:
             return []
 
         # Get info about current process (which is running the tasks serially).
         process_info = get_process_info(
             psutil.Process(),
-            name=self.current_task_submission.task_name,
-            status=('loading' if self.current_task_submission.use_cache else 'running'),
+            name=next_task_submission.task_name,
+            status=('loading' if next_task_submission.use_cache else 'running'),
         )
         if process_info is None:
             return []
@@ -102,7 +98,8 @@ class SerialRunner(Runner):
 
 
 class SerialRunnerBackend(RunnerBackend):
-    """Runner Backend that runs each task serially in the main process."""
+    """Runner Backend that runs each task serially in the main process
+    and thread."""
 
     def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> SerialRunner:
         return SerialRunner(

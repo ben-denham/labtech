@@ -4,15 +4,15 @@ You can control how tasks are executed in parallel by specifying an
 instance of one of the following Runner Backend classes for the
 `runner_backend` argument of your [`Lab`][labtech.Lab]:
 
-::: labtech.runners.SerialRunnerBackend
-    options:
-        heading_level: 3
-
 ::: labtech.runners.ForkRunnerBackend
     options:
         heading_level: 3
 
 ::: labtech.runners.SpawnRunnerBackend
+    options:
+        heading_level: 3
+
+::: labtech.runners.SerialRunnerBackend
     options:
         heading_level: 3
 
