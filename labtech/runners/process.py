@@ -108,30 +108,6 @@ def split_done_futures(futures: Sequence[Future]) -> tuple[list[Future], list[Fu
     return (done_futures, not_done_futures)
 
 
-class Executor(ABC):
-
-    @abstractmethod
-    def submit(self, fn: Callable, /, *args, **kwargs) -> Future:
-        """Schedule the given fn to be called with the given *args and
-        **kwargs, and return a Future that will be updated with the
-        outcome of function call."""
-
-    @abstractmethod
-    def cancel(self):
-        """Cancel all PENDING futures."""
-
-    @abstractmethod
-    def stop(self):
-        """Cancel all RUNNING futures and immediately terminate their
-        execution."""
-
-    @abstractmethod
-    def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
-        """Wait up to timeout_seconds or until at least one of the
-        given futures is done, then return a list of futures in a done
-        state and a list of futures in all other states."""
-
-
 def _subprocess_target(*, future_id: int, thunk: Callable[[], Any], result_queue: Queue) -> None:
     try:
         result = thunk()
@@ -141,7 +117,7 @@ def _subprocess_target(*, future_id: int, thunk: Callable[[], Any], result_queue
         result_queue.put((future_id, result))
 
 
-class ProcessExecutor(Executor):
+class ProcessExecutor:
 
     def __init__(self, mp_context: multiprocessing.context.BaseContext, max_workers: Optional[int]):
         self.mp_context = mp_context
@@ -174,18 +150,23 @@ class ProcessExecutor(Executor):
             process.start()
 
     def submit(self, fn: Callable, /, *args, **kwargs) -> Future:
+        """Schedule the given fn to be called with the given *args and
+        **kwargs, and return a Future that will be updated with the
+        outcome of function call."""
         future = Future()
         self._pending_future_to_thunk[future] = functools.partial(fn, *args, **kwargs)
         self._start_processes()
         return future
 
     def cancel(self) -> None:
+        """Cancel all pending futures."""
         pending_futures = list(self._pending_future_to_thunk.keys())
         for future in pending_futures:
             future.cancel()
             del self._pending_future_to_thunk[future]
 
     def stop(self) -> None:
+        """Cancel all running futures and immediately terminate their execution."""
         future_process_pairs = list(self._running_id_to_future_and_process.values())
         for future, process in future_process_pairs:
             process.terminate()
@@ -241,50 +222,12 @@ class ProcessExecutor(Executor):
             del self._running_id_to_future_and_process[future.id]
 
     def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
+        """Wait up to timeout_seconds or until at least one of the
+        given futures is done, then return a list of futures in a done
+        state and a list of futures in all other states."""
         self._consume_result_queue(timeout_seconds=timeout_seconds)
         # Having consumed completed results, start new processes
         self._start_processes()
-        return split_done_futures(futures)
-
-
-class SerialExecutor(Executor):
-
-    def __init__(self) -> None:
-        self._pending_future_to_thunk: dict[Future, Callable[[], Any]] = {}
-
-    def submit(self, fn: Callable, /, *args, **kwargs):
-        future = Future()
-        self._pending_future_to_thunk[future] = functools.partial(fn, *args, **kwargs)
-        return future
-
-    def cancel(self) -> None:
-        pending_futures = list(self._pending_future_to_thunk.keys())
-        for future in pending_futures:
-            future.cancel()
-            del self._pending_future_to_thunk[future]
-
-    def stop(self) -> None:
-        pass
-
-    def _run_future(self, future: Future):
-        thunk = self._pending_future_to_thunk[future]
-        try:
-            result = thunk()
-        except BaseException as ex:
-            future.set_exception(ex)
-        else:
-            future.set_result(result)
-        del self._pending_future_to_thunk[future]
-
-    def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
-        if not futures:
-            return [], []
-
-        # Ensure at least one future is completed.
-        completed_futures = [future for future in futures if future.done]
-        if not completed_futures:
-            self._run_future(futures[0])
-
         return split_done_futures(futures)
 
 
@@ -362,14 +305,10 @@ class ProcessRunner(Runner, ABC):
 
         self.log_queue = multiprocessing.Manager().Queue(-1)
 
-        self.executor: Executor
-        if max_workers is not None and max_workers == 1:
-            self.executor = SerialExecutor()
-        else:
-            self.executor = ProcessExecutor(
-                mp_context=self._get_mp_context(),
-                max_workers=max_workers,
-            )
+        self.executor = ProcessExecutor(
+            mp_context=self._get_mp_context(),
+            max_workers=max_workers,
+        )
 
         self.results_map: dict[Task, TaskResult] = {}
         self.future_to_task: dict[Future, Task] = {}
@@ -482,7 +421,7 @@ class ProcessRunner(Runner, ABC):
         """Return a multiprocessing context from which to start subprocesses."""
 
     @abstractmethod
-    def _submit_task(self, executor: Executor, task: Task, task_name: str,
+    def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
         """Should submit the execution of self._subprocess_func() on the given
         task to the given executor and return the resulting Future.
@@ -503,7 +442,7 @@ class SpawnProcessRunner(ProcessRunner):
     def _get_mp_context(self) -> multiprocessing.context.SpawnContext:
         return multiprocessing.get_context('spawn')
 
-    def _submit_task(self, executor: Executor, task: Task, task_name: str,
+    def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
         filtered_context: LabContext = {}
         results_map: dict[Task, TaskResult] = {}
@@ -587,7 +526,7 @@ class ForkProcessRunner(ProcessRunner):
             log_queue=log_queue,
         )
 
-    def _submit_task(self, executor: Executor, task: Task, task_name: str,
+    def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
         return executor.submit(
             self._fork_subprocess_func,

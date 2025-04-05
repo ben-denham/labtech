@@ -316,8 +316,6 @@ class Lab:
                 running tasks. A sensible default will be determined by the
                 runner_backend (`'fork'` and `'spawn'` use the number of
                 processors on the machine given by `os.cpu_count()`).
-                When `max_workers=1`, all tasks will be run in the main process,
-                without multi-processing.
             notebook: Determines whether to use notebook-friendly graphical
                 progress bars. When set to `None` (the default), labtech will
                 detect whether the code is being run from an IPython notebook.
