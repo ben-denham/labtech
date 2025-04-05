@@ -10,6 +10,7 @@ from enum import StrEnum, auto
 from itertools import count
 from logging.handlers import QueueHandler
 from queue import Empty, Queue
+from threading import Thread
 from typing import Any, Callable, Iterator, Mapping, Optional, Sequence, cast
 from uuid import UUID, uuid4
 
@@ -152,8 +153,7 @@ class ProcessExecutor(Executor):
         self.mp_context = mp_context
         self.max_workers = os.cpu_count() if max_workers is None else max_workers
         self._pending_future_to_thunk: dict[Future, Thunk] = {}
-        self._running_future_to_process: dict[Future, multiprocessing.Process] = {}
-        self._running_future_id_to_future: dict[int, Future] = {}
+        self._running_id_to_future_and_process: dict[int, tuple[Future, multiprocessing.Process]] = {}
         # Use a Manager().Queue() to be able to share with subprocesses
         self._result_queue: Queue = multiprocessing.Manager().Queue(-1)
 
@@ -163,7 +163,7 @@ class ProcessExecutor(Executor):
         if self.max_workers is None:
             start_count = len(self._pending_future_to_thunk)
         else:
-            start_count = max(0, self.max_workers - len(self._running_future_to_process))
+            start_count = max(0, self.max_workers - len(self._running_id_to_future_and_process))
         futures_to_start = list(self._pending_future_to_thunk.keys())[:start_count]
         for future in futures_to_start:
             thunk = self._pending_future_to_thunk[future]
@@ -176,8 +176,7 @@ class ProcessExecutor(Executor):
                     result_queue=self._result_queue,
                 ),
             )
-            self._running_future_to_process[future] = process
-            self._running_future_id_to_future[future.id] = future
+            self._running_id_to_future_and_process[future.id] = (future, process)
             process.start()
 
     def submit(self, fn: Callable, /, *args, **kwargs) -> Future:
@@ -193,41 +192,51 @@ class ProcessExecutor(Executor):
             del self._pending_future_to_thunk[future]
 
     def stop(self) -> None:
-        future_process_pairs = list(self._running_future_to_process.items())
+        future_process_pairs = list(self._running_id_to_future_and_process.values())
         for future, process in future_process_pairs:
             process.terminate()
             future.cancel()
-            del self._running_future_to_process[future]
-            del self._running_future_id_to_future[future.id]
+            del self._running_id_to_future_and_process[future.id]
 
     def _consume_result_queue(self, *, timeout_seconds: Optional[float]):
         # Avoid race condition of a process finishing after we have
         # consumed the result_queue by fetching process statuses
         # before checking for process completion.
         dead_process_futures = [
-            future for future, process in self._running_future_to_process.items()
+            future for future, process in self._running_id_to_future_and_process.values()
             if not process.is_alive()
         ]
 
-        wait_timeout = True
-        while True:
-            try:
-                future_id, result_or_ex = self._result_queue.get(wait_timeout, timeout=timeout_seconds)
-            except Empty:
-                break
+        def _consume():
+            inner_timeout_seconds = timeout_seconds
 
-            # Don't wait for the timeout on subsequent calls to
-            # self._result_queue.get()
-            wait_timeout = False
+            while True:
+                try:
+                    future_id, result_or_ex = self._result_queue.get(True, timeout=inner_timeout_seconds)
+                except Empty:
+                    break
 
-            future = self._running_future_id_to_future[future_id]
-            del self._running_future_to_process[future]
-            del self._running_future_id_to_future[future_id]
-            if not future.done:
-                if isinstance(result_or_ex, BaseException):
-                    future.set_exception(result_or_ex)
-                else:
-                    future.set_result(result_or_ex)
+                # Don't wait for the timeout on subsequent calls to
+                # self._result_queue.get()
+                inner_timeout_seconds = 0
+
+                future, _ = self._running_id_to_future_and_process[future_id]
+                del self._running_id_to_future_and_process[future_id]
+                if not future.done:
+                    if isinstance(result_or_ex, BaseException):
+                        future.set_exception(result_or_ex)
+                    else:
+                        future.set_result(result_or_ex)
+
+        # Consume the result queue in a thread so that it is not
+        # interrupt by KeyboardInterrupt, which can result in us not
+        # fully processing a completed result. Despite the fact we are
+        # using subprocesses, starting a thread at this point should
+        # be safe because we will not start any subprocesses while
+        # this is running?
+        consumer_thread = Thread(target=_consume)
+        consumer_thread.start()
+        consumer_thread.join()
 
         # If any processes have died without the future being
         # cancelled or finished, then set an exception for it.
@@ -235,7 +244,7 @@ class ProcessExecutor(Executor):
             if future.done:
                 continue
             future.set_exception(TaskDiedError())
-            del self._running_future_to_process[future]
+            del self._running_id_to_future_and_process[future.id]
 
     def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
         self._consume_result_queue(timeout_seconds=timeout_seconds)
