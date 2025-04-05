@@ -2,10 +2,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from itertools import zip_longest
 from string import Template
-from typing import Sequence, cast
+from typing import Optional, Sequence, cast
+
+import psutil
 
 from .exceptions import LabError
-from .types import Runner, TaskMonitorInfoItem, TaskMonitorInfoValue
+from .types import Runner, TaskMonitorInfo, TaskMonitorInfoItem, TaskMonitorInfoValue
 from .utils import tqdm
 
 
@@ -138,3 +140,35 @@ class TaskMonitor:
 
     def show(self) -> None:
         self.display.show()
+
+
+def get_process_info(process: psutil.Process, *, name: str, status: str) -> Optional[TaskMonitorInfo]:
+    """Utility for constructing a TaskMonitorInfo for a given process."""
+    try:
+        with process.oneshot():
+            start_datetime = datetime.fromtimestamp(process.create_time())
+            threads = process.num_threads()
+            cpu_percent = process.cpu_percent()
+            memory_rss_percent = process.memory_percent('rss')
+            memory_vms_percent = process.memory_percent('vms')
+            children = process.children(recursive=True)
+        for child in children:
+            with child.oneshot():
+                threads += child.num_threads()
+                cpu_percent += child.cpu_percent()
+                memory_rss_percent += child.memory_percent('rss')
+                memory_vms_percent += child.memory_percent('vms')
+    except psutil.NoSuchProcess:
+        return None
+
+    return {
+        'pid': process.pid,
+        'name': name,
+        'status': status,
+        'start_time': (start_datetime, start_datetime.strftime('%H:%M:%S')),
+        'children': len(children),
+        'threads': threads,
+        'cpu': (cpu_percent, f'{cpu_percent/100:.1%}'),
+        'rss': (memory_rss_percent, f'{memory_rss_percent/100:.1%}'),
+        'vms': (memory_vms_percent, f'{memory_vms_percent/100:.1%}'),
+    }

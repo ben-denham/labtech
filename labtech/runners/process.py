@@ -6,7 +6,6 @@ import signal
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import StrEnum, auto
 from itertools import count
 from logging.handlers import QueueHandler
@@ -18,6 +17,7 @@ from uuid import UUID, uuid4
 import psutil
 
 from labtech.exceptions import RunnerError, TaskDiedError
+from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
 from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
 from labtech.utils import LoggerFileProxy, logger
@@ -334,32 +334,14 @@ class ProcessMonitor:
             if start_event.task_name not in self.active_processes:
                 self.active_processes[start_event.task_name] = psutil.Process(pid)
             process = self.active_processes[start_event.task_name]
-            with process.oneshot():
-                start_datetime = datetime.fromtimestamp(process.create_time())
-                threads = process.num_threads()
-                cpu_percent = process.cpu_percent()
-                memory_rss_percent = process.memory_percent('rss')
-                memory_vms_percent = process.memory_percent('vms')
-                children = process.children(recursive=True)
-            for child in children:
-                with child.oneshot():
-                    threads += child.num_threads()
-                    cpu_percent += child.cpu_percent()
-                    memory_rss_percent += child.memory_percent('rss')
-                    memory_vms_percent += child.memory_percent('vms')
         except psutil.NoSuchProcess:
             return None
-        return {
-            'name': start_event.task_name,
-            'pid': pid,
-            'status': ('loading' if start_event.use_cache else 'running'),
-            'start_time': (start_datetime, start_datetime.strftime('%H:%M:%S')),
-            'children': len(children),
-            'threads': threads,
-            'cpu': (cpu_percent, f'{cpu_percent/100:.1%}'),
-            'rss': (memory_rss_percent, f'{memory_rss_percent/100:.1%}'),
-            'vms': (memory_vms_percent, f'{memory_vms_percent/100:.1%}'),
-        }
+
+        return get_process_info(
+            process,
+            name=start_event.task_name,
+            status=('loading' if start_event.use_cache else 'running'),
+        )
 
     def get_process_infos(self) -> list[TaskMonitorInfo]:
         self._consume_monitor_queue()
