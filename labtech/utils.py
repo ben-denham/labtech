@@ -5,8 +5,8 @@ import logging
 import re
 from typing import Generic, Optional, Sequence, Type, TypeVar, cast
 
-from tqdm import tqdm as orig_tqdm
-from tqdm.notebook import tqdm as orig_tqdm_notebook
+from tqdm import tqdm as base_tqdm
+from tqdm.notebook import tqdm as base_tqdm_notebook
 
 
 def get_logger():
@@ -119,11 +119,11 @@ def is_ipython() -> bool:
 
 # Disable tqdm monitoring, as we need to avoid threads if we'll be
 # using fork (see: https://docs.python.org/3/library/os.html#os.fork)
-class tqdm(orig_tqdm):
+class tqdm(base_tqdm):
     monitor_interval = 0
 
 
-class tqdm_notebook(orig_tqdm_notebook):
+class tqdm_notebook(base_tqdm_notebook):
     monitor_interval = 0
 
 

@@ -6,7 +6,7 @@ import mypy.plugins.dataclasses
 from mypy.nodes import COVARIANT, ArgKind
 from mypy.plugin import ClassDefContext, Plugin
 from mypy.plugins.common import add_attribute_to_class
-from mypy.types import AnyType, CallableType, Instance, LiteralType, NoneType, TypeOfAny, TypeVarType, UnionType
+from mypy.types import AnyType, CallableType, Instance, LiteralType, NoneType, TypeOfAny, TypeVarId, TypeVarType, UnionType
 
 task_makers = {'labtech.tasks.task'}
 """Set of decorator functions that return "task" classes."""
@@ -16,9 +16,8 @@ def task_tag_callback(ctx: ClassDefContext):
     """Add attributes to a "task" class."""
     covariant_result_t_type = TypeVarType(
         name='CovariantResultT',
-        fullname=ctx.cls.info.fullname + '.CovariantResultT',
-        # TODO: Unsure if id of -1 is valid.
-        id=-1,
+        fullname=f'{ctx.cls.info.fullname}.CovariantResultT',
+        id=TypeVarId(-1, namespace=f"{ctx.cls.info.fullname}"),
         values=[],
         upper_bound=ctx.api.named_type('builtins.object'),
         variance=COVARIANT,

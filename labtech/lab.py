@@ -15,7 +15,7 @@ from .runners import ForkRunnerBackend, SpawnRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
 from .types import LabContext, ResultMeta, ResultT, RunnerBackend, Storage, Task, TaskT, is_task, is_task_type
-from .utils import OrderedSet, is_ipython, logger, tqdm, tqdm_notebook
+from .utils import OrderedSet, base_tqdm, is_ipython, logger, tqdm, tqdm_notebook
 
 
 def check_tasks(tasks: Sequence[Task]) -> None:
@@ -153,7 +153,7 @@ class TaskCoordinator:
         self.top_sort = top_sort
         self.top_n = top_n
 
-    def get_pbar(self, *, task_type: Type[Task], task_count: int) -> tqdm:
+    def get_pbar(self, *, task_type: Type[Task], task_count: int) -> base_tqdm:
         pbar_func = tqdm_notebook if self.lab.notebook else tqdm
         return pbar_func(
             desc=task_type.__qualname__,
