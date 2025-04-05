@@ -4,14 +4,14 @@ from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
 from types import UnionType
-from typing import Any, Dict, Optional, Sequence, Set, TypeAlias, Union, cast
+from typing import Any, Optional, Sequence, TypeAlias, Union, cast
 
 from frozendict import frozendict
 
 from .cache import NullCache, PickleCache
 from .exceptions import TaskError
-from .types import Cache, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
-from .utils import ensure_dict_key_str
+from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
+from .utils import OrderedSet, ensure_dict_key_str
 
 ParamScalar: TypeAlias = None | str | bool | float | int | Enum
 
@@ -67,8 +67,12 @@ def _task_set_result_meta(self: Task, result_meta: ResultMeta):
     object.__setattr__(self, 'result_meta', result_meta)
 
 
-def _task_set_context(self: Task, context: dict[str, Any]):
+def _task_set_context(self: Task, context: LabContext):
     object.__setattr__(self, 'context', context)
+
+
+def _task_filter_context_default(self: Task, context: LabContext) -> LabContext:
+    return context
 
 
 def _task_result(self: Task[ResultT]) -> ResultT:
@@ -78,28 +82,22 @@ def _task_result(self: Task[ResultT]) -> ResultT:
         raise TaskError(f"Task '{self}' has no active results map")
     if self not in self._results_map:
         raise TaskError(f"Result for task '{self}' is not available in memory")
-    return self._results_map[self]
+    return self._results_map[self].value
 
 
-def _task__getstate__(self: Task) -> Dict[str, Any]:
+def _task__getstate__(self: Task) -> dict[str, Any]:
     state = {
         **{f.name: getattr(self, f.name) for f in fields(self)},
         '_lt': self._lt,
         '_is_task': self._is_task,
         'cache_key': self.cache_key,
-        # We will never pickle the full _results_map
+        # We will never pickle the full _results_map or _result
         '_results_map': None,
     }
-    if hasattr(self, '_result'):
-        state['_result'] = self._result
-    elif self._results_map is not None:
-        # Avoid pickling the whole _results_map, and also avoid
-        # AttributeError when attempting to pickle self inside object.
-        state['_result'] = self._results_map.get(self)
     return state
 
 
-def _task__setstate__(self: Task, state: Dict[str, Any]) -> None:
+def _task__setstate__(self: Task, state: dict[str, Any]) -> None:
     field_set = set(f.name for f in fields(self))
     for key, value in state.items():
         value = immutable_param_value(key, value) if key in field_set else value
@@ -167,6 +165,15 @@ def task(*args,
     attributes can only be assigned to the task with
     `object.__setattr__(self, attribute_name, attribute_value)`.
 
+    If a `filter_context(self, context: LabContext) -> LabContext`
+    method is defined, it will be called to transform the context
+    provided to each task. This can be useful for selecting subsets of
+    large contexts in order to reduce data transferred to non-forked
+    subprocesses or other kinds of processes in parallel processing
+    frameworks. The filtering may take into account the values of the
+    task's attributes. If `filter_context()` is not defined, the full
+    context will be provided to each task.
+
     Args:
         cache: The Cache that controls how task results are formatted for
             caching. Can be set to an instance of any
@@ -177,8 +184,6 @@ def task(*args,
             are allowed to run simultaneously in separate sub-processes. Useful
             to set if running too many instances of this particular task
             simultaneously will exhaust system memory or processing resources.
-            When `max_parallel=1`, all tasks will be run in the main process,
-            without multi-processing.
         mlflow_run: If True, the execution of each instance of this task type
             will be wrapped with `mlflow.start_run()`, tags the run with
             `labtech_task_type` equal to the task class name, and all parameters
@@ -221,6 +226,8 @@ def task(*args,
         cls._set_result_meta = _task_set_result_meta
         cls.result = property(_task_result)
         cls.set_context = _task_set_context
+        if not hasattr(cls, 'filter_context'):
+            cls.filter_context = _task_filter_context_default
         return cls
 
     if len(args) > 0 and isclass(args[0]):
@@ -229,7 +236,7 @@ def task(*args,
         return decorator
 
 
-def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] = None) -> Sequence[Task]:
+def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] = None) -> Sequence[Task]:
     """Given a parameter value, return all tasks within it found through a recursive search."""
     if searched_coll_ids is None:
         searched_coll_ids = set()
@@ -260,3 +267,14 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[Set[int]] 
     # This should be impossible.
     msg = f"Unexpected type {type(param_value).__qualname__} encountered in task parameter value."
     raise TaskError(msg)
+
+
+def get_direct_dependencies(task: Task) -> OrderedSet[Task]:
+    """Return an OrderedSet of tasks that are direct (first-level)
+    dependencies of the given task in its attributes."""
+    dependency_tasks: OrderedSet[Task] = OrderedSet()
+    for field in fields(task):
+        field_value = getattr(task, field.name)
+        for dependency_task in find_tasks_in_param(field_value):
+            dependency_tasks.add(dependency_task)
+    return dependency_tasks

@@ -6,7 +6,18 @@ class LabtechError(Exception):
 
 
 class LabError(LabtechError):
-    """Raised for failures when interacting with or running Lab objects."""
+    """Raised for failures when interacting with Lab objects."""
+
+
+class RunnerError(LabtechError):
+    """Raised for failures when running Tasks."""
+
+
+class TaskDiedError(RunnerError):
+    """Raised when the execution of a task died unexpectedly."""
+
+    def __init__(self):
+        super().__init__('Task died')
 
 
 class TaskError(LabtechError):

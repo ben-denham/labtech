@@ -1,6 +1,6 @@
 from dataclasses import dataclass, fields
 from textwrap import indent
-from typing import Dict, Sequence, Type, get_args, get_origin, get_type_hints
+from typing import Any, Sequence, get_args, get_origin, get_type_hints
 
 from .tasks import find_tasks_in_param
 from .types import Task, is_task
@@ -10,7 +10,7 @@ from .utils import is_ipython
 @dataclass(frozen=True)
 class TaskRelKey:
     from_param_name: str
-    to_task_type: Type[Task]
+    to_task_type: type[Task]
 
 
 @dataclass(frozen=True)
@@ -23,13 +23,13 @@ class TaskStructure:
     between task types."""
 
     def __init__(self) -> None:
-        self.task_type_to_rels: Dict[Type[Task], Dict[TaskRelKey, TaskRelInfo]] = {}
+        self.task_type_to_rels: dict[type[Task], dict[TaskRelKey, TaskRelInfo]] = {}
 
-    def add_task_type(self, task_type: Type[Task]):
+    def add_task_type(self, task_type: type[Task]):
         self.task_type_to_rels.setdefault(task_type, {})
 
-    def add_relationship(self, *, from_task_type: Type[Task], from_param_name: str,
-                         to_task_type: Type[Task], multi_cardinality: bool):
+    def add_relationship(self, *, from_task_type: type[Task], from_param_name: str,
+                         to_task_type: type[Task], multi_cardinality: bool):
         key = TaskRelKey(
             from_param_name=from_param_name,
             to_task_type=to_task_type,
@@ -81,8 +81,13 @@ class TaskStructure:
                 found_tasks += sub_tasks
 
 
-def format_type(t: Type) -> str:
-    """Format the given type as a string without name qualification."""
+def format_type(t: type | str | Any) -> str:
+    """Format the given type as a string without name qualification.
+    For type hints that aren't actually types, return the string
+    representation."""
+    if not isinstance(t, type):
+        return str(t)
+
     origin = get_origin(t)
     if origin is None:
         # For non-generic types, just return the type's name
@@ -93,7 +98,7 @@ def format_type(t: Type) -> str:
         return f'{origin.__name__}[{args_str}]'
 
 
-def diagram_task_type(task_type: Type[Task]) -> str:
+def diagram_task_type(task_type: type[Task]) -> str:
     run_return_type = get_type_hints(task_type.run).get('return')
     run_return = (
         '' if run_return_type is None else f' {format_type(run_return_type)}'
@@ -109,7 +114,7 @@ def diagram_task_type(task_type: Type[Task]) -> str:
     ])
 
 
-def diagram_task_relationship(from_task_type: Type[Task], relationships: Dict[TaskRelKey, TaskRelInfo]) -> str:
+def diagram_task_relationship(from_task_type: type[Task], relationships: dict[TaskRelKey, TaskRelInfo]) -> str:
 
     def format_many(multi_cardinality: bool) -> str:
         if multi_cardinality:

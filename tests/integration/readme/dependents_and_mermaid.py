@@ -1,3 +1,4 @@
+from tempfile import TemporaryDirectory
 from time import sleep
 
 import labtech
@@ -19,7 +20,7 @@ class DependentTask:
     def run(self) -> int:
         return self.multiplier * self.slow_task.result
 
-def main():
+def main(storage_dir):
     some_slow_task = SlowTask(base=42)
     dependent_tasks = [
         DependentTask(
@@ -29,12 +30,13 @@ def main():
         for multiplier in range(10)
     ]
 
-    lab = labtech.Lab(storage='demo_lab')
+    lab = labtech.Lab(storage=storage_dir)
     results = lab.run_tasks(dependent_tasks)
     print([results[task] for task in dependent_tasks])
 
 if __name__ == '__main__':
-    main()
+    with TemporaryDirectory() as storage_dir:
+        main(storage_dir)
 
     from labtech.diagram import display_task_diagram
 

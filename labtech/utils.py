@@ -3,7 +3,10 @@
 import builtins
 import logging
 import re
-from typing import Dict, Generic, Optional, Sequence, Type, TypeVar, cast
+from typing import Generic, Optional, Sequence, Type, TypeVar, cast
+
+from tqdm import tqdm as base_tqdm
+from tqdm.notebook import tqdm as base_tqdm_notebook
 
 
 def get_logger():
@@ -48,7 +51,7 @@ class OrderedSet(Generic[T]):
     iterated over."""
 
     def __init__(self, items: Optional[Sequence[T]] = None):
-        self.values: Dict[T, T] = {}
+        self.values: dict[T, T] = {}
         if items is not None:
             for item in items:
                 self.add(item)
@@ -114,10 +117,22 @@ def is_ipython() -> bool:
     return hasattr(builtins, '__IPYTHON__')
 
 
+# Disable tqdm monitoring, as we need to avoid threads if we'll be
+# using fork (see: https://docs.python.org/3/library/os.html#os.fork)
+class tqdm(base_tqdm):
+    monitor_interval = 0
+
+
+class tqdm_notebook(base_tqdm_notebook):
+    monitor_interval = 0
+
+
 __all__ = [
     'logger',
     'OrderedSet',
     'LoggerFileProxy',
     'ensure_dict_key_str',
     'is_ipython',
+    'tqdm',
+    'tqdm_notebook',
 ]
