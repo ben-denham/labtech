@@ -1,3 +1,4 @@
+import functools
 import logging
 import multiprocessing
 import os
@@ -11,7 +12,7 @@ from itertools import count
 from logging.handlers import QueueHandler
 from queue import Empty, Queue
 from threading import Thread
-from typing import Any, Callable, Iterator, Mapping, Optional, Sequence, cast
+from typing import Any, Callable, Iterator, Optional, Sequence, cast
 from uuid import UUID, uuid4
 
 import psutil
@@ -131,16 +132,9 @@ class Executor(ABC):
         state and a list of futures in all other states."""
 
 
-@dataclass(frozen=True)
-class Thunk:
-    fn: Callable
-    args: Sequence[Any]
-    kwargs: Mapping[str, Any]
-
-
-def _subprocess_target(*, future_id: int, thunk: Thunk, result_queue: Queue) -> None:
+def _subprocess_target(*, future_id: int, thunk: Callable[[], Any], result_queue: Queue) -> None:
     try:
-        result = thunk.fn(*thunk.args, **thunk.kwargs)
+        result = thunk()
     except BaseException as ex:
         result_queue.put((future_id, ex))
     else:
@@ -152,7 +146,7 @@ class ProcessExecutor(Executor):
     def __init__(self, mp_context: multiprocessing.context.BaseContext, max_workers: Optional[int]):
         self.mp_context = mp_context
         self.max_workers = os.cpu_count() if max_workers is None else max_workers
-        self._pending_future_to_thunk: dict[Future, Thunk] = {}
+        self._pending_future_to_thunk: dict[Future, Callable[[], Any]] = {}
         self._running_id_to_future_and_process: dict[int, tuple[Future, multiprocessing.Process]] = {}
         # Use a Manager().Queue() to be able to share with subprocesses
         self._result_queue: Queue = multiprocessing.Manager().Queue(-1)
@@ -181,7 +175,7 @@ class ProcessExecutor(Executor):
 
     def submit(self, fn: Callable, /, *args, **kwargs) -> Future:
         future = Future()
-        self._pending_future_to_thunk[future] = Thunk(fn=fn, args=args, kwargs=kwargs)
+        self._pending_future_to_thunk[future] = functools.partial(fn, *args, **kwargs)
         self._start_processes()
         return future
 
@@ -256,11 +250,11 @@ class ProcessExecutor(Executor):
 class SerialExecutor(Executor):
 
     def __init__(self) -> None:
-        self._pending_future_to_thunk: dict[Future, Thunk] = {}
+        self._pending_future_to_thunk: dict[Future, Callable[[], Any]] = {}
 
     def submit(self, fn: Callable, /, *args, **kwargs):
         future = Future()
-        self._pending_future_to_thunk[future] = Thunk(fn=fn, args=args, kwargs=kwargs)
+        self._pending_future_to_thunk[future] = functools.partial(fn, *args, **kwargs)
         return future
 
     def cancel(self) -> None:
@@ -275,7 +269,7 @@ class SerialExecutor(Executor):
     def _run_future(self, future: Future):
         thunk = self._pending_future_to_thunk[future]
         try:
-            result = thunk.fn(*thunk.args, **thunk.kwargs)
+            result = thunk()
         except BaseException as ex:
             future.set_exception(ex)
         else:
