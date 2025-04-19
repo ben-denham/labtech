@@ -42,7 +42,21 @@ specifying an instance of one of the following Storage classes for the
 
 To store cached results with an alternative storage provider (such as
 a storage bucket in the cloud), you can define your own type of
-Storage by inheriting from [`Storage`][labtech.storage.Storage]:
+Storage.
+
+Many cloud storage providers can be implemented by inheriting from
+[`FsspecStorage`][labtech.storage.FsspecStorage] and defining an
+`fs_constructor()` method to return an
+[`fsspec`](https://filesystem-spec.readthedocs.io/en/latest/index.html)-compatible
+filesystem:
+
+::: labtech.storage.FsspecStorage
+    options:
+        heading_level: 4
+        members: ['fs_constructor']
+
+For other storage providers, inherit from
+[`Storage`][labtech.storage.Storage]:
 
 ::: labtech.storage.Storage
     options:

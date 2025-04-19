@@ -2,11 +2,29 @@
 
 import os
 import shutil
-from pathlib import Path
+from abc import ABC, abstractmethod
+from pathlib import Path, PosixPath
 from typing import IO, Sequence, Union
+
+from fsspec import AbstractFileSystem
 
 from .exceptions import StorageError
 from .types import Storage
+
+
+def validate_file_path_key(key: str, *, storage_path: Path) -> None:
+    if not key:
+        raise StorageError("Key cannot be empty")
+
+    disallowed_key_chars = ['.', '/', '\\', os.path.sep, os.path.altsep]
+    for char in disallowed_key_chars:
+        if char is not None and char in key: # altsep can be None
+            raise StorageError(f"Key '{key}' must not contain the forbidden character '{char}'")
+
+    key_path = (storage_path / key).resolve()
+    if key_path.parent != storage_path.resolve():
+        raise StorageError((f"Key '{key}' should only reference a directory directly "
+                            f"under the storage directory '{storage_path}'"))
 
 
 class NullStorage(Storage):
@@ -51,20 +69,9 @@ class LocalStorage(Storage):
             with gitignore_path.open('w') as gitignore_file:
                 gitignore_file.write('*\n')
 
-    def _key_path(self, key: str) -> Path:
-        if not key:
-            raise StorageError("Key cannot be empty")
-
-        disallowed_key_chars = ['.', '/', '\\', os.path.sep, os.path.altsep]
-        for char in disallowed_key_chars:
-            if char is not None and char in key: # altsep can be None
-                raise StorageError(f"Key '{key}' must not contain the forbidden character '{char}'")
-
-        key_path = (self._storage_path / key).resolve()
-        if key_path.parent != self._storage_path:
-            raise StorageError((f"Key '{key}' should only reference a directory directly "
-                                f"under the storage directory '{self._storage_path}'"))
-        return key_path
+    def _key_to_path(self, key: str) -> Path:
+        validate_file_path_key(key, storage_path=self._storage_path)
+        return (self._storage_path / key).resolve()
 
     def find_keys(self) -> Sequence[str]:
         return sorted([
@@ -73,11 +80,11 @@ class LocalStorage(Storage):
         ])
 
     def exists(self, key: str) -> bool:
-        key_path = self._key_path(key)
+        key_path = self._key_to_path(key)
         return key_path.exists()
 
     def file_handle(self, key: str, filename: str, *, mode: str = 'r') -> IO:
-        key_path = self._key_path(key)
+        key_path = self._key_to_path(key)
         try:
             key_path.mkdir()
         except FileExistsError:
@@ -89,6 +96,85 @@ class LocalStorage(Storage):
         return file_path.open(mode=mode)
 
     def delete(self, key: str):
-        key_path = self._key_path(key)
+        key_path = self._key_to_path(key)
         if key_path.exists():
             shutil.rmtree(key_path)
+
+
+class FsspecStorage(Storage, ABC):
+    """Base class for using an
+    [`fsspec`](https://filesystem-spec.readthedocs.io) filesystem for
+    storage."""
+
+    def __init__(self, storage_dir: Union[str, Path]):
+        """
+        Args:
+            storage_dir: Path to the directory where cached results will be
+                stored.
+        """
+        if isinstance(storage_dir, str):
+            # Default to posix paths, which should work for most
+            # fsspec filesystems.
+            storage_dir = PosixPath(storage_dir)
+        self._storage_path = storage_dir
+        fs = self.fs_constructor()
+        fs.mkdirs(str(self._storage_path), exist_ok=True)
+
+    def _key_to_path(self, key):
+        validate_file_path_key(key, storage_path=self._storage_path)
+        return self._storage_path / key
+
+    def find_keys(self) -> Sequence[str]:
+        fs = self.fs_constructor()
+        return [
+            str(Path(entry).relative_to(self._storage_path))
+            for entry in fs.ls(str(self._storage_path))
+        ]
+
+    def exists(self, key: str) -> bool:
+        fs = self.fs_constructor()
+        return fs.exists(str(self._key_to_path(key)))
+
+    def file_handle(self, key: str, filename: str, *, mode: str = 'r') -> IO:
+        fs = self.fs_constructor()
+        key_path = self._key_to_path(key)
+        fs.mkdirs(str(key_path), exist_ok=True)
+        file_path = key_path / filename
+        if file_path.parent != key_path:
+            raise ValueError((f"Filename '{filename}' should only reference a directory directly "
+                              f"under the storage key directory '{key_path}'"))
+        return fs.open(str(file_path), mode)
+
+    def delete(self, key: str):
+        fs = self.fs_constructor()
+        path = self._key_to_path(key)
+        if fs.exists(str(path)):
+            fs.rm(str(path), recursive=True)
+
+    @abstractmethod
+    def fs_constructor(self) -> AbstractFileSystem:
+        """Return an [`fsspec.AbstractFileSystem`] to use for file storage."""
+        pass
+
+
+# Useful reference implementations:
+
+# from s3fs.implementations import LocalFileSystem
+# class LocalFsspecStorage(FsspecStorage):
+#     def __init__(self, storage_dir: Union[str, Path], **kwargs):
+#         if isinstance(storage_dir, str):
+#             # Use system-local Path type.
+#             storage_dir = Path(storage_dir)
+#         super().__init__(storage_dir.resolve())
+#     def fs_constructor(self):
+#         return LocalFileSystem()
+
+# from s3fs import S3FileSystem
+# class S3fsStorage(FsspecStorage):
+#     def fs_constructor(self):
+#         return S3FileSystem(
+#             # Use localstack endpoint:
+#             endpoint_url='http://localhost:4566',
+#             key='anything',
+#             secret='anything',
+#         )

@@ -10,6 +10,11 @@ jupyter:
 mlflow:
 	poetry run mlflow ui --port 5000 --backend-store-uri examples/storage/mlruns
 
+localstack:
+	docker compose up localstack
+localstack-list-objects:
+	docker compose exec localstack awslocal s3api list-objects --bucket labtech-dev-bucket
+
 sort-imports:
 	poetry run ruff check --select "I" --fix
 lint:

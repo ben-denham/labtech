@@ -513,62 +513,32 @@ lab.run_tasks([TabularTask()])
 
 ### How can I cache task results somewhere other than my filesystem?
 
-You can cache results in a location other than the local filesystem by
-defining your own storage type that extends `labtech.storage.Storage`
-and defines `find_keys()`, `exists()`, `file_handle()` and `delete()`.
-You can then pass an instance of your new storage backend for the
-`storage` option when constructing a `Lab` instance.
+For any storage provider that has an
+[`fsspec`](https://filesystem-spec.readthedocs.io))-compatible
+implementation, you can define your own storage type that extends
+`labtech.storage.FsspecStorage`. You can then pass an instance of your
+new storage type for the `storage` option when constructing a `Lab`
+instance.
 
-The following example demonstrates constructing a storage backend to
-interface to the `LocalFileSystem` provided by the
-[`fsspec`](https://filesystem-spec.readthedocs.io) library. This
-example could be adapted for other `fsspec` implementations, such as
-cloud storage providers like [Amazon S3](https://s3fs.readthedocs.io/en/latest/)
-and [Azure Blob Storage](https://github.com/fsspec/adlfs):
+The following example demonstrates constructing a storage type for an
+Amazon S3 bucket using the
+[`s3fs`](https://s3fs.readthedocs.io/en/latest/) library. This example
+could be adapted for other `fsspec` implementations, such as cloud
+storage providers like [Azure Blob Storage](https://github.com/fsspec/adlfs).
 
 ``` {.python .code}
-from labtech.storage import Storage
-from typing import IO, Sequence
-from pathlib import Path
-from fsspec.implementations.local import LocalFileSystem
+from labtech.storage import FsspecStorage
+from s3fs import S3FileSystem
 
 
-class LocalFsspecStorage(Storage):
-    """Store results in the local file filesystem."""
+class S3fsStorage(FsspecStorage):
 
-    def __init__(self, storage_dir):
-        self.storage_dir = Path(storage_dir).resolve()
-        fs = self._fs('w')
-        fs.mkdirs(self.storage_dir, exist_ok=True)
-
-    def _fs(self, mode):
-        return LocalFileSystem()
-
-    def _key_to_path(self, key):
-        return self.storage_dir / key
-
-    def find_keys(self) -> Sequence[str]:
-        return [str(Path(entry).relative_to(self.storage_dir)) for entry in self._fs('r').ls(self.storage_dir)]
-
-    def exists(self, key: str) -> bool:
-        return self._fs('r').exists(self._key_to_path(key))
-
-    def file_handle(self, key: str, filename: str, *, mode: str = 'r') -> IO:
-        fs_mode = 'w' if 'w' in mode else 'r'
-        fs = self._fs(fs_mode)
-        key_path = self._key_to_path(key)
-        fs.mkdirs(key_path, exist_ok=True)
-        file_path = (key_path / filename).resolve()
-        if file_path.parent != key_path:
-            raise ValueError((f"Filename '{filename}' should only reference a directory directly "
-                              f"under the storage key directory '{key_path}'"))
-        return fs.open(file_path, mode)
-
-    def delete(self, key: str):
-        fs = self._fs('w')
-        path = self._key_to_path(key)
-        if fs.exists(path):
-            fs.rm(path, recursive=True)
+    def fs_constructor(self):
+        return S3FileSystem(
+            endpoint_url='...',
+            key='...',
+            secret='...',
+        )
 
 
 @labtech.task
@@ -585,27 +555,18 @@ experiments = [
     )
     for seed in range(100)
 ]
-lab = labtech.Lab(storage=LocalFsspecStorage('storage/fsspec_example'))
+lab = labtech.Lab(
+    storage=S3fsStorage('my-s3-bucket/lab_directory),
+)
 results = lab.run_tasks(experiments)
 ```
 
-<!--
+#### What if there is no `fsspec` implementation for my storage provider?
 
-# Simple testing of LocalFsspecStorage
-storage = LocalFsspecStorage('storage/lab_example')
-key = 'key1'
-print(storage.exists(key))
-storage.delete(key)
-with storage.file_handle(key, 'example.txt', mode='w') as file:
-    file.write('content')
-with storage.file_handle(key, 'example.txt', mode='r') as file:
-    print(file.read())
-print(storage.find_keys())
-print(storage.exists(key))
-storage.delete(key)
-print(storage.find_keys())
-
--->
+You can also define your own storage type that extends
+`labtech.storage.Storage` and defines `find_keys()`, `exists()`,
+`file_handle()` and `delete()`. For an example, refer to the
+implementation of `labtech.storage.LocalStorage`.
 
 ### Loading lots of cached results is slow, how can I make it faster?
 

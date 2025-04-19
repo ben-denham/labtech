@@ -19,3 +19,6 @@ dist/
 
 # Virtual Environments
 .venv/
+
+# Docker volume for Localstack for AWS API testing
+.localstack

@@ -1,0 +1,15 @@
+services:
+  localstack:
+    image: localstack/localstack:4.3
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=0
+    volumes:
+      - "./.localstack:/var/lib/localstack"
+      # Not needed for S3:
+      # - "/var/run/docker.sock:/var/run/docker.sock"
+    post_start:
+      - command: awslocal s3api create-bucket --bucket labtech-dev-bucket
