@@ -557,6 +557,9 @@ experiments = [
 ]
 lab = labtech.Lab(
     storage=S3fsStorage('my-s3-bucket/lab_directory),
+    # s3fs does not support forked processes, so make sure we are spawning
+    # subprocesses: https://s3fs.readthedocs.io/en/latest/#multiprocessing
+    runner_backend='spawn',
 )
 results = lab.run_tasks(experiments)
 ```
