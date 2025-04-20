@@ -38,15 +38,15 @@ jobs:
 
       - name: Lint
         run: |
-          poetry run ruff --version
+          uv run ruff --version
           make lint
 
       - name: Typecheck with mypy
         run: |
-          poetry run mypy --version
+          uv run mypy --version
           make mypy
 
       - name: Test with pytest
         run: |
-          poetry run pytest --version
+          uv run pytest --version
           make test
