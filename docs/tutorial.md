@@ -676,7 +676,7 @@ that shows all of the task types, parameters, and dependencies:
 ``` {.python .code}
 from labtech.diagram import display_task_diagram
 
-labtech.diagram.display_task_diagram([
+display_task_diagram([
     evaluation_task,
 ], direction='BT')
 ```

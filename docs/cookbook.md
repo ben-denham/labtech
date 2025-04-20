@@ -196,7 +196,6 @@ a parameter to specify the operation that an experiment performs:
 
 ``` {.python .code}
 from enum import Enum
-from datetime import datetime
 
 
 # The custom class we want to provide objects of as parameters.
@@ -208,7 +207,7 @@ class Dataset:
 
     def __eq__(self, other):
         # Support equality check to allow pickling of Enum values
-        if type(self) != type(other):
+        if type(self) is not type(other):
             return False
         return self.key == other.key
 
@@ -478,7 +477,6 @@ type to store Pandas DataFrames as parquet files:
 from labtech.cache import BaseCache
 from labtech.types import Task, ResultT
 from labtech.storage import Storage
-from typing import Any
 import pandas as pd
 
 
@@ -527,6 +525,10 @@ could be adapted for other `fsspec` implementations, such as cloud
 storage providers like [Azure Blob Storage](https://github.com/fsspec/adlfs).
 
 ``` {.python .code}
+%pip install s3fs
+```
+
+``` {.python .code}
 from labtech.storage import FsspecStorage
 from s3fs import S3FileSystem
 
@@ -556,7 +558,7 @@ experiments = [
     for seed in range(100)
 ]
 lab = labtech.Lab(
-    storage=S3fsStorage('my-s3-bucket/lab_directory),
+    storage=S3fsStorage('my-s3-bucket/lab_directory'),
     # s3fs does not support forked processes, so make sure we are spawning
     # subprocesses: https://s3fs.readthedocs.io/en/latest/#multiprocessing
     runner_backend='spawn',

@@ -66,3 +66,7 @@ extend-exclude = ["tests/integration/readme/*.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore non-top-level imports, repeated imports, and unordered imports in examples
+"examples/*.ipynb" = ["E402", "F811", "I001"]
