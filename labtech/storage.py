@@ -6,8 +6,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path, PosixPath
 from typing import IO, Sequence, Union
 
-from fsspec import AbstractFileSystem
-
 from .exceptions import StorageError
 from .types import Storage
 
@@ -152,8 +150,9 @@ class FsspecStorage(Storage, ABC):
             fs.rm(str(path), recursive=True)
 
     @abstractmethod
-    def fs_constructor(self) -> AbstractFileSystem:
-        """Return an [`fsspec.AbstractFileSystem`] to use for file storage."""
+    def fs_constructor(self):
+        """Return an [`fsspec.AbstractFileSystem`](https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.spec.AbstractFileSystem)
+        to use for file storage."""
         pass
 
 
