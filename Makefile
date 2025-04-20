@@ -1,14 +1,14 @@
 .PHONY: deps example sort-imports lint mypy test check build docs-serve docs-build docs-github docs-notebook
 
 deps:
-	poetry install
+	uv sync
 
 example:
-	poetry run python -m examples.basic
+	uv run python -m examples.basic
 jupyter:
-	poetry run jupyter lab
+	uv run jupyter lab
 mlflow:
-	poetry run mlflow ui --port 5000 --backend-store-uri examples/storage/mlruns
+	uv run mlflow ui --port 5000 --backend-store-uri examples/storage/mlruns
 
 localstack:
 	docker compose up localstack
@@ -16,13 +16,13 @@ localstack-list-objects:
 	docker compose exec localstack awslocal s3api list-objects --bucket labtech-dev-bucket
 
 sort-imports:
-	poetry run ruff check --select "I" --fix
+	uv run ruff check --select "I" --fix
 lint:
-	poetry run ruff check
+	uv run ruff check
 mypy:
-	poetry run mypy --show-error-codes labtech examples
+	uv run mypy --show-error-codes labtech examples
 test:
-	poetry run pytest \
+	uv run pytest \
 		--cov="labtech" \
 		--cov-report="html:tests/coverage" \
 		--cov-report=term \
@@ -30,14 +30,14 @@ test:
 check: sort-imports lint mypy test
 
 build:
-	poetry build
+	uv build
 
 docs-serve:
-	poetry run mkdocs serve
+	uv run mkdocs serve
 docs-build:
-	poetry run mkdocs build
+	uv run mkdocs build
 docs-github:
-	poetry run mkdocs gh-deploy
+	uv run mkdocs gh-deploy
 
 docs-notebooks:
 	pandoc -o examples/cookbook.ipynb docs/cookbook.md

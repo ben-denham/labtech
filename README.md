@@ -206,7 +206,7 @@ plugins = labtech.mypy_plugin
 
 ## Contributing
 
-* Install Poetry dependencies with `make deps`
+* Install uv dependencies with `make deps`
 * Run linting, mypy, and tests with `make check`
 * Documentation:
     * Run local server: `make docs-serve`
