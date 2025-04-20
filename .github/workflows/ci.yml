@@ -12,24 +12,25 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.11", "3.12", "3.13"] # Sync with tool.poetry.dependencies in pyproject.toml
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ">=0.5.28"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: Gr1N/setup-poetry@v8
-        with:
-          poetry-version: 1.7.1
-
       - name: Install dependencies
         run: |
           python --version
-          poetry install
+          uv sync
 
       - name: Build
         run: |
