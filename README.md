@@ -31,6 +31,12 @@ run them with maximal parallelism and result caching:
 * **Integration with [mlflow](https://mlflow.org/)**; Automatically
   log task runs to mlflow with all of their parameters.
 
+To learn more about how Labtech can speed up your experiments, check
+out the Kiwi Pycon presentation:
+
+<a href="https://youtube.com/watch?v=LX5kFOVLwaQ" title="Labtech: Concurrency and caching in Python for busy scientists — Ben Denham">
+    <img src="https://img.youtube.com/vi/LX5kFOVLwaQ/0.jpg" alt="Kiwi Pycon conference recording of "Labtech: Concurrency and caching in Python for busy scientists"">
+</a>
 
 ## Installation
 
