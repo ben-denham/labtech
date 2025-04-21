@@ -142,8 +142,19 @@ class TaskMonitor:
         self.display.show()
 
 
-def get_process_info(process: psutil.Process, *, name: str, status: str) -> Optional[TaskMonitorInfo]:
-    """Utility for constructing a TaskMonitorInfo for a given process."""
+def get_process_info(process: psutil.Process, *,
+                     previous_child_processes: dict[int, psutil.Process],
+                     name: str,
+                     status: str) -> tuple[Optional[TaskMonitorInfo], dict[int, psutil.Process]]:
+    """Utility for constructing a TaskMonitorInfo for a given process.
+
+    Because psutil reports 0% CPU usage for newly created process
+    objects, this function receives a previously instantiated process
+    and a dictionary of child process objects (mapping pid ->
+    process). The latest child processes are returned by this function
+    to be re-used in the next invocation for the same process.
+
+    """
     try:
         with process.oneshot():
             start_datetime = datetime.fromtimestamp(process.create_time())
@@ -151,24 +162,35 @@ def get_process_info(process: psutil.Process, *, name: str, status: str) -> Opti
             cpu_percent = process.cpu_percent()
             memory_rss_percent = process.memory_percent('rss')
             memory_vms_percent = process.memory_percent('vms')
-            children = process.children(recursive=True)
-        for child in children:
+            latest_child_process_list = process.children(recursive=True)
+    except psutil.NoSuchProcess:
+        return None, {}
+
+    child_processes = {
+        # Re-use previous child process object where available.
+        child.pid: previous_child_processes.get(child.pid, child)
+        for child in latest_child_process_list
+    }
+    for child in child_processes.values():
+        try:
             with child.oneshot():
                 threads += child.num_threads()
                 cpu_percent += child.cpu_percent()
                 memory_rss_percent += child.memory_percent('rss')
                 memory_vms_percent += child.memory_percent('vms')
-    except psutil.NoSuchProcess:
-        return None
+        except psutil.NoSuchProcess:
+            # Ignore dead child processes
+            continue
 
-    return {
+    info: TaskMonitorInfo = {
         'pid': process.pid,
         'name': name,
         'status': status,
         'start_time': (start_datetime, start_datetime.strftime('%H:%M:%S')),
-        'children': len(children),
+        'children': len(child_processes),
         'threads': threads,
         'cpu': (cpu_percent, f'{cpu_percent/100:.1%}'),
         'rss': (memory_rss_percent, f'{memory_rss_percent/100:.1%}'),
         'vms': (memory_vms_percent, f'{memory_vms_percent/100:.1%}'),
     }
+    return info, child_processes

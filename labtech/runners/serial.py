@@ -25,6 +25,7 @@ class SerialRunner(Runner):
         self.storage = storage
         self.task_submissions: deque[TaskSubmission] = deque()
         self.results_map: dict[Task, TaskResult] = {}
+        self.child_processes: dict[int, psutil.Process] = {}
 
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         self.task_submissions.append(TaskSubmission(
@@ -87,11 +88,13 @@ class SerialRunner(Runner):
             return []
 
         # Get info about current process (which is running the tasks serially).
-        process_info = get_process_info(
+        process_info, child_processes = get_process_info(
             psutil.Process(),
+            previous_child_processes=self.child_processes,
             name=next_task_submission.task_name,
             status=('loading' if next_task_submission.use_cache else 'running'),
         )
+        self.child_processes = child_processes
         if process_info is None:
             return []
         return [process_info]

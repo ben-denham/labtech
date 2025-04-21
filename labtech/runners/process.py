@@ -248,7 +248,7 @@ class ProcessMonitor:
     def __init__(self, *, process_event_queue: Queue):
         self.process_event_queue = process_event_queue
         self.active_process_events: dict[str, ProcessStartEvent] = {}
-        self.active_processes: dict[str, psutil.Process] = {}
+        self.active_processes_and_children: dict[str, tuple[psutil.Process, dict[int, psutil.Process]]] = {}
 
     def _consume_monitor_queue(self):
         while True:
@@ -262,25 +262,28 @@ class ProcessMonitor:
             elif isinstance(event, ProcessEndEvent):
                 if event.task_name in self.active_process_events:
                     del self.active_process_events[event.task_name]
-                    if event.task_name in self.active_processes:
-                        del self.active_processes[event.task_name]
+                    if event.task_name in self.active_processes_and_children:
+                        del self.active_processes_and_children[event.task_name]
             else:
                 raise RunnerError(f'Unexpected process event: {event}')
 
     def _get_process_info(self, start_event: ProcessStartEvent) -> Optional[TaskMonitorInfo]:
         pid = start_event.pid
         try:
-            if start_event.task_name not in self.active_processes:
-                self.active_processes[start_event.task_name] = psutil.Process(pid)
-            process = self.active_processes[start_event.task_name]
+            if start_event.task_name not in self.active_processes_and_children:
+                self.active_processes_and_children[start_event.task_name] = (psutil.Process(pid), {})
+            process, previous_child_processes = self.active_processes_and_children[start_event.task_name]
         except psutil.NoSuchProcess:
             return None
 
-        return get_process_info(
+        info, child_processes = get_process_info(
             process,
+            previous_child_processes=previous_child_processes,
             name=start_event.task_name,
             status=('loading' if start_event.use_cache else 'running'),
         )
+        self.active_processes_and_children[start_event.task_name] = (process, child_processes)
+        return info
 
     def get_process_infos(self) -> list[TaskMonitorInfo]:
         self._consume_monitor_queue()
