@@ -20,7 +20,7 @@ class KillThread(Exception):
 
 
 @dataclass(frozen=True)
-class TaskInfo:
+class TaskConfig:
     task: Task
     task_name: str
     use_cache: bool
@@ -38,7 +38,7 @@ class ThreadRunner(Runner):
         self.executor = ThreadPoolExecutor(max_workers=self.max_workers)
 
         # Used for task monitoring
-        self.active_task_infos: OrderedSet[TaskInfo] = OrderedSet()
+        self.active_task_configs: OrderedSet[TaskConfig] = OrderedSet()
         self.current_process = psutil.Process()
         self.child_processes: dict[int, psutil.Process] = {}
 
@@ -49,12 +49,12 @@ class ThreadRunner(Runner):
         logger.addHandler(make_logger_handler(task_name_placeholder='%(threadName)s'))
 
     def _thread_func(self, task: Task, task_name: str, use_cache: bool) -> TaskResult:
-        task_info = TaskInfo(
+        task_config = TaskConfig(
             task=task,
             task_name=task_name,
             use_cache=use_cache,
         )
-        self.active_task_infos.add(task_info)
+        self.active_task_configs.add(task_config)
         try:
             for dependency_task in get_direct_dependencies(task):
                 dependency_task._set_results_map(self.results_map)
@@ -72,7 +72,7 @@ class ThreadRunner(Runner):
             finally:
                 current_thread.name = orig_thread_name
         finally:
-            self.active_task_infos.remove(task_info)
+            self.active_task_configs.remove(task_config)
 
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         future = self.executor.submit(
@@ -154,10 +154,10 @@ class ThreadRunner(Runner):
         return [
             {
                 **process_info,
-                'name': task_info.task_name,
-                'status': ('loading' if task_info.use_cache else 'running'),
+                'name': task_config.task_name,
+                'status': ('loading' if task_config.use_cache else 'running'),
             }
-            for task_info in self.active_task_infos
+            for task_config in self.active_task_configs
         ]
 
 
