@@ -9,7 +9,7 @@ from tqdm import tqdm as base_tqdm
 from tqdm.notebook import tqdm as base_tqdm_notebook
 
 
-def make_logger_handler(task_name_placeholder: str = '%(processName)s') -> logging.StreamHandler:
+def make_logger_handler(*, task_name_placeholder: str = '%(processName)s') -> logging.StreamHandler:
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter(
         f'%(asctime)s/{task_name_placeholder}/%(levelname)s: %(message)s',
