@@ -121,7 +121,7 @@ class ProcessExecutor:
 
     def __init__(self, mp_context: multiprocessing.context.BaseContext, max_workers: Optional[int]):
         self.mp_context = mp_context
-        self.max_workers = os.cpu_count() if max_workers is None else max_workers
+        self.max_workers = (os.cpu_count() or 1) if max_workers is None else max_workers
         self._pending_future_to_thunk: dict[Future, Callable[[], Any]] = {}
         self._running_id_to_future_and_process: dict[int, tuple[Future, multiprocessing.Process]] = {}
         # Use a Manager().Queue() to be able to share with subprocesses

@@ -11,7 +11,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 from .exceptions import LabError, TaskNotFound
 from .monitor import TaskMonitor
-from .runners import ForkRunnerBackend, SerialRunnerBackend, SpawnRunnerBackend
+from .runners import ForkRunnerBackend, SerialRunnerBackend, SpawnRunnerBackend, ThreadRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
 from .types import LabContext, ResultMeta, ResultT, RunnerBackend, Storage, Task, TaskT, is_task, is_task_type
@@ -255,7 +255,7 @@ class TaskCoordinator:
                         process_completed_tasks()
                 except KeyboardInterrupt as first_keyboard_interrupt:
                     logger.info(('Interrupted. Finishing running tasks. '
-                                 'Press Ctrl-C again to terminate running tasks immediately.'))
+                                 'Press Ctrl-C again to terminate running tasks immediately (may disrupt result caching or other important actions).'))
                     try:
                         runner.cancel()
                         # Process completed tasks until running tasks
@@ -315,7 +315,8 @@ class Lab:
             max_workers: The maximum number of parallel worker processes for
                 running tasks. A sensible default will be determined by the
                 runner_backend (`'fork'` and `'spawn'` use the number of
-                processors on the machine given by `os.cpu_count()`).
+                processors on the machine given by `os.cpu_count()`, while
+                `'thread'` uses `os.cpu_count() + 4`).
             notebook: Determines whether to use notebook-friendly graphical
                 progress bars. When set to `None` (the default), labtech will
                 detect whether the code is being run from an IPython notebook.
@@ -332,14 +333,25 @@ class Lab:
                   is reduced by sharing the context and dependency task
                   results between tasks with memory inherited from the
                   parent process. The default on platforms that support
-                  forked Python subprocesses: Linux and other POSIX systems,
-                  but not macOS or Windows.
+                  forked Python subprocesses when `max_workers > 1`: Linux
+                  and other POSIX systems, but not macOS or Windows.
                 * `'spawn'`: Uses the
                   [`SpawnRunnerBackend`][labtech.runners.SpawnRunnerBackend]
                   to run each task in a spawned subprocess. The
                   context and dependency task results are
                   copied/duplicated into the memory of each
-                  subprocess. The default on macOS and Windows.
+                  subprocess. The default on macOS and Windows when
+                  `max_workers > 1`.
+                * `'thread'`: Uses the
+                  [`ThreadRunnerBackend`][labtech.runners.ThreadRunnerBackend]
+                  to run each task in a separate Python thread. Because
+                  [Python threads do not execute in parallel](https://docs.python.org/3/glossary.html#term-global-interpreter-lock),
+                  this runner is best suited for running tasks that are
+                  constrained by non-blocking IO operations (e.g. web
+                  requests), or for running a single worker with live task
+                  monitoring. Memory use is reduced by sharing the same
+                  in-memory context and dependency task results across
+                  threads. The default when `max_workers = 1`.
                 * `'serial'`: Uses the
                   [`SerialRunnerBackend`][labtech.runners.SerialRunnerBackend]
                   to run each task serially in the main process and thread.
@@ -368,7 +380,9 @@ class Lab:
         self.context = context
         if runner_backend is None:
             start_methods = get_all_start_methods()
-            if 'fork' in start_methods:
+            if self.max_workers == 1:
+                runner_backend = ThreadRunnerBackend()
+            elif 'fork' in start_methods:
                 runner_backend = ForkRunnerBackend()
             elif 'spawn' in start_methods:
                 runner_backend = SpawnRunnerBackend()
@@ -383,6 +397,8 @@ class Lab:
                 runner_backend = SpawnRunnerBackend()
             elif runner_backend == 'serial':
                 runner_backend = SerialRunnerBackend()
+            elif runner_backend == 'thread':
+                runner_backend = ThreadRunnerBackend()
             else:
                 raise LabError(f'Unrecognised runner_backend: {runner_backend}')
         self.runner_backend = runner_backend

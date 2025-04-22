@@ -209,17 +209,6 @@ class Runner(ABC):
     by delegating to a parallel processing framework."""
 
     @abstractmethod
-    def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
-        """
-        Args:
-            context: Additional variables made available to tasks that aren't
-                considered when saving to/loading from the cache.
-            storage: Where task results should be cached to.
-            max_workers: The maximum number of parallel worker processes for
-                running tasks.
-        """
-
-    @abstractmethod
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         """Submit the given task object to be run and have its result cached.
 
@@ -311,4 +300,12 @@ class RunnerBackend(ABC):
 
     @abstractmethod
     def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> Runner:
-        """Return a Runner prepared with the given configuration."""
+        """Return a Runner prepared with the given configuration.
+
+        Args:
+            context: Additional variables made available to tasks that aren't
+                considered when saving to/loading from the cache.
+            storage: Where task results should be cached to.
+            max_workers: The maximum number of parallel worker processes for
+                running tasks.
+        """

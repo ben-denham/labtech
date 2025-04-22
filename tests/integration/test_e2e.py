@@ -118,7 +118,7 @@ def evaluation_task(context: dict[str, Any]):
 class TestE2E:
 
     @pytest.mark.parametrize("max_workers", [1, 4, None])
-    @pytest.mark.parametrize("runner_backend", ['serial', 'fork', 'spawn'])
+    @pytest.mark.parametrize("runner_backend", ['serial', 'fork', 'spawn', 'thread'])
     def test_e2e(self, max_workers: int, runner_backend: str, context: dict[str, Any], evaluation_task: Task) -> None:
         with TemporaryDirectory() as storage_dir:
             lab = labtech.Lab(

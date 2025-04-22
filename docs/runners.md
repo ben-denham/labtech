@@ -12,6 +12,10 @@ instance of one of the following Runner Backend classes for the
     options:
         heading_level: 3
 
+::: labtech.runners.ThreadRunnerBackend
+    options:
+        heading_level: 3
+
 ::: labtech.runners.SerialRunnerBackend
     options:
         heading_level: 3
