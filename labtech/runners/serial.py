@@ -1,3 +1,4 @@
+import multiprocessing
 from collections import deque
 from dataclasses import dataclass
 from typing import Iterator, Optional, Sequence
@@ -47,13 +48,19 @@ class SerialRunner(Runner):
         try:
             for dependency_task in get_direct_dependencies(task):
                 dependency_task._set_results_map(self.results_map)
-            task_result = run_or_load_task(
-                task=task,
-                task_name=task_submission.task_name,
-                use_cache=task_submission.use_cache,
-                filtered_context=task.filter_context(self.context),
-                storage=self.storage,
-            )
+
+            current_process = multiprocessing.current_process()
+            orig_process_name = current_process.name
+            try:
+                current_process.name = task_submission.task_name
+                task_result = run_or_load_task(
+                    task=task,
+                    use_cache=task_submission.use_cache,
+                    filtered_context=task.filter_context(self.context),
+                    storage=self.storage,
+                )
+            finally:
+                current_process.name = orig_process_name
         except KeyboardInterrupt:
             raise
         except BaseException as ex:

@@ -9,14 +9,18 @@ from tqdm import tqdm as base_tqdm
 from tqdm.notebook import tqdm as base_tqdm_notebook
 
 
-def get_logger():
-    logger = logging.getLogger('labtech')
-    default_logger_handler = logging.StreamHandler()
-    logger.addHandler(default_logger_handler)
-    default_logger_handler.setFormatter(logging.Formatter(
-        '%(asctime)s/%(processName)s/%(levelname)s: %(message)s',
+def make_logger_handler(task_name_placeholder: str = '%(processName)s') -> logging.StreamHandler:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(
+        f'%(asctime)s/{task_name_placeholder}/%(levelname)s: %(message)s',
         '%Y-%m-%d %H:%M:%S',
     ))
+    return handler
+
+
+def get_logger():
+    logger = logging.getLogger('labtech')
+    logger.addHandler(make_logger_handler())
     logger.setLevel(logging.INFO)
     return logger
 

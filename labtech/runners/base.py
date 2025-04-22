@@ -1,4 +1,3 @@
-import multiprocessing
 from contextlib import contextmanager
 from dataclasses import fields
 from datetime import datetime
@@ -59,8 +58,7 @@ def optional_mlflow(task: Task):
         yield
 
 
-def run_or_load_task(task: Task, task_name: str, use_cache: bool,
-                     filtered_context: LabContext, storage: Storage) -> TaskResult:
+def run_or_load_task(task: Task, use_cache: bool, filtered_context: LabContext, storage: Storage) -> TaskResult:
     """Called by a Runner to either:
 
     1. Run the task with the given filtered_context and cache its result in the given
@@ -69,31 +67,24 @@ def run_or_load_task(task: Task, task_name: str, use_cache: bool,
        and use_cache=True
 
     """
-    orig_process_name = multiprocessing.current_process().name
-    try:
-        current_process = multiprocessing.current_process()
-        current_process.name = task_name
-
-        if use_cache:
-            logger.debug(f"Loading from cache: '{task}'")
-            task_result = task._lt.cache.load_result_with_meta(storage, task)
-            return task_result
-        else:
-            logger.debug(f"Running: '{task}'")
-            task.set_context(filtered_context)
-            with optional_mlflow(task):
-                start = datetime.now()
-                result = task.run()
-                end = datetime.now()
-            task_result = TaskResult(
-                value=result,
-                meta=ResultMeta(
-                    start=start,
-                    duration=(end - start),
-                ),
-            )
-            task._lt.cache.save(storage, task, task_result)
-            logger.debug(f"Completed: '{task}'")
-            return task_result
-    finally:
-        current_process.name = orig_process_name
+    if use_cache:
+        logger.debug(f"Loading from cache: '{task}'")
+        task_result = task._lt.cache.load_result_with_meta(storage, task)
+        return task_result
+    else:
+        logger.debug(f"Running: '{task}'")
+        task.set_context(filtered_context)
+        with optional_mlflow(task):
+            start = datetime.now()
+            result = task.run()
+            end = datetime.now()
+        task_result = TaskResult(
+            value=result,
+            meta=ResultMeta(
+                start=start,
+                duration=(end - start),
+            ),
+        )
+        task._lt.cache.save(storage, task, task_result)
+        logger.debug(f"Completed: '{task}'")
+        return task_result

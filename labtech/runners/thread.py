@@ -1,4 +1,5 @@
 import os
+import threading
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from importlib import import_module
@@ -11,7 +12,7 @@ from labtech.monitor import get_process_info
 from labtech.runners.base import run_or_load_task
 from labtech.tasks import get_direct_dependencies
 from labtech.types import LabContext, ResultMeta, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
-from labtech.utils import OrderedSet, logger
+from labtech.utils import OrderedSet, logger, make_logger_handler
 
 
 class KillThread(Exception):
@@ -41,6 +42,12 @@ class ThreadRunner(Runner):
         self.current_process = psutil.Process()
         self.child_processes: dict[int, psutil.Process] = {}
 
+        # For the duration of this ThreadRunner, use the thread name
+        # to provide the task name for logging.
+        self.orig_logger_handlers = logger.handlers
+        logger.handlers = []
+        logger.addHandler(make_logger_handler(task_name_placeholder='%(threadName)s'))
+
     def _thread_func(self, task: Task, task_name: str, use_cache: bool) -> TaskResult:
         task_info = TaskInfo(
             task=task,
@@ -51,13 +58,19 @@ class ThreadRunner(Runner):
         try:
             for dependency_task in get_direct_dependencies(task):
                 dependency_task._set_results_map(self.results_map)
-            return run_or_load_task(
-                task=task,
-                task_name=task_name,
-                use_cache=use_cache,
-                filtered_context=task.filter_context(self.context),
-                storage=self.storage,
-            )
+
+            current_thread = threading.current_thread()
+            orig_thread_name = current_thread.name
+            try:
+                current_thread.name = task_name
+                return run_or_load_task(
+                    task=task,
+                    use_cache=use_cache,
+                    filtered_context=task.filter_context(self.context),
+                    storage=self.storage,
+                )
+            finally:
+                current_thread.name = orig_thread_name
         finally:
             self.active_task_infos.remove(task_info)
 
@@ -114,6 +127,7 @@ class ThreadRunner(Runner):
 
     def close(self) -> None:
         self.executor.shutdown(wait=True)
+        logger.handlers = self.orig_logger_handlers
 
     def pending_task_count(self) -> int:
         return len(self.future_to_task)

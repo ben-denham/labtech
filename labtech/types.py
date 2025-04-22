@@ -224,13 +224,21 @@ class Runner(ABC):
             # each dependency_task.
             dependency_task._set_results_map(results_map)
 
-        labtech.runners.base.run_or_load_task(
-            task=task,
-            task_name=task_name,
-            use_cache=use_cache,
-            filtered_context=task.filter_context(self.context),
-            storage=self.storage,
-        )
+        current_process = multiprocessing.current_process()
+        orig_process_name = current_process.name
+        try:
+            # If a the thread name or similar is set instead of the process
+            # name, then the Runner should update the handler of the global
+            # labtech.utils.logger to include that instead of the process name.
+            current_process.name = task_name
+            return labtech.runners.base.run_or_load_task(
+                task=task,
+                use_cache=use_cache,
+                filtered_context=task.filter_context(self.context),
+                storage=self.storage,
+            )
+        finally:
+            current_process.name = orig_process_name
         ```
 
         Args:

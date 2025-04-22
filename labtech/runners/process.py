@@ -345,13 +345,17 @@ class ProcessRunner(Runner, ABC):
             for dependency_task in get_direct_dependencies(task):
                 dependency_task._set_results_map(results_map)
 
-            return run_or_load_task(
-                task=task,
-                task_name=task_name,
-                use_cache=use_cache,
-                filtered_context=filtered_context,
-                storage=storage
-            )
+            orig_process_name = current_process.name
+            try:
+                current_process.name = task_name
+                return run_or_load_task(
+                    task=task,
+                    use_cache=use_cache,
+                    filtered_context=filtered_context,
+                    storage=storage
+                )
+            finally:
+                current_process.name = orig_process_name
         finally:
             process_event_queue.put(ProcessEndEvent(
                 task_name=task_name,
