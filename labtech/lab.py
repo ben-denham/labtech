@@ -464,6 +464,17 @@ class Lab:
 
         """
         check_tasks(tasks)
+
+        for task in tasks:
+            if task.code_version != task.current_code_version:
+                raise LabError(
+                    (f'`{repr(task)}` cannot be run, as it has code_version={task.code_version!r} '
+                     f'while the current implementation of {task.__class__.__name__} has '
+                     f'code_version={task.current_code_version!r}. You should construct new '
+                     f'{task.__class__.__name__} tasks to run instead of running tasks loaded from cache.')
+                )
+
+
         coordinator = TaskCoordinator(
             self,
             bust_cache=bust_cache,

@@ -24,8 +24,9 @@ CACHE_DEFAULT = CacheDefault()
 
 
 _RESERVED_ATTRS = [
-    '_lt', '_is_task', 'cache_key', 'result', '_results_map', '_set_results_map',
+    '_lt', '_is_task', '_cache_key', 'cache_key', 'result', '_results_map', '_set_results_map',
     'result_meta', '_set_result_meta', 'context', 'set_context', '__post_init__',
+    '_set_code_version', 'code_version', 'current_code_version',
 ]
 """Reserved attribute names for task types."""
 
@@ -51,8 +52,9 @@ def _task_post_init(self: Task):
         object.__setattr__(self, f.name, immutable_param_value(f.name, getattr(self, f.name)))
 
     object.__setattr__(self, '_is_task', True)
-    object.__setattr__(self, 'cache_key', self._lt.cache.cache_key(self))
     object.__setattr__(self, '_results_map', None)
+    object.__setattr__(self, '_cache_key', None)
+    object.__setattr__(self, 'code_version', self._lt.current_code_version)
     object.__setattr__(self, 'context', None)
     object.__setattr__(self, 'result_meta', None)
     if self._lt.orig_post_init is not None:
@@ -67,12 +69,29 @@ def _task_set_result_meta(self: Task, result_meta: ResultMeta):
     object.__setattr__(self, 'result_meta', result_meta)
 
 
+def _task_set_code_version(self: Task, code_version: Optional[str]):
+    # cache_key depends on the code_version, so clear any cached
+    # cache_key:
+    object.__setattr__(self, '_cache_key', None)
+    object.__setattr__(self, 'code_version', code_version)
+
+
 def _task_set_context(self: Task, context: LabContext):
     object.__setattr__(self, 'context', context)
 
 
 def _task_filter_context_default(self: Task, context: LabContext) -> LabContext:
     return context
+
+
+def _task_current_code_version(self: Task) -> Optional[str]:
+    return self._lt.current_code_version
+
+
+def _task_cache_key(self: Task) -> str:
+    if self._cache_key is None:
+        object.__setattr__(self, '_cache_key', self._lt.cache.cache_key(self))
+    return cast(str, self._cache_key)
 
 
 def _task_result(self: Task[ResultT]) -> ResultT:
@@ -90,7 +109,9 @@ def _task__getstate__(self: Task) -> dict[str, Any]:
         **{f.name: getattr(self, f.name) for f in fields(self)},
         '_lt': self._lt,
         '_is_task': self._is_task,
-        'cache_key': self.cache_key,
+        'code_version': self.code_version,
+        # Always pre-calculate the cache_key before pickling as _cache_key
+        '_cache_key': self.cache_key,
         # We will never pickle the full _results_map or _result
         '_results_map': None,
     }
@@ -105,6 +126,7 @@ def _task__setstate__(self: Task, state: dict[str, Any]) -> None:
 
 
 def task(*args,
+         code_version: Optional[str] = None,
          cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT,
          max_parallel: Optional[int] = None,
          mlflow_run: bool = False):
@@ -146,12 +168,13 @@ def task(*args,
     experiment = Experiment(seed=1, multiplier=2)
     ```
 
-    You can also provide arguments to the decorator to control caching,
-    parallelism, and [mlflow](https://mlflow.org/docs/latest/tracking.html#quickstart)
+    You can also provide arguments to the decorator to control
+    caching, cache-busting versioning, parallelism, and
+    [mlflow](https://mlflow.org/docs/latest/tracking.html#quickstart)
     tracking:
 
     ```python
-    @labtech.task(cache=None, max_parallel=1, mlflow_run=True)
+    @labtech.task(cache=None, code_version='v1', max_parallel=1, mlflow_run=True)
     class Experiment:
         ...
 
@@ -180,6 +203,13 @@ def task(*args,
             [`Cache`](caching.md#caches) class, or `None` to disable caching
             of this type of task. Defaults to a
             [`PickleCache`][labtech.cache.PickleCache].
+        code_version: Optional identifier for the version of task's
+            implementation. Task results will only be loaded from the
+            cache where they have a matching code_version, so you
+            should change the code_version whenever the definition of
+            the task's `run` method or any code it depends on changes
+            in a way that will impact the result. Any string value can
+            be used, e.g. 'v1', '2025-04-22', etc.
         max_parallel: The maximum number of instances of this task type that
             are allowed to run simultaneously in separate sub-processes. Useful
             to set if running too many instances of this particular task
@@ -219,11 +249,15 @@ def task(*args,
             orig_post_init=post_init,
             max_parallel=max_parallel,
             mlflow_run=mlflow_run,
+            current_code_version=code_version,
         )
         cls.__getstate__ = _task__getstate__
         cls.__setstate__ = _task__setstate__
         cls._set_results_map = _task_set_results_map
         cls._set_result_meta = _task_set_result_meta
+        cls._set_code_version = _task_set_code_version
+        cls.current_code_version = property(_task_current_code_version)
+        cls.cache_key = property(_task_cache_key)
         cls.result = property(_task_result)
         cls.set_context = _task_set_context
         if not hasattr(cls, 'filter_context'):

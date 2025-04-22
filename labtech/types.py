@@ -23,6 +23,7 @@ from typing import (
 class TaskInfo:
     orig_post_init: Optional[Callable]
     cache: 'Cache'
+    current_code_version: Optional[str]
     max_parallel: Optional[int]
     mlflow_run: bool
 
@@ -69,12 +70,15 @@ class Task(Protocol, Generic[CovariantResultT]):
     _lt: TaskInfo
     _is_task: Literal[True]
     _results_map: Optional[ResultsMap]
-    cache_key: str
-    """The key that uniquely identifies the location for this task within cache storage."""
+    _cache_key: Optional[str]
     context: Optional[LabContext]
     """Context variables from the Lab that can be accessed when the task is running."""
     result_meta: Optional[ResultMeta]
     """Metadata about the execution of the task."""
+    code_version: Optional[str]
+    """Identifier for the version of task's implementation. If this task was
+    loaded from cache, it may have a different value to that currently specified
+    in the decorator."""
 
     def _set_results_map(self, results_map: ResultsMap):
         pass
@@ -83,8 +87,18 @@ class Task(Protocol, Generic[CovariantResultT]):
         pass
 
     @property
+    def current_code_version(self) -> Optional[str]:
+        """Identifier for the current version of task's implementation
+        as specified in the [`labtech.task`][labtech.task] decorator."""
+
+    @property
+    def cache_key(self) -> str:
+        """The key that uniquely identifies the location for this task
+        within cache storage."""
+
+    @property
     def result(self) -> CovariantResultT:
-        """Returns the result executed/loaded for this task. If no result is
+        """The result executed/loaded for this task. If no result is
         available in memory, accessing this property raises a `TaskError`."""
 
     def set_context(self, context: LabContext):

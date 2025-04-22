@@ -420,6 +420,39 @@ of tasks by passing the `bust_cache` option to `run_tasks()`:
 lab.run_tasks(cached_cvexperiment_tasks, bust_cache=True)
 ```
 
+### Will Labtech ignore previously cached results if I change the implementation of a task?
+
+Whenever you make a change that will impact the behaviour of a task
+(i.e. most changes to the `run()` method or the code it depends on)
+you should add or updated the `code_version` in `@task`. For example:
+
+``` {.python .code}
+@labtech.task(code_version='v2')
+class Experiment:
+    ...
+```
+
+Labtech will re-run tasks if there are no cached results with a
+`code_version` matching your current code. If you don't update the
+`code_version` or otherwise clear your cache, then the returned cached
+results may no longer reflect the actual results of your current code.
+
+You may also like to save storage space by clearing up old cached
+results where the `code_version` does not match the
+`current_code_version`:
+
+``` {.python .code}
+stale_cached_tasks = [
+    cached_task for cached_task in lab.cached_tasks([
+       # Make sure to include all task types to ensure you clear
+       # all intermediate results
+       Experiment,
+    ])
+    if cached_task.code_version != cached_task.current_code_version
+]
+lab.uncache_tasks(stale_cached_tasks)
+```
+
 ### What types of values should my tasks return to be cached?
 
 While you can define your task to return any Python object you like to

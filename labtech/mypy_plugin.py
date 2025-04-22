@@ -43,6 +43,18 @@ def task_tag_callback(ctx: ClassDefContext):
     add_attribute_to_class(
         api=ctx.api,
         cls=ctx.cls,
+        name='current_code_version',
+        typ=UnionType([NoneType(), ctx.api.named_type('builtins.str')]),
+    )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
+        name='code_version',
+        typ=UnionType([NoneType(), ctx.api.named_type('builtins.str')]),
+    )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
         name='_lt',
         typ=ctx.api.named_type('labtech.types.TaskInfo'),
     )
@@ -69,6 +81,12 @@ def task_tag_callback(ctx: ClassDefContext):
         cls=ctx.cls,
         name='_results_map',
         typ=UnionType([NoneType(), results_map_type]),
+    )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
+        name='_cache_key',
+        typ=UnionType([NoneType(), ctx.api.named_type('builtins.str')]),
     )
     add_attribute_to_class(
         api=ctx.api,

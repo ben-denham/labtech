@@ -31,6 +31,11 @@ class Serializer:
             '__class__': self.serialize_class(task.__class__),
         }
 
+        # Include the code version in the serialized task, which is
+        # used to generate the hash that determines task equality.
+        if task.code_version is not None:
+            serialized['_code_version'] = task.code_version
+
         for field in fields(task):
             field_value = getattr(task, field.name)
             serialized_field = self.serialize_value(field_value)
@@ -48,18 +53,19 @@ class Serializer:
 
         params = {}
         for key, value in serialized.items():
-            if key in {'_is_task', '__class__'}:
+            if key in {'_is_task', '_code_version', '__class__'}:
                 continue
 
             if key not in cls_fields:
                 cls_fullname = f'{task_cls.__module__}.{task_cls.__qualname__}'
-                raise SerializationError((f"Serialized task contained field '{key}'"
+                raise SerializationError((f"Serialized task contained field '{key}' "
                                           f"that is not present on Task class '{cls_fullname}'"))
 
             deserialized_value = self.deserialize_value(value)
             params[key] = deserialized_value
 
         task = task_cls(**params)
+        task._set_code_version(serialized.get('_code_version', None))
         task._set_result_meta(result_meta)
         return task
 

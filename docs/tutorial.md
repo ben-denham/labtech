@@ -141,13 +141,17 @@ lab.cached_tasks([
 ])
 ```
 
-**It is very important that you clear any cached results whenever you
-make a change that will impact the behaviour of a task** - otherwise
-your cached results may no longer reflect the actual result of the
-current code.
+**Whenever you make a change that will impact the behaviour of a task
+(i.e. most changes to the `run()` method or the code it depends on),
+it is very important that you add or update the `code_version` in
+`@task` (e.g. `@task(code_version='v2')`).** Labtech will re-run tasks
+if there are no cached results with a `code_version` matching your
+current code. If you don't update the `code_version` or otherwise
+clear your cache, then the returned cached results may no longer
+reflect the actual results of your current code.
 
-You can clear the cached results for a list of tasks with
-`lab.uncache_tasks()`:
+You may like to save storage space by clearing up old cached results
+with `lab.uncache_tasks()`:
 
 ``` {.python .code}
 lab.uncache_tasks([
