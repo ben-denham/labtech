@@ -16,7 +16,7 @@ localstack-list-objects:
 	docker compose exec localstack awslocal s3api list-objects --bucket labtech-dev-bucket
 
 sort-imports:
-	uv run ruff check --select "I"
+	uv run ruff check --select "I" --fix
 lint:
 	uv run ruff check
 mypy:
@@ -27,7 +27,7 @@ test:
 		--cov-report="html:tests/coverage" \
 		--cov-report=term \
 		tests/
-check: sort-imports lint mypy test
+check: lint mypy test
 
 build:
 	uv build
