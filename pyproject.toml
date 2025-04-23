@@ -40,6 +40,7 @@ dev = [
     "types-psutil>=5.9.5.20240516",
     "fsspec>=2025.3.2",
     "s3fs>=2025.3.2",
+    "ray[default]>=2.44.1",
 ]
 
 [build-system]
