@@ -59,7 +59,7 @@ class RayRunner(Runner):
 
         self.cancelled = False
         self.pending_refs_lookup: dict[ray.ObjectRef, TaskRefs] = {}
-        self.task_to_result_refs: dict[Task, TaskRefs] = {}
+        self.result_refs_map: dict[Task, TaskRefs] = {}
 
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         options = task.runner_options().get('ray', {}).get('remote_options', {})
@@ -75,6 +75,7 @@ class RayRunner(Runner):
                 use_cache=use_cache,  # type: ignore[call-arg]
                 context=self.context_ref,  # type: ignore[call-arg]
                 storage=self.storage_ref,  # type: ignore[call-arg]
+                result_refs_map=self.result_refs_map,
             )
         )
         result_meta_ref, result_value_ref = result_refs
@@ -85,7 +86,7 @@ class RayRunner(Runner):
         )
 
     def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
-        result_meta_refs = self.pending_refs_lookup.keys()
+        result_meta_refs = list(self.pending_refs_lookup.keys())
         done_result_meta_refs, _ = ray.wait(
             result_meta_refs,
             num_returns=1,
@@ -102,7 +103,7 @@ class RayRunner(Runner):
             except BaseException as ex:
                 yield (task, ex)
             else:
-                self.task_to_result_refs[task] = task_refs
+                self.result_refs_map[task] = task_refs
                 yield (task, result_meta)
         self.pending_refs_lookup = {
             result_meta_ref: self.pending_refs_lookup[result_meta_ref]
@@ -125,7 +126,7 @@ class RayRunner(Runner):
         return len(self.pending_refs_lookup)
 
     def get_result(self, task: Task) -> TaskResult:
-        task_refs = self.task_to_result_refs[task]
+        task_refs = self.result_refs_map[task]
         value, meta = ray.get([
             task_refs.result_value_ref,
             task_refs.result_meta_ref,
@@ -134,10 +135,10 @@ class RayRunner(Runner):
 
     def remove_results(self, tasks: Sequence[Task]) -> None:
         for task in tasks:
-            if task in self.task_to_result_refs:
+            if task in self.result_refs_map:
                 # Removing references to an object allows it to be
                 # removed by Ray
-                del self.task_to_result_refs[task]
+                del self.result_refs_map[task]
 
     def get_task_infos(self) -> list[TaskMonitorInfo]:
         # TODO: Handle task monitoring
