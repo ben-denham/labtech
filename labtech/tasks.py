@@ -84,6 +84,10 @@ def _task_filter_context_default(self: Task, context: LabContext) -> LabContext:
     return context
 
 
+def _task_runner_options_default(self: Task) -> dict[str, Any]:
+    return {}
+
+
 def _task_current_code_version(self: Task) -> Optional[str]:
     return self._lt.current_code_version
 
@@ -197,6 +201,12 @@ def task(*args,
     task's attributes. If `filter_context()` is not defined, the full
     context will be provided to each task.
 
+    A `runner_options(self) -> dict[str, Any]` method may be defined
+    to provide a dictionary of options to further control the
+    behaviour of specific types of runner backend - refer to the
+    documentation of each runner backend for supported options. The
+    implementation may make use of the task's parameter values.
+
     Args:
         cache: The Cache that controls how task results are formatted for
             caching. Can be set to an instance of any
@@ -262,6 +272,8 @@ def task(*args,
         cls.set_context = _task_set_context
         if not hasattr(cls, 'filter_context'):
             cls.filter_context = _task_filter_context_default
+        if not hasattr(cls, 'runner_options'):
+            cls.runner_options = _task_runner_options_default
         return cls
 
     if len(args) > 0 and isclass(args[0]):

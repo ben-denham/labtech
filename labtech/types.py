@@ -105,6 +105,15 @@ class Task(Protocol, Generic[CovariantResultT]):
         """Set the context that is made available to the task while it is
         running."""
 
+    def runner_options(self) -> dict[str, Any]:
+        """User-overridable method to a dictionary of options to
+        further control the behaviour of specific types of runner
+        backend - refer to the documentation of each runner backend
+        for supported options. The implementation may make use of the
+        task's parameter values.
+
+        """
+
     def filter_context(self, context: LabContext) -> LabContext:
         """User-overridable method to filter/transform the context to
         be provided to the task. The default implementation provides

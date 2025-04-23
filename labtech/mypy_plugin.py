@@ -148,6 +148,24 @@ def task_tag_callback(ctx: ClassDefContext):
         name='result_meta',
         typ=UnionType([NoneType(), ctx.api.named_type('labtech.types.ResultMeta')])
     )
+    add_attribute_to_class(
+        api=ctx.api,
+        cls=ctx.cls,
+        name='runner_options',
+        typ=CallableType(
+            arg_types=[],
+            arg_kinds=[],
+            arg_names=[],
+            ret_type=Instance(
+                typ=ctx.api.named_type('builtins.dict').type,
+                args=[
+                    ctx.api.named_type('builtins.str'),
+                    AnyType(TypeOfAny.explicit),
+                ],
+            ),
+            fallback=ctx.api.named_type('builtins.function'),
+        ),
+    )
 
 
 class LabtechPlugin(Plugin):

@@ -6,10 +6,11 @@ from typing import Iterator, Optional, Sequence
 import psutil
 
 from labtech.monitor import get_process_info
-from labtech.runners.base import run_or_load_task
 from labtech.tasks import get_direct_dependencies
 from labtech.types import LabContext, ResultMeta, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
 from labtech.utils import logger
+
+from .base import run_or_load_task
 
 
 @dataclass(frozen=True)

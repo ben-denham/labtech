@@ -552,8 +552,8 @@ class ForkRunnerBackend(RunnerBackend):
     """
     Runner Backend that runs each task in a forked subprocess.
 
-    The context and dependency task results are copied/duplicated into
-    the memory of each subprocess.
+    The context and dependency task results are shared in-memory
+    between each subprocess.
 
     """
 
