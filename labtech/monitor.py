@@ -98,8 +98,15 @@ class TaskMonitor:
             else TerminalMultilineDisplay(line_count=(top_n + 1))
         )
 
-    def _top_task_lines(self) -> list[str]:
-        task_infos = self.runner.get_task_infos()
+    def _top_task_lines(self) -> tuple[int, list[str]]:
+        task_infos = [
+            # Make (shallow) copies of dictionaries to avoid mutating
+            # original dictionaries provided by runner.
+            info.copy()
+            for info in self.runner.get_task_infos()
+        ]
+        total_task_count = len(task_infos)
+
         # Sort order
         task_infos = sorted(task_infos, key=lambda info: get_info_value(info[self.top_sort_key]))
         if self.top_sort_reversed:
@@ -108,7 +115,7 @@ class TaskMonitor:
         task_infos = task_infos[:self.top_n]
 
         if len(task_infos) == 0:
-            return []
+            return total_task_count, []
 
         # Pad keys to consistent lengths
         for key, item in task_infos[0].items():
@@ -120,16 +127,17 @@ class TaskMonitor:
                 task_info[key] = (f'{{:{align}{max_len}}}').format(get_info_formatted(task_info[key]))
 
         # Final templating
-        return [
+        top_task_lines = [
             self.top_template.substitute(task_info)
             for task_info in task_infos
         ]
+        return total_task_count, top_task_lines
 
     def update(self) -> None:
         """Called to update the monitor's displayed content."""
-        top_task_lines = self._top_task_lines()
+        total_task_count, top_task_lines = self._top_task_lines()
         self.display.update([
-            (f'{len(top_task_lines)} active tasks '
+            (f'{total_task_count} active tasks '
              f'as at {datetime.now().strftime("%H:%M:%S")}. '
              f'Up to top {self.top_n} by {self.top_sort}:'),
             *top_task_lines,
