@@ -18,15 +18,18 @@ try:
 except ImportError:
     raise ImportError("Failed to import the `ray` library, please run `pip install ray` to enable Labtech\'s Ray support.")
 
-# TODO: How to do fault tolerance?
-# * Careful with OOM restarts: https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html
 # TODO: Handling Python dependencies across cluster
-# TODO: Tests
+# TODO: How will this work with mlflow? Set up in a ray setup function?
+# TODO: E2E Test
+# TODO: Example
 # TODO: Distributed docs page
 # * Mention ray's special handling of numpy arrays
 # * For CPU/Memory, point users to the Metrics view on the dashboard, which requires Prometheus and Grafana: https://docs.ray.io/en/latest/ray-observability/getting-started.html#dash-metrics-view
 # * Log de-duplication
-# TODO: Example
+# * Fault tolerance: It will not retry for app exceptions (unless you set retry_exceptions), but it will retry for:
+#   * Worker dying (you can stop by setting max_retries=0): https://docs.ray.io/en/latest/ray-core/fault_tolerance/tasks.html
+#   * Object loss (you can stop by setting max_retries=0): https://docs.ray.io/en/latest/ray-core/fault_tolerance/objects.html
+#   * Out of memory (retries infinitely not respecting max_retries, but you can disable the memory monitor): https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html
 
 @dataclass(frozen=True)
 class TaskDetail:
@@ -133,12 +136,10 @@ class RayRunner(Runner):
             fetch_local=True,
         )
         for result_meta_ref in done_result_meta_refs:
-            task_detail = self.pending_detail_map[result_meta_ref]
-            del self.pending_task_name_to_use_cache[task_detail.task_name]
-
             if self.cancelled:
                 continue
 
+            task_detail = self.pending_detail_map[result_meta_ref]
             task = task_detail.task
             try:
                 result_meta = ray.get(result_meta_ref)
