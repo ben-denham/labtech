@@ -1,3 +1,4 @@
+import multiprocessing
 from dataclasses import dataclass
 from datetime import datetime
 from threading import Thread
@@ -17,9 +18,6 @@ try:
 except ImportError:
     raise ImportError("Failed to import the `ray` library, please run `pip install ray` to enable Labtech\'s Ray support.")
 
-# TODO: Handle logging (including task_name)
-# * https://docs.ray.io/en/latest/ray-core/api/doc/ray.LoggingConfig.html#ray.LoggingConfig
-# * https://docs.ray.io/en/latest/ray-observability/user-guides/configure-logging.html
 # TODO: How to do fault tolerance?
 # * Careful with OOM restarts: https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html
 # TODO: Handling Python dependencies across cluster
@@ -27,6 +25,7 @@ except ImportError:
 # TODO: Distributed docs page
 # * Mention ray's special handling of numpy arrays
 # * For CPU/Memory, point users to the Metrics view on the dashboard, which requires Prometheus and Grafana: https://docs.ray.io/en/latest/ray-observability/getting-started.html#dash-metrics-view
+# * Log de-duplication
 # TODO: Example
 
 @dataclass(frozen=True)
@@ -46,12 +45,18 @@ def _ray_func(*, task: Task[ResultT], task_name: str, use_cache: bool,
     for dependency_task in get_direct_dependencies(task):
         dependency_task._set_results_map({dependency_task: ray.get(result_detail_map[dependency_task])})
 
-    task_result = run_or_load_task(
-        task=task,
-        use_cache=use_cache,
-        filtered_context=task.filter_context(context),
-        storage=storage,
-    )
+    current_process = multiprocessing.current_process()
+    orig_process_name = current_process.name
+    try:
+        current_process.name = task_name
+        task_result = run_or_load_task(
+            task=task,
+            use_cache=use_cache,
+            filtered_context=task.filter_context(context),
+            storage=storage,
+        )
+    finally:
+        current_process.name = orig_process_name
     return (task_result.meta, task_result.value)
 
 
@@ -79,6 +84,19 @@ class RayRunner(Runner):
         self.monitor_thread_running = True
         self.monitor_thread = Thread(target=self._monitor_thread)
         self.monitor_thread.start()
+
+        # The only way we could hook into the logs from distributed
+        # Ray workers ourselves would be to either:
+        # 1. Add a handler to
+        #    ray._private.ray_logging.global_worker_stdstream_dispatcher,
+        #    which is a private API.
+        # 2. Implement our own subscription with
+        #    ray.util.state.get_log(), which could be inefficient
+        #    given it only exposes an API to get all logs for each
+        #    task.
+        # For more details on Ray logging, see:
+        # https://docs.ray.io/en/latest/ray-observability/user-guides/configure-logging.html
+        logger.info('See ray.init() output or Ray dashboard for task logs.')
 
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         options = task.runner_options().get('ray', {}).get('remote_options', {})
