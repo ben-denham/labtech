@@ -30,6 +30,9 @@ run them with maximal parallelism and result caching:
   extensible options for how and where task results are cached.
 * **Integration with [mlflow](https://mlflow.org/)**; Automatically
   log task runs to mlflow with all of their parameters.
+* **Easily scale to a multi-machine cluster**; Built-in support for
+  running tasks across an easy-to-setup [Ray](https://www.ray.io/)
+  cluster.
 
 To learn more about how Labtech can speed up your experiments, check
 out the Kiwi Pycon presentation:
@@ -196,6 +199,7 @@ To learn more, dive into the following resources:
 * [More options for cache formats and storage providers](https://ben-denham.github.io/labtech/caching)
 * [Option for customising task execution backends](https://ben-denham.github.io/labtech/runners)
 * [Diagramming tools](https://ben-denham.github.io/labtech/diagram)
+* [Distributing across multiple machines](https://ben-denham.github.io/labtech/distributed)
 * [More examples](https://github.com/ben-denham/labtech/tree/main/examples)
 
 

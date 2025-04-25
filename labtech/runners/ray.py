@@ -18,17 +18,6 @@ try:
 except ImportError:
     raise ImportError("Failed to import the `ray` library, please run `pip install ray` to enable Labtech\'s Ray support.")
 
-# TODO: Handling Python dependencies across cluster: https://docs.ray.io/en/latest/ray-core/handling-dependencies.html
-# TODO: Example notebook
-# TODO: Distributed docs page
-# * Mention ray's special handling of numpy arrays
-# * For CPU/Memory, point users to the Metrics view on the dashboard, which requires Prometheus and Grafana: https://docs.ray.io/en/latest/ray-observability/getting-started.html#dash-metrics-view
-# * Log de-duplication
-# * Fault tolerance: It will not retry for app exceptions (unless you set retry_exceptions), but it will retry for:
-#   * Worker dying (you can stop by setting max_retries=0): https://docs.ray.io/en/latest/ray-core/fault_tolerance/tasks.html
-#   * Object loss (you can stop by setting max_retries=0): https://docs.ray.io/en/latest/ray-core/fault_tolerance/objects.html
-#   * Out of memory (retries infinitely not respecting max_retries, but you can disable the memory monitor): https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html
-# * Use worker_process_setup_hook for mlflow or other setup
 
 @dataclass(frozen=True)
 class TaskDetail:
@@ -311,7 +300,8 @@ class RayRunnerBackend(RunnerBackend):
         if max_workers is not None:
             raise RunnerError((
                 'Remove max_workers from your Lab configuration, as RayRunnerBackend only supports max_workers=None. '
-                'You can manage Ray concurrency by specifying : TODO_LINK_TO_COOKBOOK.'
+                'You can manage Ray concurrency by specifying required resources in the `runner_options` for a task: '
+                'https://ben-denham.github.io/labtech/distributed/#specifying-ray-remote-function-options'
             ))
 
         return RayRunner(
