@@ -18,10 +18,8 @@ try:
 except ImportError:
     raise ImportError("Failed to import the `ray` library, please run `pip install ray` to enable Labtech\'s Ray support.")
 
-# TODO: Handling Python dependencies across cluster
-# TODO: How will this work with mlflow? Set up in a ray setup function?
-# TODO: E2E Test
-# TODO: Example
+# TODO: Handling Python dependencies across cluster: https://docs.ray.io/en/latest/ray-core/handling-dependencies.html
+# TODO: Example notebook
 # TODO: Distributed docs page
 # * Mention ray's special handling of numpy arrays
 # * For CPU/Memory, point users to the Metrics view on the dashboard, which requires Prometheus and Grafana: https://docs.ray.io/en/latest/ray-observability/getting-started.html#dash-metrics-view
@@ -30,6 +28,7 @@ except ImportError:
 #   * Worker dying (you can stop by setting max_retries=0): https://docs.ray.io/en/latest/ray-core/fault_tolerance/tasks.html
 #   * Object loss (you can stop by setting max_retries=0): https://docs.ray.io/en/latest/ray-core/fault_tolerance/objects.html
 #   * Out of memory (retries infinitely not respecting max_retries, but you can disable the memory monitor): https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html
+# * Use worker_process_setup_hook for mlflow or other setup
 
 @dataclass(frozen=True)
 class TaskDetail:
@@ -43,10 +42,20 @@ class TaskDetail:
 # arguments, even though they work.
 @ray.remote(num_returns=2)  # type: ignore[arg-type]
 def _ray_func(*, task: Task[ResultT], task_name: str, use_cache: bool,
-              context: LabContext, storage: Storage, result_detail_map: dict[Task, ray.ObjectRef]) -> tuple[ResultMeta, ResultT]:
+              context: LabContext, storage: Storage, result_refs_map: dict[Task, dict[str, ray.ObjectRef]]) -> tuple[ResultMeta, ResultT]:
+    dependency_refs = [
+        ref
+        for refs in result_refs_map.values()
+        for ref in (refs['meta'], refs['value'])
+    ]
+    # Load all refs in one call to ray.get()
+    ref_to_object = dict(zip(dependency_refs, ray.get(dependency_refs)))
     # Get all dependency results from ray object store for local use.
     for dependency_task in get_direct_dependencies(task):
-        dependency_task._set_results_map({dependency_task: ray.get(result_detail_map[dependency_task])})
+        dependency_task._set_results_map({dependency_task: TaskResult(
+            meta=ref_to_object[result_refs_map[dependency_task]['meta']],
+            value=ref_to_object[result_refs_map[dependency_task]['value']],
+        )})
 
     current_process = multiprocessing.current_process()
     orig_process_name = current_process.name
@@ -103,6 +112,13 @@ class RayRunner(Runner):
 
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         options = task.runner_options().get('ray', {}).get('remote_options', {})
+        dependency_result_refs_map = {
+            dependency_task: {
+                'meta': self.result_detail_map[dependency_task].result_meta_ref,
+                'value': self.result_detail_map[dependency_task].result_value_ref,
+            }
+            for dependency_task in get_direct_dependencies(task)
+        }
         result_refs: tuple[ray.ObjectRef, ray.ObjectRef] = (
             # Ignore incorrect handling of multiple returns in Ray's typing.
             _ray_func  # type: ignore[assignment]
@@ -111,11 +127,11 @@ class RayRunner(Runner):
                 # Ignore type-checking because Ray's typing doesn't
                 # handle keyword arguments, even though they work.
                 task=task,  # type: ignore[call-arg]
-                task_name=task_name,  # type: ignore[call-arg]
-                use_cache=use_cache,  # type: ignore[call-arg]
-                context=self.context_ref,  # type: ignore[call-arg]
-                storage=self.storage_ref,  # type: ignore[call-arg]
-                result_detail_map=self.result_detail_map,
+                task_name=task_name,
+                use_cache=use_cache,
+                context=self.context_ref,
+                storage=self.storage_ref,
+                result_refs_map=dependency_result_refs_map,
             )
         )
         result_meta_ref, result_value_ref = result_refs

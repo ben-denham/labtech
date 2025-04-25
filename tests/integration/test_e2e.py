@@ -5,8 +5,10 @@ from tempfile import TemporaryDirectory
 from typing import Any, Protocol
 
 import pytest
+import ray
 
 import labtech
+from labtech.runners.ray import RayRunnerBackend
 from labtech.types import Task
 
 
@@ -114,12 +116,25 @@ def evaluation_task(context: dict[str, Any]):
     return evaluation_task
 
 
+@pytest.fixture
+def expected_evaluation_result() -> dict:
+    return {
+        '1': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}},
+        '2': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}},
+        '3': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}},
+        '4': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}},
+        '5': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}}},
+        '6': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}}},
+        '7': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}}},
+        '8': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}}},
+    }
+
 
 class TestE2E:
 
     @pytest.mark.parametrize("max_workers", [1, 4, None])
     @pytest.mark.parametrize("runner_backend", ['serial', 'fork', 'spawn', 'thread'])
-    def test_e2e(self, max_workers: int, runner_backend: str, context: dict[str, Any], evaluation_task: Task) -> None:
+    def test_e2e(self, max_workers: int, runner_backend: str, context: dict[str, Any], evaluation_task: Task, expected_evaluation_result: dict) -> None:
         with TemporaryDirectory() as storage_dir:
             lab = labtech.Lab(
                 storage=storage_dir,
@@ -128,13 +143,30 @@ class TestE2E:
                 runner_backend=runner_backend,
             )
             evaluation_result = lab.run_task(evaluation_task)
-        assert evaluation_result == {
-            '1': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}},
-            '2': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}},
-            '3': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}},
-            '4': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}},
-            '5': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}}},
-            '6': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}}},
-            '7': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}}},
-            '8': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}}},
-        }
+        assert evaluation_result == expected_evaluation_result
+
+class TestE2ERay:
+
+    def setup_method(self, method):
+        ray.init(
+            # See: https://docs.ray.io/en/latest/ray-contribute/testing-tips.html#tips-for-testing-ray-programs
+            num_cpus=2,
+            # Ensure test_e2e.py is visible to Ray
+            runtime_env={
+                'working_dir': 'tests/integration/',
+            },
+        )
+
+    def teardown_method(self, method):
+        ray.shutdown()
+
+    def test_e2e_ray(self, context: dict[str, Any], evaluation_task: Task, expected_evaluation_result: dict) -> None:
+        with TemporaryDirectory() as storage_dir:
+            lab = labtech.Lab(
+                storage=storage_dir,
+                context=context,
+                max_workers=None,
+                runner_backend=RayRunnerBackend(),
+            )
+            evaluation_result = lab.run_task(evaluation_task)
+        assert evaluation_result == expected_evaluation_result
