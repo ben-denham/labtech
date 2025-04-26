@@ -7,18 +7,28 @@ instance of one of the following Runner Backend classes for the
 ::: labtech.runners.ForkRunnerBackend
     options:
         heading_level: 3
+        show_source: False
 
 ::: labtech.runners.SpawnRunnerBackend
     options:
         heading_level: 3
+        show_source: False
 
 ::: labtech.runners.ThreadRunnerBackend
     options:
         heading_level: 3
+        show_source: False
 
 ::: labtech.runners.SerialRunnerBackend
     options:
         heading_level: 3
+        show_source: False
+
+
+### Distributed Task Runner Backends
+
+Labtech offers support for running tasks across multiple machines.
+See: [Multi-Machine Clusters](./distributed.md)
 
 
 ### Custom Task Runner Backends

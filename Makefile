@@ -9,6 +9,10 @@ jupyter:
 	uv run jupyter lab
 mlflow:
 	uv run mlflow ui --port 5000 --backend-store-uri examples/storage/mlruns
+ray-up:
+	uv run ray start --head --port 6379
+ray-down:
+	uv run ray stop
 
 localstack:
 	docker compose up localstack
