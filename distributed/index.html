@@ -1,0 +1,1348 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for labtech">
+      
+      
+      
+      
+        <link rel="prev" href="../runners/">
+      
+      
+        <link rel="next" href="../diagram/">
+      
+      
+      <link rel="icon" href="../images/icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Multi-Machine Clusters - labtech</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  <meta name="google-site-verification" content="vh6b0j6iPvwU3b9udYxcZrs_R0D-m6NRkRzqFnTiP-A" />
+  
+
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#running-labtech-tasks-on-a-ray-cluster" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="labtech" class="md-header__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  <img src="../images/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            labtech
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Multi-Machine Clusters
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="labtech" class="md-nav__button md-logo" aria-label="labtech" data-md-component="logo">
+      
+  <img src="../images/icon.svg" alt="logo">
+
+    </a>
+    labtech
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ben-denham/labtech/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    README
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tutorial
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cookbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Labs and Tasks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runners/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Task Runner Backends
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Multi-Machine Clusters
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi-Machine Clusters
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#running-labtech-tasks-on-a-ray-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Labtech tasks on a Ray cluster
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running Labtech tasks on a Ray cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-ray" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installing Ray
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-distributed-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using distributed storage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ray-remote-function-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ray remote function options
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syncing-python-environments-across-a-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Syncing Python environments across a cluster
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Syncing Python environments across a cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worker-initialisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Worker initialisation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-and-package-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      File and package dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fault-tolerance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fault tolerance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#labtech.runners.ray.RayRunnerBackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      RayRunnerBackend
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RayRunnerBackend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#labtech.runners.ray.RayRunnerBackend.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Diagramming
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Caches and Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#running-labtech-tasks-on-a-ray-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Labtech tasks on a Ray cluster
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running Labtech tasks on a Ray cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-ray" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installing Ray
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-distributed-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using distributed storage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ray-remote-function-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ray remote function options
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syncing-python-environments-across-a-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Syncing Python environments across a cluster
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Syncing Python environments across a cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worker-initialisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Worker initialisation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-and-package-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      File and package dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fault-tolerance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fault tolerance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#labtech.runners.ray.RayRunnerBackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      RayRunnerBackend
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RayRunnerBackend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#labtech.runners.ray.RayRunnerBackend.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>Multi-Machine Clusters</h1>
+
+<p>Labtech offers built-in support for distributing your tasks across a
+multi-machine <a href="https://www.ray.io/">Ray</a> cluster with the
+<a class="autorefs autorefs-internal" title="labtech.runners.ray.RayRunnerBackend" href="#labtech.runners.ray.RayRunnerBackend"><code>RayRunnerBackend</code></a>.</p>
+<ul>
+<li>Ray manages <a href="https://docs.ray.io/en/latest/ray-core/scheduling/index.html">distributing tasks</a>
+  to available nodes across your cluster, and its
+  <a href="https://docs.ray.io/en/latest/ray-core/objects/serialization.html">built-in object store</a>
+  is used to share the lab context and task results across nodes.</li>
+<li>Ray's <a href="https://docs.ray.io/en/latest/ray-core/scheduling/index.html#locality-aware-scheduling">locality-aware scheduling</a>
+  will prefer scheduling tasks to nodes where the results of dependency
+  tasks are already available.</li>
+<li>For task results that are <a href="https://numpy.org/">NumPy</a> arrays, Ray
+  uses <a href="https://docs.ray.io/en/latest/ray-core/objects/serialization.html">zero-copy deserialization</a>
+  to share the in-memory array between all workers on the same node.</li>
+</ul>
+<p>You can also use distributed computation platforms other than Ray with
+Labtech by implementing a <a href="../runners/#custom-task-runner-backends">custom task runner
+backend</a>, but this
+documentation will focus on Labtech's built-in Ray support.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Given the inherent complexities that come with managing a cluster of
+machines, you should always consider whether the scale of your tasks
+really requires it - public cloud providers offer "spot" (i.e.
+discounted cost, but evictable) virtual machines with dozens of CPU
+cores and hundreds of GB in memory for less than a dollar an hour,
+and these may be a perfect fit for easily scaling your tasks.</p>
+</div>
+<h2 id="running-labtech-tasks-on-a-ray-cluster">Running Labtech tasks on a Ray cluster</h2>
+<p>Follow these steps to get Labtech tasks running across a Ray cluster.
+Because Ray makes it easy to run a local cluster, you can even try
+Labtech with Ray without setting up a multi-machine cluster.</p>
+<h3 id="installing-ray">Installing Ray</h3>
+<p><code>ray</code> is an optional dependency of Labtech, so you must explicitly
+install it with <code>pip</code> (or your preferred Python package manager). It
+is recommended that you install <code>ray[default]</code> on the machine you
+intend to start the cluster from so that you can enable Ray's built-in
+<a href="https://docs.ray.io/en/latest/ray-observability/getting-started.html">dashboard</a>:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ray[default]&quot;</span>
+</code></pre></div>
+<h3 id="using-distributed-storage">Using distributed storage</h3>
+<p>Because each Labtech task is responsible for caching its result to
+persistent storage, you must use a storage backend that can be
+accessed from any node in the cluster. For example, you could use an
+<a href="https://en.wikipedia.org/wiki/Network_File_System">NFS share</a> or a
+cloud object storage provider (e.g. Amazon S3 or Azure Blob Storage).</p>
+<p>To learn how to configure Labtech to use a non-local storage backend, see:
+<a href="../cookbook/#how-can-i-cache-task-results-somewhere-other-than-my-filesystem">How can I cache task results somewhere other than my filesystem?</a></p>
+<p>In the following example, we will run a
+<a href="https://www.localstack.cloud/">LocalStack</a> instance to emulate an
+<a href="https://aws.amazon.com/s3/">Amazon S3 object storage bucket</a>. For
+testing, you can run your own LocalStack S3 bucket named
+<code>labtech-dev-bucket</code> with <a href="https://docs.docker.com/compose/">Docker Compose</a> by
+creating the following <code>docker-compose.yml</code> and running
+<code>docker compose up localstack</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">localstack</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localstack/localstack:4.3</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;127.0.0.1:4566:4566&quot;</span><span class="w">            </span><span class="c1"># LocalStack Gateway</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;127.0.0.1:4510-4559:4510-4559&quot;</span><span class="w">  </span><span class="c1"># external services port range</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;./.localstack:/var/lib/localstack&quot;</span>
+<span class="w">    </span><span class="nt">post_start</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">awslocal s3api create-bucket --bucket labtech-dev-bucket</span>
+</code></pre></div>
+<h3 id="code-example">Code example</h3>
+<p>The following code demonstrates how to configure a Lab to run tasks
+across a Ray cluster:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Ray defaults to de-duplicating similar log messages. To show all log</span>
+<span class="c1"># messages from tasks, the RAY_DEDUP_LOGS environment variable must be</span>
+<span class="c1"># set to zero **before** importing ray and labtech.runners.ray. See:</span>
+<span class="c1"># https://docs.ray.io/en/latest/ray-observability/user-guides/</span>
+<span class="c1">#     configure-logging.html#log-deduplication</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;RAY_DEDUP_LOGS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">labtech</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">labtech.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">FsspecStorage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">labtech.runners.ray</span><span class="w"> </span><span class="kn">import</span> <span class="n">RayRunnerBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">s3fs</span><span class="w"> </span><span class="kn">import</span> <span class="n">S3FileSystem</span>
+
+
+<span class="c1"># Connect to a Ray cluster:</span>
+<span class="c1"># * If no cluster is running locally, `ray.init()` will start one.</span>
+<span class="c1"># * If you&#39;ve started a local cluster with `ray start --head --port 6379`,</span>
+<span class="c1">#   `ray.init()` will connect to it.</span>
+<span class="c1">#   See: https://docs.ray.io/en/latest/ray-core/starting-ray.html</span>
+<span class="c1"># * You can specify the address of a remote cluster,</span>
+<span class="c1">#   e.g. `ray.init(address=&#39;ray://123.45.67.89:10001&#39;)`</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+
+<span class="c1"># Define a custom Storage backend for our localstack S3 bucket</span>
+<span class="c1"># using s3fs (which implements the fsspec interface)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">S3fsStorage</span><span class="p">(</span><span class="n">FsspecStorage</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fs_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">S3FileSystem</span><span class="p">(</span>
+            <span class="c1"># Use localstack endpoint:</span>
+            <span class="n">endpoint_url</span><span class="o">=</span><span class="s1">&#39;http://localhost:4566&#39;</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="s1">&#39;anything&#39;</span><span class="p">,</span>
+            <span class="n">secret</span><span class="o">=</span><span class="s1">&#39;anything&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Experiment</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">labtech</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running with seed </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span><span class="n">Experiment</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+
+
+<span class="c1"># Configure a Lab with remote storage and a Ray runner backend:</span>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="c1"># labtech-dev-bucket is the name of our localstack bucket:</span>
+    <span class="n">storage</span><span class="o">=</span><span class="n">S3fsStorage</span><span class="p">(</span><span class="s1">&#39;labtech-dev-bucket/lab_cache&#39;</span><span class="p">),</span>
+    <span class="n">runner_backend</span><span class="o">=</span><span class="n">RayRunnerBackend</span><span class="p">(),</span>
+<span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">,</span> <span class="n">bust_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+
+<span class="c1"># Shutdown the connection to the Ray cluster:</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="ray-remote-function-options">Ray remote function options</h2>
+<!--
+    This section is linked to throughout this file and from an error message
+    in RayRunnerBackend.build_runner, so change the name with care.
+-->
+
+<p>Ray allows you to configure a number of <a href="https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html">options that control how a
+task will be executed</a>.
+These can be configured for Labtech tasks by defining a
+<code>runner_options()</code> method on a task type that returns a
+<code>ray.remote_options</code> section.</p>
+<p>For example, you can <a href="https://docs.ray.io/en/latest/ray-core/patterns/limit-running-tasks.html">configure the minimum memory and CPU cores</a> that
+must be available to a Ray worker that is executing a task:</p>
+<div class="highlight"><pre><span></span><code>    <span class="nd">@task</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Experiment</span><span class="p">:</span>
+        <span class="o">...</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">runner_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="c1"># Require 2 CPU cores and 2G of memory for each task of this type.</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s1">&#39;ray&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;remote_options&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;num_cpus&#39;</span><span class="p">:</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;memory&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)),</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="o">...</span>
+</code></pre></div>
+<h2 id="syncing-python-environments-across-a-cluster">Syncing Python environments across a cluster</h2>
+<p>One of the challenges of running tasks across a distributed cluster is
+ensuring that the Python execution environment is identical in each
+worker process running on each node. You should employ the following
+mechanisms provided by Ray to ensure that your tasks execute
+identically wherever they are run.</p>
+<h3 id="worker-initialisation">Worker initialisation</h3>
+<p>You can use Ray's <a href="https://docs.ray.io/en/latest/ray-observability/user-guides/configure-logging.html#customizing-worker-process-loggers"><code>worker_process_setup_hook</code></a>
+to execute one-off setup code before any tasks are run in a Ray worker process.</p>
+<p>For example, you can pass <code>worker_process_setup_hook</code> into
+<code>ray.init()</code> to configure mlflow in each worker:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">worker_setup</span><span class="p">():</span>
+    <span class="c1"># Initialise mlflow on each worker to use a centralised</span>
+    <span class="c1"># mlflow tracking server:</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="s1">&#39;http://my-mlflow-host:8080&#39;</span><span class="p">)</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="s1">&#39;example_ray_experiment&#39;</span><span class="p">)</span>
+
+
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+    <span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;worker_process_setup_hook&#39;</span><span class="p">:</span> <span class="n">worker_setup</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="file-and-package-dependencies">File and package dependencies</h3>
+<p>There are two broad approaches to ensuring the necessary source code,
+data files, and Python packages are installed on each node in your
+Ray cluster, as discussed in Ray's documentation on <a href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html">Environment
+Dependencies</a>:</p>
+<ol>
+<li>Pre-install all dependencies onto each node in your cluster. Ray's
+   cluster launcher <a href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#preparing-an-environment-using-the-ray-cluster-launcher">has options to support this</a>.</li>
+<li>Specify a <a href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#runtime-environments">runtime environment</a>
+   for Ray to install on-demand whenever a node runs a task.<ul>
+<li>When using Labtech for experimentation, your code and
+   dependencies may be changing frequently, so the flexibility of a
+   runtime environment may be a better fit.</li>
+<li>You can specify a runtime environment for all tasks with
+   <code>ray.init(runtime_env={...})</code> or for specific tasks with the
+   <code>runtime_env</code> <a href="#ray-remote-function-options">remote function option</a>.</li>
+<li>You can use a runtime environment to:<ul>
+<li><a href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#using-local-files">Share a working directory of local source code and data files</a></li>
+<li><a href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#using-conda-or-pip-packages">Share local Python modules that you may still be modifying</a></li>
+<li><a href="https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#library-development">List Python packages to be installed</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="fault-tolerance">Fault tolerance</h2>
+<p>Because a variety of failures can occur in a distributed system, Ray
+has <a href="https://docs.ray.io/en/latest/ray-core/fault-tolerance.html">several mechanisms for fault tolerance</a>.</p>
+<p>You should ensure that your tasks can be safely executed multiple
+times, as Ray may re-execute tasks under certain circumstances. You
+can control how many times Ray will re-execute tasks in some of these
+circumstances through <a href="#ray-remote-function-options">remote function options</a>:</p>
+<ul>
+<li>If your task's <code>run()</code> method raises an exception, Ray will not
+  re-execute the task unless you set
+  <a href="https://docs.ray.io/en/latest/ray-core/fault_tolerance/tasks.html#retrying-failed-tasks"><code>retry_exceptions</code></a>
+  to <code>True</code> or a list of exception types.</li>
+<li>If the <a href="https://docs.ray.io/en/latest/ray-core/fault_tolerance/tasks.html#retrying-failed-tasks">worker running a task dies</a>
+  or a <a href="https://docs.ray.io/en/latest/ray-core/fault_tolerance/objects.html">stored object is lost due to node failure</a>
+  then Ray will re-execute the task up to
+  <a href="https://docs.ray.io/en/latest/ray-core/fault_tolerance/tasks.html#retrying-failed-tasks"><code>max_retries</code></a>
+  (which you can disable by <a href="#ray-remote-function-options">setting</a> <code>max_retries=0</code>).<ul>
+<li>If a task is re-executed after a stored object is lost, it will still
+  re-run the task instead of loading it's result from the cache.</li>
+</ul>
+</li>
+<li>If <a href="https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html">Ray's memory monitor</a>
+  terminates a task to avoid running out of memory, then the task will
+  be re-executed irrespective of the <code>max_retries</code> setting. You can
+  disable this behaviour by disabling Ray's built-in memory monitor.</li>
+</ul>
+<h2 id="other-considerations">Other considerations</h2>
+<ul>
+<li>A Lab's <code>max_workers</code> must be set to <code>None</code> when using the
+  <a class="autorefs autorefs-internal" title="labtech.runners.ray.RayRunnerBackend" href="#labtech.runners.ray.RayRunnerBackend"><code>RayRunnerBackend</code></a>. This is
+  because Ray concurrency is not limited by a maximum number of tasks
+  but by
+  <a href="#ray-remote-function-options">specifying the resource requirements of each task</a>.</li>
+<li>Log messages from tasks are not displayed directly under the
+  Labtech progress bars but are instead available in Ray's worker
+  logs, which are, by default, available from:<ul>
+<li>The standard output stream of your Python script running Labtech</li>
+<li>Under the cell that executes <code>ray.init()</code> in a Jupyter notebook</li>
+<li>The <a href="https://docs.ray.io/en/latest/ray-observability/getting-started.html">Ray Dashboard</a>
+  that aggregates all worker logs</li>
+</ul>
+</li>
+<li>Labtech's task monitor is currently unable to report on the CPU
+  usage, memory usage, and other process metrics for tasks run on Ray
+  clusters.<ul>
+<li>Instead, you can refer to the resource utilisation of cluster
+  nodes from the <a href="https://docs.ray.io/en/latest/ray-observability/getting-started.html">Ray Dashboard</a>
+  or enable the <a href="https://docs.ray.io/en/latest/ray-observability/getting-started.html#dash-metrics-view">Ray Metrics View</a>
+  (which requires configuring Prometheus and Grafana).</li>
+</ul>
+</li>
+</ul>
+<h2 id="api-reference">API Reference</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="labtech.runners.ray.RayRunnerBackend" class="doc doc-heading">
+            <code>labtech.runners.ray.RayRunnerBackend</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="labtech.types.RunnerBackend" href="../runners/#labtech.types.RunnerBackend">RunnerBackend</a></code></p>
+
+
+        <p>Runner Backend that runs each task on a <a href="https://www.ray.io/">Ray</a> cluster.</p>
+<p>Ray's <a href="https://docs.ray.io/en/latest/ray-core/objects.html">shared-memory object store</a>
+is used to distribute context and results between nodes, and Ray
+will allocate tasks to cluster nodes where large memory
+dependencies are already loaded.</p>
+<p><a href="https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html">Ray remote options</a>
+may be provided for a task by defining a <code>runner_options()</code> on
+it's Task type that returns a dictionary of options under
+<code>ray.remote_options</code> (the implementation of which may be based on task
+parameter values):</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@task</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Experiment</span><span class="p">:</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">runner_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Require 2 CPU cores and 2G of memory for each task of this type.</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;ray&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;remote_options&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;num_cpus&#39;</span><span class="p">:</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;memory&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)),</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+</code></pre></div>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>labtech/runners/ray.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RayRunnerBackend</span><span class="p">(</span><span class="n">RunnerBackend</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Runner Backend that runs each task on a [Ray](https://www.ray.io/) cluster.</span>
+
+<span class="sd">    Ray&#39;s [shared-memory object store](https://docs.ray.io/en/latest/ray-core/objects.html)</span>
+<span class="sd">    is used to distribute context and results between nodes, and Ray</span>
+<span class="sd">    will allocate tasks to cluster nodes where large memory</span>
+<span class="sd">    dependencies are already loaded.</span>
+
+<span class="sd">    [Ray remote options](https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html)</span>
+<span class="sd">    may be provided for a task by defining a `runner_options()` on</span>
+<span class="sd">    it&#39;s Task type that returns a dictionary of options under</span>
+<span class="sd">    `ray.remote_options` (the implementation of which may be based on task</span>
+<span class="sd">    parameter values):</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    @task</span>
+<span class="sd">    class Experiment:</span>
+<span class="sd">        ...</span>
+
+<span class="sd">        def runner_options(self):</span>
+<span class="sd">            # Require 2 CPU cores and 2G of memory for each task of this type.</span>
+<span class="sd">            return {</span>
+<span class="sd">                &#39;ray&#39;: {</span>
+<span class="sd">                    &#39;remote_options&#39;: {</span>
+<span class="sd">                        &#39;num_cpus&#39;: &#39;2&#39;,</span>
+<span class="sd">                        &#39;memory&#39;: (2 * (1024 ** 3)),</span>
+<span class="sd">                    },</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+
+<span class="sd">        def run(self):</span>
+<span class="sd">            ...</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_interval_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">monitor_timeout_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            monitor_interval_seconds: Determines frequency of requests to</span>
+<span class="sd">                Ray for task states.</span>
+<span class="sd">            monitor_timeout_seconds: Maximum time to wait for a request to</span>
+<span class="sd">                Ray for task states.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor_interval_seconds</span> <span class="o">=</span> <span class="n">monitor_interval_seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor_timeout_seconds</span> <span class="o">=</span> <span class="n">monitor_timeout_seconds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span><span class="p">,</span> <span class="n">storage</span><span class="p">:</span> <span class="n">Storage</span><span class="p">,</span> <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Runner</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">max_workers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RunnerError</span><span class="p">((</span>
+                <span class="s1">&#39;Remove max_workers from your Lab configuration, as RayRunnerBackend only supports max_workers=None. &#39;</span>
+                <span class="s1">&#39;You can manage Ray concurrency by specifying required resources in the `runner_options` for a task: &#39;</span>
+                <span class="s1">&#39;https://ben-denham.github.io/labtech/distributed/#ray-remote-function-options&#39;</span>
+            <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">RayRunner</span><span class="p">(</span>
+            <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+            <span class="n">storage</span><span class="o">=</span><span class="n">storage</span><span class="p">,</span>
+            <span class="n">monitor_interval_seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_interval_seconds</span><span class="p">,</span>
+            <span class="n">monitor_timeout_seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_timeout_seconds</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="labtech.runners.ray.RayRunnerBackend.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">monitor_interval_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">monitor_timeout_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>monitor_interval_seconds</code></b>
+              (<code><span title="float">float</span></code>, default:
+                  <code>1</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Determines frequency of requests to
+Ray for task states.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>monitor_timeout_seconds</code></b>
+              (<code><span title="int">int</span></code>, default:
+                  <code>5</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Maximum time to wait for a request to
+Ray for task states.</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="quote">
+              <summary>Source code in <code>labtech/runners/ray.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_interval_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">monitor_timeout_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        monitor_interval_seconds: Determines frequency of requests to</span>
+<span class="sd">            Ray for task states.</span>
+<span class="sd">        monitor_timeout_seconds: Maximum time to wait for a request to</span>
+<span class="sd">            Ray for task states.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">monitor_interval_seconds</span> <span class="o">=</span> <span class="n">monitor_interval_seconds</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">monitor_timeout_seconds</span> <span class="o">=</span> <span class="n">monitor_timeout_seconds</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tracking", "navigation.sections"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

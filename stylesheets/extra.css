@@ -18,6 +18,7 @@ hr {
 
 .doc-heading {
     margin: 0;
+    text-transform: none !important;
 }
 h1.doc-heading code,
 h2.doc-heading code,
