@@ -243,14 +243,14 @@ class Runner(ABC):
 
         ```
         for dependency_task in get_direct_dependencies(task):
-            # Where results_map is expected to contain the result for
+            # Where results_map is expected to contain the TaskResult for
             # each dependency_task.
             dependency_task._set_results_map(results_map)
 
         current_process = multiprocessing.current_process()
         orig_process_name = current_process.name
         try:
-            # If a the thread name or similar is set instead of the process
+            # If the thread name or similar is set instead of the process
             # name, then the Runner should update the handler of the global
             # labtech.utils.logger to include that instead of the process name.
             current_process.name = task_name
