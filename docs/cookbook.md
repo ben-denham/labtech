@@ -545,7 +545,7 @@ lab.run_tasks([TabularTask()])
 ### How can I cache task results somewhere other than my filesystem?
 
 For any storage provider that has an
-[`fsspec`](https://filesystem-spec.readthedocs.io))-compatible
+[`fsspec`](https://filesystem-spec.readthedocs.io)-compatible
 implementation, you can define your own storage type that extends
 `labtech.storage.FsspecStorage`. You can then pass an instance of your
 new storage type for the `storage` option when constructing a `Lab`

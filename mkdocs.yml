@@ -7,6 +7,7 @@ nav:
   - Cookbook: 'cookbook.md'
   - Labs and Tasks: 'core.md'
   - Task Runner Backends: 'runners.md'
+  - Multi-Machine Clusters: 'distributed.md'
   - Diagramming: 'diagram.md'
   - Caches and Storage: 'caching.md'
 plugins:
@@ -21,6 +22,7 @@ plugins:
             show_root_heading: true
             show_signature_annotations: true
 markdown_extensions:
+  - admonition
   - pymdownx.highlight:
       use_pygments: true
   - pymdownx.superfences:

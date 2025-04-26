@@ -263,17 +263,18 @@ class RayRunner(Runner):
 
 
 class RayRunnerBackend(RunnerBackend):
-    """Runner Backend that runs each task as a task on a [Ray](https://www.ray.io/) cluster.
+    """Runner Backend that runs each task on a [Ray](https://www.ray.io/) cluster.
 
     Ray's [shared-memory object store](https://docs.ray.io/en/latest/ray-core/objects.html)
     is used to distribute context and results between nodes, and Ray
-    will allocate task's to cluster nodes where large memory
+    will allocate tasks to cluster nodes where large memory
     dependencies are already loaded.
 
     [Ray remote options](https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html)
     may be provided for a task by defining a `runner_options()` on
     it's Task type that returns a dictionary of options under
-    `ray.remote_options`:
+    `ray.remote_options` (the implementation of which may be based on task
+    parameter values):
 
     ```python
     @task
@@ -313,7 +314,7 @@ class RayRunnerBackend(RunnerBackend):
             raise RunnerError((
                 'Remove max_workers from your Lab configuration, as RayRunnerBackend only supports max_workers=None. '
                 'You can manage Ray concurrency by specifying required resources in the `runner_options` for a task: '
-                'https://ben-denham.github.io/labtech/distributed/#specifying-ray-remote-function-options'
+                'https://ben-denham.github.io/labtech/distributed/#ray-remote-function-options'
             ))
 
         return RayRunner(
