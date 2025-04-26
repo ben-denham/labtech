@@ -7,7 +7,7 @@ from typing import Iterator, Optional, Sequence
 
 from labtech.exceptions import RunnerError
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, ResultT, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import LabContext, ResultMeta, ResultT, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult, is_task
 from labtech.utils import logger
 
 from .base import run_or_load_task
@@ -30,21 +30,31 @@ class TaskDetail:
 # Ignore type-checking because Ray's typing doesn't handle keyword
 # arguments, even though they work.
 @ray.remote(num_returns=2)  # type: ignore[arg-type]
-def _ray_func(*, task: Task[ResultT], task_name: str, use_cache: bool,
-              context: LabContext, storage: Storage, result_refs_map: dict[Task, dict[str, ray.ObjectRef]]) -> tuple[ResultMeta, ResultT]:
-    dependency_refs = [
-        ref
-        for refs in result_refs_map.values()
-        for ref in (refs['meta'], refs['value'])
-    ]
-    # Load all refs in one call to ray.get()
-    ref_to_object = dict(zip(dependency_refs, ray.get(dependency_refs)))
+def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: bool,
+              context: LabContext, storage: Storage) -> tuple[ResultMeta, ResultT]:
+    # task_refs_args is expected to be a flattened list of (task,
+    # result_meta, result_value) triples - passed this way to ensure
+    # refs are top-level to trigger locality-aware scheduling:
+    # https://docs.ray.io/en/latest/ray-core/scheduling/index.html#locality-aware-scheduling
+    results_map = {}
+    if (len(task_refs_args) % 3) != 0:
+        raise RunnerError('Unexpected error: task_ref_args must contain batches of 3 arguments')
+    for i in range(0, len(task_refs_args), 3):
+        dependency_task = task_refs_args[i]
+        if not is_task(dependency_task):
+            raise RunnerError('Unexpected error: Missing expected Task in task_ref_args')
+        result_meta = task_refs_args[i + 1]
+        if not isinstance(result_meta, ResultMeta):
+            raise RunnerError('Unexpected error: Missing expected ResultMeta in task_ref_args')
+        result_value = task_refs_args[i + 2]
+        results_map[dependency_task] = TaskResult(
+            meta=result_meta,
+            value=result_value,
+        )
+
     # Get all dependency results from ray object store for local use.
     for dependency_task in get_direct_dependencies(task):
-        dependency_task._set_results_map({dependency_task: TaskResult(
-            meta=ref_to_object[result_refs_map[dependency_task]['meta']],
-            value=ref_to_object[result_refs_map[dependency_task]['value']],
-        )})
+        dependency_task._set_results_map({dependency_task: results_map[dependency_task]})
 
     current_process = multiprocessing.current_process()
     orig_process_name = current_process.name
@@ -101,18 +111,21 @@ class RayRunner(Runner):
 
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         options = task.runner_options().get('ray', {}).get('remote_options', {})
-        dependency_result_refs_map = {
-            dependency_task: {
-                'meta': self.result_detail_map[dependency_task].result_meta_ref,
-                'value': self.result_detail_map[dependency_task].result_value_ref,
-            }
+        flattened_dependency_task_ref_triples = [
+            item
             for dependency_task in get_direct_dependencies(task)
-        }
+            for item in (
+                    dependency_task,
+                    self.result_detail_map[dependency_task].result_meta_ref,
+                    self.result_detail_map[dependency_task].result_value_ref
+            )
+        ]
         result_refs: tuple[ray.ObjectRef, ray.ObjectRef] = (
             # Ignore incorrect handling of multiple returns in Ray's typing.
             _ray_func  # type: ignore[assignment]
             .options(**options, name=task_name)
             .remote(
+                *flattened_dependency_task_ref_triples,
                 # Ignore type-checking because Ray's typing doesn't
                 # handle keyword arguments, even though they work.
                 task=task,  # type: ignore[call-arg]
@@ -120,7 +133,6 @@ class RayRunner(Runner):
                 use_cache=use_cache,
                 context=self.context_ref,
                 storage=self.storage_ref,
-                result_refs_map=dependency_result_refs_map,
             )
         )
         result_meta_ref, result_value_ref = result_refs
@@ -263,7 +275,7 @@ class RayRunnerBackend(RunnerBackend):
     it's Task type that returns a dictionary of options under
     `ray.remote_options`:
 
-    ```
+    ```python
     @task
     class Experiment:
         ...
