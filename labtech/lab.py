@@ -485,6 +485,11 @@ class Lab:
             top_n=top_n,
         )
         results = coordinator.run(tasks)
+
+        failed_tasks = {task for task in tasks if task not in results}
+        if failed_tasks:
+            raise LabError(f'Failed to complete {len(failed_tasks)} submitted task(s)')
+
         # Return results in the same order as tasks
         return {task: results[task] for task in tasks}
 
