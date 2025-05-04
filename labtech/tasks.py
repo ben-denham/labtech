@@ -11,7 +11,7 @@ from frozendict import frozendict
 from .cache import NullCache, PickleCache
 from .exceptions import TaskError
 from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
-from .utils import OrderedSet, ensure_dict_key_str
+from .utils import ensure_dict_key_str
 
 ParamScalar: TypeAlias = None | str | bool | float | int | Enum
 
@@ -315,12 +315,19 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] 
     raise TaskError(msg)
 
 
-def get_direct_dependencies(task: Task) -> OrderedSet[Task]:
-    """Return an OrderedSet of tasks that are direct (first-level)
-    dependencies of the given task in its attributes."""
-    dependency_tasks: OrderedSet[Task] = OrderedSet()
+def get_direct_dependencies(task: Task, *, all_identities: bool) -> list[Task]:
+    """Return a list of tasks that are direct (first-level)
+    dependencies of the given task in its attributes.
+
+    If all_identities=True, then all duplicate identities of the same
+    task will be included in the output.
+
+    """
+    identifier_to_dependency_task: dict[Task | int, Task] = {}
+
     for field in fields(task):
         field_value = getattr(task, field.name)
         for dependency_task in find_tasks_in_param(field_value):
-            dependency_tasks.add(dependency_task)
-    return dependency_tasks
+            identifier = id(dependency_task) if all_identities else dependency_task
+            identifier_to_dependency_task[identifier] = dependency_task
+    return list(identifier_to_dependency_task.values())

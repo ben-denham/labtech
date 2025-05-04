@@ -47,7 +47,7 @@ class SerialRunner(Runner):
 
         task = task_submission.task
         try:
-            for dependency_task in get_direct_dependencies(task):
+            for dependency_task in get_direct_dependencies(task, all_identities=True):
                 dependency_task._set_results_map(self.results_map)
 
             current_process = multiprocessing.current_process()

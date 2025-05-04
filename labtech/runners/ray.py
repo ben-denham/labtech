@@ -52,7 +52,7 @@ def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: b
             value=result_value,
         )
 
-    for dependency_task in get_direct_dependencies(task):
+    for dependency_task in get_direct_dependencies(task, all_identities=True):
         dependency_task._set_results_map({dependency_task: results_map[dependency_task]})
 
     current_process = multiprocessing.current_process()
@@ -112,7 +112,7 @@ class RayRunner(Runner):
         options = task.runner_options().get('ray', {}).get('remote_options', {})
         flattened_dependency_task_ref_triples = [
             item
-            for dependency_task in get_direct_dependencies(task)
+            for dependency_task in get_direct_dependencies(task, all_identities=False)
             for item in (
                     dependency_task,
                     self.result_detail_map[dependency_task].result_meta_ref,

@@ -57,7 +57,7 @@ class ThreadRunner(Runner):
         )
         self.active_task_configs.add(task_config)
         try:
-            for dependency_task in get_direct_dependencies(task):
+            for dependency_task in get_direct_dependencies(task, all_identities=True):
                 dependency_task._set_results_map(self.results_map)
 
             current_thread = threading.current_thread()

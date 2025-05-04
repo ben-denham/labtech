@@ -65,7 +65,7 @@ class TaskState:
 
             dependency_tasks: OrderedSet[Task] = OrderedSet()
             if not self.coordinator.use_cache(task):
-                dependency_tasks = get_direct_dependencies(task)
+                dependency_tasks = OrderedSet(get_direct_dependencies(task, all_identities=False))
 
             # We insert all of the top-level tasks before processing
             # discovered dependencies, so that we will attempt to run

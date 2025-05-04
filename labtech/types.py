@@ -242,7 +242,7 @@ class Runner(ABC):
         effectively calling:
 
         ```
-        for dependency_task in get_direct_dependencies(task):
+        for dependency_task in get_direct_dependencies(task, all_identities=True):
             # Where results_map is expected to contain the TaskResult for
             # each dependency_task.
             dependency_task._set_results_map(results_map)

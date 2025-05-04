@@ -342,7 +342,7 @@ class ProcessRunner(Runner, ABC):
                 use_cache=use_cache,
             ))
 
-            for dependency_task in get_direct_dependencies(task):
+            for dependency_task in get_direct_dependencies(task, all_identities=True):
                 dependency_task._set_results_map(results_map)
 
             orig_process_name = current_process.name
@@ -455,7 +455,7 @@ class SpawnProcessRunner(ProcessRunner):
             filtered_context = task.filter_context(self.context)
             results_map = {
                 dependency_task: self.results_map[dependency_task]
-                for dependency_task in get_direct_dependencies(task)
+                for dependency_task in get_direct_dependencies(task, all_identities=False)
             }
         return executor.submit(
             self._subprocess_func,

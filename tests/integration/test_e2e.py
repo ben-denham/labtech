@@ -2,7 +2,7 @@
 Loosely based on tasks from the tutorial."""
 
 from tempfile import TemporaryDirectory
-from typing import Any, Protocol
+from typing import Any, Protocol, TypedDict
 
 import pytest
 import ray
@@ -85,8 +85,13 @@ def context() -> dict[str, Any]:
     }
 
 
-@pytest.fixture
-def evaluation_task(context: dict[str, Any]):
+class Evaluation(TypedDict):
+    task: Task
+    expected_result: Any
+
+
+def basic_evaluation(context: dict[str, Any]) -> Evaluation:
+    """Evaluation of a standard setup of multiple levels of dependency."""
     classifier_tasks = [
         ClassifierTask(
             n_estimators=n_estimators,
@@ -113,28 +118,66 @@ def evaluation_task(context: dict[str, Any]):
             *wrapping_experiments,
         ]
     )
-    return evaluation_task
+    return Evaluation(
+        task=evaluation_task,
+        expected_result={
+            '1': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}},
+            '2': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}},
+            '3': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}},
+            '4': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}},
+            '5': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}}},
+            '6': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}}},
+            '7': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}}},
+            '8': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}}},
+        },
+    )
+
+
+def repeated_dependency_evaluation(context: dict[str, Any]) -> Evaluation:
+    """Ensure we correctly handle repeated references to the same
+    dependency task."""
+    def experiment_factory():
+        return ClassifierExperiment(
+            classifier_task=ClassifierTask(n_estimators=2),
+            dataset_key=list(context['DATASETS'].keys())[0],
+        )
+    experiment = experiment_factory()
+    return Evaluation(
+        task=ExperimentEvaluationTask(
+            experiments=[
+                # Repeating the same identity.
+                experiment,
+                experiment,
+                # Additional duplicate with different identity.
+                experiment_factory(),
+            ],
+        ),
+        expected_result={
+            '1': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}},
+            '2': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}},
+            '3': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}},
+        },
+    )
 
 
 @pytest.fixture
-def expected_evaluation_result() -> dict:
+def evaluations(context: dict[str, Any]) -> dict[str, Evaluation]:
     return {
-        '1': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}},
-        '2': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}},
-        '3': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}},
-        '4': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}},
-        '5': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}}},
-        '6': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}}},
-        '7': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}}},
-        '8': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}}},
+        'basic': basic_evaluation(context),
+        'repeated_dependency': repeated_dependency_evaluation(context),
     }
+
+
+active_evaluation_keys = ['basic', 'repeated_dependency']
 
 
 class TestE2E:
 
     @pytest.mark.parametrize("max_workers", [1, 4, None])
     @pytest.mark.parametrize("runner_backend", ['serial', 'fork', 'spawn', 'thread'])
-    def test_e2e(self, max_workers: int, runner_backend: str, context: dict[str, Any], evaluation_task: Task, expected_evaluation_result: dict) -> None:
+    @pytest.mark.parametrize("evaluation_key", active_evaluation_keys)
+    def test_e2e(self, max_workers: int, runner_backend: str, evaluation_key: str, context: dict[str, Any], evaluations: dict[str, Evaluation]) -> None:
+        evaluation = evaluations[evaluation_key]
         with TemporaryDirectory() as storage_dir:
             lab = labtech.Lab(
                 storage=storage_dir,
@@ -142,8 +185,8 @@ class TestE2E:
                 max_workers=max_workers,
                 runner_backend=runner_backend,
             )
-            evaluation_result = lab.run_task(evaluation_task)
-        assert evaluation_result == expected_evaluation_result
+            evaluation_result = lab.run_task(evaluation['task'])
+        assert evaluation_result == evaluation['expected_result']
 
 class TestE2ERay:
 
@@ -160,7 +203,9 @@ class TestE2ERay:
     def teardown_method(self, method):
         ray.shutdown()
 
-    def test_e2e_ray(self, context: dict[str, Any], evaluation_task: Task, expected_evaluation_result: dict) -> None:
+    @pytest.mark.parametrize("evaluation_key", active_evaluation_keys)
+    def test_e2e_ray(self, evaluation_key: str, context: dict[str, Any], evaluations: dict[str, Evaluation]) -> None:
+        evaluation = evaluations[evaluation_key]
         with TemporaryDirectory() as storage_dir:
             lab = labtech.Lab(
                 storage=storage_dir,
@@ -168,5 +213,5 @@ class TestE2ERay:
                 max_workers=None,
                 runner_backend=RayRunnerBackend(),
             )
-            evaluation_result = lab.run_task(evaluation_task)
-        assert evaluation_result == expected_evaluation_result
+            evaluation_result = lab.run_task(evaluation['task'])
+        assert evaluation_result == evaluation['expected_result']
