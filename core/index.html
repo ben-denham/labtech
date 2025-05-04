@@ -1290,7 +1290,12 @@ or be removed from the cache storage with
 <span class="normal">539</span>
 <span class="normal">540</span>
 <span class="normal">541</span>
-<span class="normal">542</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Lab</span><span class="p">:</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Lab</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Primary interface for configuring, running, and getting results of tasks.</span>
 
 <span class="sd">    A Lab can be used to run tasks with [`run_tasks()`][labtech.Lab.run_tasks].</span>
@@ -1492,6 +1497,11 @@ or be removed from the cache storage with
             <span class="n">top_n</span><span class="o">=</span><span class="n">top_n</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">coordinator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+        <span class="n">failed_tasks</span> <span class="o">=</span> <span class="p">{</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span> <span class="k">if</span> <span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">failed_tasks</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LabError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to complete </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed_tasks</span><span class="p">)</span><span class="si">}</span><span class="s1"> submitted task(s)&#39;</span><span class="p">)</span>
+
         <span class="c1"># Return results in the same order as tasks</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">task</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">task</span><span class="p">]</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">}</span>
 
@@ -2136,7 +2146,12 @@ corresponding result.</p>
 <span class="normal">486</span>
 <span class="normal">487</span>
 <span class="normal">488</span>
-<span class="normal">489</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
               <span class="n">bust_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
               <span class="n">disable_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
               <span class="n">disable_top</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2218,6 +2233,11 @@ corresponding result.</p>
         <span class="n">top_n</span><span class="o">=</span><span class="n">top_n</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">coordinator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+    <span class="n">failed_tasks</span> <span class="o">=</span> <span class="p">{</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span> <span class="k">if</span> <span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">failed_tasks</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">LabError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to complete </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed_tasks</span><span class="p">)</span><span class="si">}</span><span class="s1"> submitted task(s)&#39;</span><span class="p">)</span>
+
     <span class="c1"># Return results in the same order as tasks</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">task</span><span class="p">:</span> <span class="n">results</span><span class="p">[</span><span class="n">task</span><span class="p">]</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">}</span>
 </code></pre></div></td></tr></table></div>
@@ -2261,19 +2281,19 @@ arguments as <code>run_tasks</code>.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">491</span>
-<span class="normal">492</span>
-<span class="normal">493</span>
-<span class="normal">494</span>
-<span class="normal">495</span>
-<span class="normal">496</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">496</span>
 <span class="normal">497</span>
 <span class="normal">498</span>
 <span class="normal">499</span>
 <span class="normal">500</span>
 <span class="normal">501</span>
 <span class="normal">502</span>
-<span class="normal">503</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">[</span><span class="n">ResultT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultT</span><span class="p">:</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">[</span><span class="n">ResultT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultT</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a single task and return its result. Supports the same keyword</span>
 <span class="sd">    arguments as `run_tasks`.</span>
 
@@ -2314,12 +2334,7 @@ instances.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">505</span>
-<span class="normal">506</span>
-<span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">510</span>
 <span class="normal">511</span>
 <span class="normal">512</span>
 <span class="normal">513</span>
@@ -2337,7 +2352,12 @@ instances.</p>
 <span class="normal">525</span>
 <span class="normal">526</span>
 <span class="normal">527</span>
-<span class="normal">528</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]:</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns all task instances present in the Lab&#39;s cache storage for</span>
 <span class="sd">    the given `task_types`, each of which should be a task class</span>
 <span class="sd">    decorated with [`labtech.task`][labtech.task].</span>
@@ -2384,11 +2404,11 @@ storage.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">530</span>
-<span class="normal">531</span>
-<span class="normal">532</span>
-<span class="normal">533</span>
-<span class="normal">534</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if a result is present for given task in the Lab&#39;s cache</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
     <span class="n">check_tasks</span><span class="p">([</span><span class="n">task</span><span class="p">])</span>
@@ -2416,13 +2436,13 @@ storage.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span>
-<span class="normal">540</span>
-<span class="normal">541</span>
-<span class="normal">542</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes cached results for the given tasks from the Lab&#39;s cache</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
     <span class="n">check_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
