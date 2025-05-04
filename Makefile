@@ -33,7 +33,7 @@ test:
 		tests/
 check: lint mypy test
 
-build:
+build: deps
 	uv build
 
 docs-serve:
