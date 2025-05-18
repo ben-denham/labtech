@@ -1,7 +1,9 @@
 """Utilities for defining tasks."""
 
+from collections.abc import Hashable
 from dataclasses import dataclass, fields
 from enum import Enum
+from functools import partial
 from inspect import isclass
 from types import UnionType
 from typing import Any, Optional, Sequence, TypeAlias, Union, cast
@@ -10,6 +12,7 @@ from frozendict import frozendict
 
 from .cache import NullCache, PickleCache
 from .exceptions import TaskError
+from .params import CUSTOM_PARAM_HANDLERS
 from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
 from .utils import ensure_dict_key_str
 
@@ -32,7 +35,20 @@ _RESERVED_ATTRS = [
 
 
 def immutable_param_value(key: str, value: Any) -> Any:
-    """Converts a parameter value to an immutable equivalent that is hashable."""
+    """Converts a parameter value to an immutable equivalent that is
+    hashable (so that the task itself is hashable to be stored in
+    sets)."""
+    # Any value handled by custom_param_handlers is expected to be
+    # immutable and hashable.
+    for custom_param_handler in CUSTOM_PARAM_HANDLERS:
+        if custom_param_handler.handles(value):
+            if not isinstance(value, Hashable):
+                raise TaskError(
+                    (f"Type '{type(value).__qualname__}' in parameter value '{key}' is handled "
+                     f"by '{type(custom_param_handler).__qualname__}', but is not hashable.")
+                )
+            return value
+
     if isinstance(value, list) or isinstance(value, tuple):
         return tuple(immutable_param_value(f'{key}[{i}]', item) for i, item in enumerate(value))
     if isinstance(value, dict) or isinstance(value, frozendict):
@@ -152,6 +168,9 @@ def task(*args,
       * Note: Mutable `list` and `dict` collections will be converted to
         immutable `tuple` and [`frozendict`](https://pypi.org/project/frozendict/)
         collections.
+    * Immutable and hashable values for which a
+      [custom parameter handler][labtech.params.param_handler] has been
+      registered.
 
     The task type is expected to define a `run()` method that takes no
     arguments (other than `self`). The `run()` method should execute
@@ -206,6 +225,10 @@ def task(*args,
     behaviour of specific types of runner backend - refer to the
     documentation of each runner backend for supported options. The
     implementation may make use of the task's parameter values.
+
+    Because serialized tasks will reference the module path and class
+    name of the task type, you should avoid moving or renaming task
+    types once they are in use.
 
     Args:
         cache: The Cache that controls how task results are formatted for
@@ -288,6 +311,14 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] 
         searched_coll_ids = set()
     if id(param_value) in searched_coll_ids:
         return []
+
+    for custom_param_handler in CUSTOM_PARAM_HANDLERS:
+        if custom_param_handler.handles(param_value):
+            searched_coll_ids = searched_coll_ids | {id(param_value)}
+            return custom_param_handler.find_tasks(
+                value=param_value,
+                find_tasks_in_param=partial(find_tasks_in_param, searched_coll_ids=searched_coll_ids),
+            )
 
     if is_task(param_value):
         return [param_value]

@@ -34,6 +34,7 @@ print(results)
 __version__ = '0.7.1'
 
 from .lab import Lab
+from .params import param_handler
 from .tasks import task
 from .types import is_task, is_task_type
 from .utils import logger
@@ -41,6 +42,7 @@ from .utils import logger
 __all__ = [
     'is_task_type',
     'is_task',
+    'param_handler',
     'task',
     'Lab',
     'logger',

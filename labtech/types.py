@@ -16,7 +16,14 @@ from typing import (
     Sequence,
     Type,
     TypeVar,
+    Union,
+    runtime_checkable,
 )
+
+# Type to represent any value that can be handled by Python's default
+# json encoder and decoder.
+jsonable = Union[None, str, bool, float, int,
+                 dict[str, 'jsonable'], list['jsonable']]
 
 
 @dataclass(frozen=True)
@@ -220,6 +227,77 @@ class Cache(ABC):
     def delete(self, storage: Storage, task: Task) -> None:
         """Deletes the cached result for the given `task` from the given
         `storage`."""
+
+
+class Serializer(ABC):
+    """Serializer for producing serialized JSON representations of
+    Task objects, and deserializing JSON back into Task objects."""
+
+    @abstractmethod
+    def serialize_task(self, task: Task) -> dict[str, jsonable]:
+        """Convert the given task into a JSON-compatible
+        representation composed only of dictionaries, lists, strings,
+        numbers and `None`."""
+
+    @abstractmethod
+    def deserialize_task(self, serialized: dict[str, jsonable], *, result_meta: Optional[ResultMeta]) -> Task:
+        """Convert the given serialized representation returned by
+        serialize_task() back into the original task."""
+
+    @abstractmethod
+    def serialize_value(self, value: Any) -> jsonable:
+        """Convert the given value into a JSON-compatible
+        representation composed only of dictionaries, lists, strings,
+        numbers and `None`."""
+
+    @abstractmethod
+    def deserialize_value(self, value: jsonable):
+        """Convert the given serialized representation returned by
+        serialize_value() back into the original value."""
+
+    @abstractmethod
+    def serialize_class(self, cls: Type) -> jsonable:
+        """Convert the given class into a string representation."""
+
+    @abstractmethod
+    def deserialize_class(self, serialized_class: jsonable) -> Type:
+        """Load the class named in the given serialized representation
+        returned by serialize_class()."""
+
+
+@runtime_checkable
+class ParamHandler(Protocol):
+    """Protocol for custom parameter handlers that can define how
+    Labtech should handle the processing, serialization, and
+    deserialization of additional parameter types."""
+
+    def handles(self, value: Any) -> bool:
+        """Returns True if the given parameter value should be handled
+        by this class."""
+
+    def find_tasks(self, value: Any, *, find_tasks_in_param: Callable[[Any], Sequence[Task]]) -> Sequence[Task]:
+        """Given a parameter value, return all tasks within it (not
+        including tasks within those tasks).
+
+        The provided `find_tasks_in_param` should be called to find
+        tasks in anynested elements within the value."""
+
+    def serialize(self, value: Any, *, serializer: Serializer) -> jsonable:
+        """Convert the given parameter value into a JSON-compatible
+        representation composed only of dictionaries, lists, strings,
+        numbers and `None`.
+
+        Also receives the full Serializer, which can be used to call
+        `serializer.serialize_value()` to serialize nested elements
+        within the value."""
+
+    def deserialize(self, serialized: jsonable, *, serializer: Serializer) -> Any:
+        """Convert the given serialized representation returned by
+        serialize() back into the original parameter value.
+
+        Also receives the full Serializer, which can be used to call
+        `serializer.deserialize_value()` to deserialize nested elements
+        within the serialized representation."""
 
 
 TaskMonitorInfoValue = datetime | str | int | float

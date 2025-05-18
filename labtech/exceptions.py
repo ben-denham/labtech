@@ -24,6 +24,10 @@ class TaskError(LabtechError):
     """Raised for failures when handling Task objects."""
 
 
+class ParamHandlerError(LabtechError):
+    """Raised for failures in custom parameter handlers."""
+
+
 class StorageError(LabtechError):
     """Raised for failures when interacting with Storage objects."""
 
