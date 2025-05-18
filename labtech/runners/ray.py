@@ -38,14 +38,14 @@ def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: b
     # https://docs.ray.io/en/latest/ray-core/scheduling/index.html#locality-aware-scheduling
     results_map = {}
     if (len(task_refs_args) % 3) != 0:
-        raise RunnerError('Unexpected error: task_ref_args must contain batches of 3 arguments')
+        raise RunnerError('Unexpected error: task_refs_args must contain batches of 3 arguments')
     for i in range(0, len(task_refs_args), 3):
         dependency_task = task_refs_args[i]
         if not is_task(dependency_task):
-            raise RunnerError('Unexpected error: Missing expected Task in task_ref_args')
+            raise RunnerError('Unexpected error: Missing expected Task in task_refs_args')
         result_meta = task_refs_args[i + 1]
         if not isinstance(result_meta, ResultMeta):
-            raise RunnerError('Unexpected error: Missing expected ResultMeta in task_ref_args')
+            raise RunnerError('Unexpected error: Missing expected ResultMeta in task_refs_args')
         result_value = task_refs_args[i + 2]
         results_map[dependency_task] = TaskResult(
             meta=result_meta,
@@ -53,7 +53,7 @@ def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: b
         )
 
     for dependency_task in get_direct_dependencies(task, all_identities=True):
-        dependency_task._set_results_map({dependency_task: results_map[dependency_task]})
+        dependency_task._set_results_map(results_map)
 
     current_process = multiprocessing.current_process()
     orig_process_name = current_process.name
@@ -110,15 +110,20 @@ class RayRunner(Runner):
 
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
         options = task.runner_options().get('ray', {}).get('remote_options', {})
-        flattened_dependency_task_ref_triples = [
-            item
-            for dependency_task in get_direct_dependencies(task, all_identities=False)
-            for item in (
-                    dependency_task,
-                    self.result_detail_map[dependency_task].result_meta_ref,
-                    self.result_detail_map[dependency_task].result_value_ref
-            )
-        ]
+
+        flattened_dependency_task_ref_triples = []
+        # Don't send dependencies if we only need to load the result
+        # from cache.
+        if not use_cache:
+            flattened_dependency_task_ref_triples = [
+                item
+                for dependency_task in get_direct_dependencies(task, all_identities=False)
+                for item in (
+                        dependency_task,
+                        self.result_detail_map[dependency_task].result_meta_ref,
+                        self.result_detail_map[dependency_task].result_value_ref
+                )
+            ]
         result_refs: tuple[ray.ObjectRef, ray.ObjectRef] = (
             # Ignore incorrect handling of multiple returns in Ray's typing.
             _ray_func  # type: ignore[assignment]
