@@ -1,8 +1,9 @@
 from inspect import isclass
 from typing import TypedDict
 
-from .exceptions import ParamHandlerError
+from .exceptions import ParamHandlerError, UnregisteredParamHandlerError
 from .types import ParamHandler
+from .utils import fully_qualified_class_name
 
 
 class ParamHandlerEntry(TypedDict):
@@ -10,8 +11,18 @@ class ParamHandlerEntry(TypedDict):
     priority: int
 
 
-CUSTOM_PARAM_HANDLER_ENTRIES: dict[str, ParamHandlerEntry] = {}
-CUSTOM_PARAM_HANDLERS: list[ParamHandler] = []
+_CUSTOM_PARAM_HANDLER_ENTRIES: dict[str, ParamHandlerEntry] = {}
+_CUSTOM_PARAM_HANDLERS = []
+
+
+def _update_custom_param_handlers() -> None:
+    global _CUSTOM_PARAM_HANDLERS
+    _CUSTOM_PARAM_HANDLERS = [
+        entry['handler'] for entry in
+        # Sort param handlers by priority, keeping insertion order
+        # where priorities are equal.
+        sorted(_CUSTOM_PARAM_HANDLER_ENTRIES.values(), key=lambda entry: entry['priority'])
+    ]
 
 
 def param_handler(*args, priority: int = 1000):
@@ -25,10 +36,11 @@ def param_handler(*args, priority: int = 1000):
     * The decorated class implements all methods of the
       [`ParamHandler`][labtech.types.ParamHandler] protocol.
     * To ensure tasks are reproducible, you should only define
-      handlers for customer parameter types that are **immutable**.
+      handlers for custom parameter types that are **immutable and
+      composed only of immutable elements**.
     * Because tasks are hashable representations of their parameters,
-      you should only define handlers for customer parameter types that
-      are **hashable**.
+      you should only define handlers for custom parameter types that
+      are **hashable and composed only of hashable elements**.
     * Because serialized parameters will reference the module path and
       class name of the custom parameter handler that was used to
       serialize them, you should avoid moving or renaming custom
@@ -42,7 +54,7 @@ def param_handler(*args, priority: int = 1000):
     """
 
     def decorator(cls):
-        global CUSTOM_PARAM_HANDLERS
+        global _CUSTOM_PARAM_HANDLERS
 
         if not isinstance(cls, ParamHandler):
             raise ParamHandlerError(
@@ -50,16 +62,11 @@ def param_handler(*args, priority: int = 1000):
                  "as it does not implement all methods of the 'ParamHandler' protocol.")
             )
 
-        CUSTOM_PARAM_HANDLER_ENTRIES[f'{cls.__module__}.{cls.__qualname__}'] = ParamHandlerEntry(
+        _CUSTOM_PARAM_HANDLER_ENTRIES[fully_qualified_class_name(cls)] = ParamHandlerEntry(
             handler=cls(),
             priority=priority,
         )
-        CUSTOM_PARAM_HANDLERS = [
-            entry['handler'] for entry in
-            # Sort param handlers by priority, keeping insertion order
-            # where priorities are equal.
-            sorted(CUSTOM_PARAM_HANDLERS.values(), key=lambda entry: entry['priority'])
-        ]
+        _update_custom_param_handlers()
 
         return cls
 
@@ -67,3 +74,31 @@ def param_handler(*args, priority: int = 1000):
         return decorator(args[0], *args[1:])
     else:
         return decorator
+
+
+def get_custom_param_handler_entries() -> dict[str, ParamHandlerEntry]:
+    return _CUSTOM_PARAM_HANDLER_ENTRIES
+
+
+def set_custom_param_handler_entries(custom_param_handler_entries: dict[str, ParamHandlerEntry]) -> None:
+    global _CUSTOM_PARAM_HANDLER_ENTRIES
+    _CUSTOM_PARAM_HANDLER_ENTRIES = custom_param_handler_entries
+    _update_custom_param_handlers()
+
+
+def get_custom_param_handlers() -> list[ParamHandler]:
+    return _CUSTOM_PARAM_HANDLERS
+
+
+def lookup_custom_param_handler(fq_class_name: str) -> ParamHandler:
+    try:
+        entry = _CUSTOM_PARAM_HANDLER_ENTRIES[fq_class_name]
+    except KeyError:
+        raise UnregisteredParamHandlerError(fully_qualified_class_name)
+    return entry['handler']
+
+
+def clear_custom_param_handlers() -> None:
+    global _CUSTOM_PARAM_HANDLER_ENTRIES
+    _CUSTOM_PARAM_HANDLER_ENTRIES = {}
+    _update_custom_param_handlers()

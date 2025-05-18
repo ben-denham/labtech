@@ -6,10 +6,10 @@ from typing import Any, Optional, Type, cast
 
 from frozendict import frozendict
 
-from .exceptions import SerializationError
-from .params import CUSTOM_PARAM_HANDLERS
+from .exceptions import SerializationError, UnregisteredParamHandlerError
+from .params import get_custom_param_handlers, lookup_custom_param_handler
 from .types import ParamHandler, ResultMeta, Serializer, Task, is_task, jsonable
-from .utils import ensure_dict_key_str
+from .utils import ensure_dict_key_str, fully_qualified_class_name
 
 
 class DefaultSerializer(Serializer):
@@ -33,8 +33,11 @@ class DefaultSerializer(Serializer):
             raise SerializationError(("deserialize_custom() must be called with a "
                                       f"serialized custom value, received: '{serialized}'"))
 
-        custom_param_handler = self.deserialize_class(serialized['__class__'])()
-        return custom_param_handler.deserialize_value(
+        try:
+            custom_param_handler = lookup_custom_param_handler(cast(str, serialized['__class__']))
+        except UnregisteredParamHandlerError:
+            custom_param_handler = self.deserialize_class(serialized['__class__'])()
+        return custom_param_handler.deserialize(
             serialized=serialized['value'],
             serializer=self,
         )
@@ -105,7 +108,7 @@ class DefaultSerializer(Serializer):
         return task
 
     def serialize_value(self, value: Any) -> jsonable:
-        for custom_param_handler in CUSTOM_PARAM_HANDLERS:
+        for custom_param_handler in get_custom_param_handlers():
             if custom_param_handler.handles(value):
                 return self._serialize_custom(custom_param_handler, value)
 
@@ -146,7 +149,7 @@ class DefaultSerializer(Serializer):
         return value
 
     def serialize_class(self, cls: Type) -> jsonable:
-        return f'{cls.__module__}.{cls.__qualname__}'
+        return fully_qualified_class_name(cls)
 
     def deserialize_class(self, serialized_class: jsonable) -> Type:
         cls_module, cls_name = cast(str, serialized_class).rsplit('.', 1)

@@ -6,6 +6,7 @@ from time import monotonic, sleep
 from typing import Iterator, Optional, Sequence
 
 from labtech.exceptions import RunnerError
+from labtech.params import ParamHandlerEntry, get_custom_param_handler_entries, set_custom_param_handler_entries
 from labtech.tasks import get_direct_dependencies
 from labtech.types import LabContext, ResultMeta, ResultT, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult, is_task
 from labtech.utils import logger
@@ -31,7 +32,8 @@ class TaskDetail:
 # arguments, even though they work.
 @ray.remote(num_returns=2)  # type: ignore[arg-type]
 def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: bool,
-              context: LabContext, storage: Storage) -> tuple[ResultMeta, ResultT]:
+              context: LabContext, storage: Storage,
+              custom_param_handler_entries: dict[str, ParamHandlerEntry]) -> tuple[ResultMeta, ResultT]:
     # task_refs_args is expected to be a flattened list of (task,
     # result_meta, result_value) triples - passed this way to ensure
     # refs are top-level to trigger locality-aware scheduling:
@@ -51,6 +53,8 @@ def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: b
             meta=result_meta,
             value=result_value,
         )
+
+    set_custom_param_handler_entries(custom_param_handler_entries)
 
     for dependency_task in get_direct_dependencies(task, all_identities=True):
         dependency_task._set_results_map(results_map)
@@ -83,6 +87,7 @@ class RayRunner(Runner):
         logger.debug('Uploading context and storage objects to ray object store')
         self.context_ref = ray.put(context)
         self.storage_ref = ray.put(storage)
+        self.custom_param_handler_entries_ref = ray.put(get_custom_param_handler_entries())
         logger.debug('Uploaded context and storage objects to ray object store')
 
         self.cancelled = False
@@ -137,6 +142,7 @@ class RayRunner(Runner):
                 use_cache=use_cache,
                 context=self.context_ref,
                 storage=self.storage_ref,
+                custom_param_handler_entries=self.custom_param_handler_entries_ref,
             )
         )
         result_meta_ref, result_value_ref = result_refs

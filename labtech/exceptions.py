@@ -28,6 +28,11 @@ class ParamHandlerError(LabtechError):
     """Raised for failures in custom parameter handlers."""
 
 
+class UnregisteredParamHandlerError(LabtechError):
+    """Raised when attempting to lookup a custom parameter handler
+    that is not registered."""
+
+
 class StorageError(LabtechError):
     """Raised for failures when interacting with Storage objects."""
 

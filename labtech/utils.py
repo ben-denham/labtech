@@ -117,6 +117,10 @@ def ensure_dict_key_str(value, *, exception_type: Type[Exception]) -> str:
     return cast(str, value)
 
 
+def fully_qualified_class_name(cls: Type) -> str:
+    return f'{cls.__module__}.{cls.__qualname__}'
+
+
 def is_ipython() -> bool:
     return hasattr(builtins, '__IPYTHON__')
 
@@ -132,10 +136,12 @@ class tqdm_notebook(base_tqdm_notebook):
 
 
 __all__ = [
+    'make_logger_handler',
     'logger',
     'OrderedSet',
     'LoggerFileProxy',
     'ensure_dict_key_str',
+    'fully_qualified_class_name',
     'is_ipython',
     'tqdm',
     'tqdm_notebook',
