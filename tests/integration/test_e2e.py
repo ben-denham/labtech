@@ -186,7 +186,15 @@ class TestE2E:
                 runner_backend=runner_backend,
             )
             evaluation_result = lab.run_task(evaluation['task'])
-        assert evaluation_result == evaluation['expected_result']
+            assert evaluation_result == evaluation['expected_result']
+
+            cached_tasks = lab.cached_tasks([type(evaluation['task'])])
+            print(cached_tasks)
+            print([evaluation['task']])
+            assert cached_tasks == [evaluation['task']]
+
+            cached_result = lab.run_task(cached_tasks[0])
+            assert cached_result == evaluation['expected_result']
 
 class TestE2ERay:
 
@@ -214,4 +222,10 @@ class TestE2ERay:
                 runner_backend=RayRunnerBackend(),
             )
             evaluation_result = lab.run_task(evaluation['task'])
-        assert evaluation_result == evaluation['expected_result']
+            assert evaluation_result == evaluation['expected_result']
+
+            cached_tasks = lab.cached_tasks([type(evaluation['task'])])
+            assert cached_tasks == [evaluation['task']]
+
+            cached_result = lab.run_task(cached_tasks[0])
+            assert cached_result == evaluation['expected_result']
