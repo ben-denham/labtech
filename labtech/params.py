@@ -55,17 +55,16 @@ class ParamHandlerManager:
             ]
         return self._prioritised_handlers
 
+    def instantiate(self) -> None:
+        global _PARAM_HANDLER_MANAGER
+        _PARAM_HANDLER_MANAGER = self
+
+    @staticmethod
+    def get() -> 'ParamHandlerManager':
+        return _PARAM_HANDLER_MANAGER
+
 
 _PARAM_HANDLER_MANAGER = ParamHandlerManager()
-
-
-def get_param_handler_manager() -> ParamHandlerManager:
-    return _PARAM_HANDLER_MANAGER
-
-
-def set_param_handler_manager(param_handler_manager: ParamHandlerManager) -> None:
-    global _PARAM_HANDLER_MANAGER
-    _PARAM_HANDLER_MANAGER = param_handler_manager
 
 
 def param_handler(*args, priority: int = 1000):
@@ -97,7 +96,7 @@ def param_handler(*args, priority: int = 1000):
     """
 
     def decorator(cls):
-        get_param_handler_manager().register(cls, priority=priority)
+        ParamHandlerManager.get().register(cls, priority=priority)
         return cls
 
     if len(args) > 0 and isclass(args[0]):

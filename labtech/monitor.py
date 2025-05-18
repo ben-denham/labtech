@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from itertools import zip_longest
 from string import Template
-from typing import Optional, Sequence, cast
+from typing import Callable, Optional, Sequence, cast
 
 import psutil
 
 from .exceptions import LabError
-from .types import Runner, TaskMonitorInfo, TaskMonitorInfoItem, TaskMonitorInfoValue
+from .types import TaskMonitorInfo, TaskMonitorInfoItem, TaskMonitorInfoValue
 from .utils import tqdm
 
 
@@ -82,9 +82,9 @@ class NotebookMultilineDisplay(MultilineDisplay):
 
 class TaskMonitor:
 
-    def __init__(self, *, runner: Runner, notebook: bool,
+    def __init__(self, *, get_task_infos: Callable[[], Sequence[TaskMonitorInfo]], notebook: bool,
                  top_format: str, top_sort: str, top_n: int):
-        self.runner = runner
+        self.get_task_infos = get_task_infos
         self.top_template = Template(top_format)
         self.top_sort = top_sort
         self.top_sort_key = top_sort
@@ -103,7 +103,7 @@ class TaskMonitor:
             # Make (shallow) copies of dictionaries to avoid mutating
             # original dictionaries provided by runner.
             info.copy()
-            for info in self.runner.get_task_infos()
+            for info in self.get_task_infos()
         ]
         total_task_count = len(task_infos)
 

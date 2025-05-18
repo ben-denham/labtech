@@ -6,12 +6,12 @@ from time import monotonic, sleep
 from typing import Iterator, Optional, Sequence
 
 from labtech.exceptions import RunnerError
-from labtech.params import ParamHandlerManager, get_param_handler_manager, set_param_handler_manager
+from labtech.params import ParamHandlerManager
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, ResultT, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult, is_task
+from labtech.types import LabContext, ResultMeta, ResultT, Storage, Task, TaskMonitorInfo, TaskResult, is_task
 from labtech.utils import logger
 
-from .base import run_or_load_task
+from .base import Runner, RunnerBackend, run_or_load_task
 
 try:
     import ray
@@ -34,6 +34,8 @@ class TaskDetail:
 def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: bool,
               context: LabContext, storage: Storage,
               param_handler_manager: ParamHandlerManager) -> tuple[ResultMeta, ResultT]:
+    param_handler_manager.instantiate()
+
     # task_refs_args is expected to be a flattened list of (task,
     # result_meta, result_value) triples - passed this way to ensure
     # refs are top-level to trigger locality-aware scheduling:
@@ -53,8 +55,6 @@ def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: b
             meta=result_meta,
             value=result_value,
         )
-
-    set_param_handler_manager(param_handler_manager)
 
     for dependency_task in get_direct_dependencies(task, all_identities=True):
         dependency_task._set_results_map(results_map)
@@ -76,7 +76,7 @@ def _ray_func(*task_refs_args, task: Task[ResultT], task_name: str, use_cache: b
 
 class RayRunner(Runner):
 
-    def __init__(self, *, context: LabContext, storage: Storage,
+    def __init__(self, *, context: LabContext, storage: Storage, param_handler_manager: ParamHandlerManager,
                  monitor_interval_seconds: float, monitor_timeout_seconds: int) -> None:
         self.monitor_interval_seconds = monitor_interval_seconds
         self.monitor_timeout_seconds = monitor_timeout_seconds
@@ -87,7 +87,7 @@ class RayRunner(Runner):
         logger.debug('Uploading context and storage objects to ray object store')
         self.context_ref = ray.put(context)
         self.storage_ref = ray.put(storage)
-        self.param_handler_manager_ref = ray.put(get_param_handler_manager())
+        self.param_handler_manager_ref = ray.put(param_handler_manager)
         logger.debug('Uploaded context and storage objects to ray object store')
 
         self.cancelled = False
@@ -319,7 +319,8 @@ class RayRunnerBackend(RunnerBackend):
         self.monitor_interval_seconds = monitor_interval_seconds
         self.monitor_timeout_seconds = monitor_timeout_seconds
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> Runner:
+    def build_runner(self, *, context: LabContext, storage: Storage,
+                     param_handler_manager: ParamHandlerManager, max_workers: Optional[int]) -> Runner:
         if max_workers is not None:
             raise RunnerError((
                 'Remove max_workers from your Lab configuration, as RayRunnerBackend only supports max_workers=None. '
@@ -330,6 +331,7 @@ class RayRunnerBackend(RunnerBackend):
         return RayRunner(
             context=context,
             storage=storage,
+            param_handler_manager=param_handler_manager,
             monitor_interval_seconds=self.monitor_interval_seconds,
             monitor_timeout_seconds=self.monitor_timeout_seconds,
         )

@@ -9,7 +9,7 @@ import labtech
 import labtech.tasks
 from labtech.cache import BaseCache, NullCache, PickleCache
 from labtech.exceptions import TaskError
-from labtech.params import get_param_handler_manager
+from labtech.params import ParamHandlerManager
 from labtech.tasks import _RESERVED_ATTRS, ParamScalar, find_tasks_in_param, immutable_param_value
 from labtech.types import ResultT, Storage, Task, TaskInfo
 
@@ -280,10 +280,10 @@ class TestImmutableParamValue:
                 ]
 
             def serialize(self, value, *, serializer):
-                return list(sorted(value, key=hash))
+                return [serializer.serialize_value(item) for item in sorted(value, key=hash)]
 
-            def deserialize(self, value, *, serializer):
-                return frozenset(value)
+            def deserialize(self, serialized, *, serializer):
+                return frozenset([serializer.deserialize_value(item) for item in serialized])
 
         @labtech.param_handler
         class SetParamHandler:
@@ -301,13 +301,13 @@ class TestImmutableParamValue:
                 ]
 
             def serialize(self, value, *, serializer):
-                return list(sorted(value, key=hash))
+                return [serializer.serialize_value(item) for item in sorted(value, key=hash)]
 
-            def deserialize(self, value, *, serializer):
-                return set(value)
+            def deserialize(self, serialized, *, serializer):
+                return set([serializer.deserialize_value(item) for item in serialized])
 
     def teardown_method(self, method):
-        get_param_handler_manager().clear()
+        ParamHandlerManager.get().clear()
 
     def test_empty_list(self) -> None:
         assert immutable_param_value("hello", []) == ()
@@ -405,7 +405,7 @@ class TestFindTasksInParam:
                 return frozenset(value)
 
     def teardown_method(self, method):
-        get_param_handler_manager().clear()
+        ParamHandlerManager.get().clear()
 
     def test_scalar(self, scalar: ParamScalar) -> None:
         assert find_tasks_in_param(scalar) == []

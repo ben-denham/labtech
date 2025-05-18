@@ -2,13 +2,13 @@ import pytest
 
 import labtech
 from labtech.exceptions import ParamHandlerError
-from labtech.params import get_param_handler_manager
+from labtech.params import ParamHandlerManager
 
 
 class TestParamHandler:
 
     def teardown_method(self, method):
-        get_param_handler_manager().clear()
+        ParamHandlerManager.get().clear()
 
     def test_register(self):
 
@@ -26,12 +26,12 @@ class TestParamHandler:
                 ]
 
             def serialize(self, value, *, serializer):
-                return list(sorted(value, key=hash))
+                return [serializer.serialize_value(item) for item in sorted(value, key=hash)]
 
-            def deserialize(self, value, *, serializer):
-                return frozenset(value)
+            def deserialize(self, serialized, *, serializer):
+                return frozenset([serializer.deserialize_value(item) for item in serialized])
 
-        assert [type(handler) for handler in get_param_handler_manager().prioritised_handlers] == [
+        assert [type(handler) for handler in ParamHandlerManager.get().prioritised_handlers] == [
             FrozensetParamHandler,
         ]
 
@@ -50,10 +50,10 @@ class TestParamHandler:
                 ]
 
             def serialize(self, value, *, serializer):
-                return list(sorted(value, key=hash))
+                return [serializer.serialize_value(item) for item in sorted(value, key=hash)]
 
-            def deserialize(self, value, *, serializer):
-                return frozenset(value)
+            def deserialize(self, serialized, *, serializer):
+                return frozenset([serializer.deserialize_value(item) for item in serialized])
 
         @labtech.param_handler(priority=2000)
         class FrozensetParamHandlerOne(FrozensetParamHandler):
@@ -71,7 +71,7 @@ class TestParamHandler:
         class FrozensetParamHandlerFour(FrozensetParamHandler):
             pass
 
-        assert [type(handler) for handler in get_param_handler_manager().prioritised_handlers] == [
+        assert [type(handler) for handler in ParamHandlerManager.get().prioritised_handlers] == [
             FrozensetParamHandlerFour,
             FrozensetParamHandlerTwo,
             FrozensetParamHandlerThree,

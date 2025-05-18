@@ -9,31 +9,31 @@ import pytest
 import ray
 
 import labtech
-from labtech.params import get_param_handler_manager
+from labtech.params import ParamHandlerManager
 from labtech.runners.ray import RayRunnerBackend
 from labtech.types import Task
 
 
+class DatetimeParamHandler:
+
+    def handles(self, value):
+        return isinstance(value, datetime)
+
+    def find_tasks(self, value, *, find_tasks_in_param):
+        return []
+
+    def serialize(self, value, *, serializer):
+        return value.timestamp()
+
+    def deserialize(self, serialized, *, serializer):
+        return datetime.fromtimestamp(serialized)
+
+
 @pytest.fixture(autouse=True)
 def datetime_param_handler():
-
-    @labtech.param_handler
-    class DatetimeParamHandler:
-
-        def handles(self, value):
-            return isinstance(value, datetime)
-
-        def find_tasks(self, value, *, find_tasks_in_param):
-            return []
-
-        def serialize(self, value, *, serializer):
-            return value.timestamp()
-
-        def deserialize(self, serialized, *, serializer):
-            return datetime.fromtimestamp(serialized)
-
+    labtech.param_handler(DatetimeParamHandler)
     yield
-    get_param_handler_manager().clear()
+    ParamHandlerManager.get().clear()
 
 
 @labtech.task(cache=None)

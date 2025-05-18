@@ -7,7 +7,7 @@ from typing import Any, Optional, Type, cast
 from frozendict import frozendict
 
 from .exceptions import SerializationError, UnregisteredParamHandlerError
-from .params import get_param_handler_manager
+from .params import ParamHandlerManager
 from .types import ParamHandler, ResultMeta, Serializer, Task, is_task, jsonable
 from .utils import ensure_dict_key_str, fully_qualified_class_name
 
@@ -34,7 +34,7 @@ class DefaultSerializer(Serializer):
                                       f"serialized custom value, received: '{serialized}'"))
 
         try:
-            custom_param_handler = get_param_handler_manager().lookup(cast(str, serialized['__class__']))
+            custom_param_handler = ParamHandlerManager.get().lookup(cast(str, serialized['__class__']))
         except UnregisteredParamHandlerError:
             custom_param_handler = self.deserialize_class(serialized['__class__'])()
         return custom_param_handler.deserialize(
@@ -108,7 +108,7 @@ class DefaultSerializer(Serializer):
         return task
 
     def serialize_value(self, value: Any) -> jsonable:
-        for custom_param_handler in get_param_handler_manager().prioritised_handlers:
+        for custom_param_handler in ParamHandlerManager.get().prioritised_handlers:
             if custom_param_handler.handles(value):
                 return self._serialize_custom(custom_param_handler, value)
 
@@ -118,8 +118,8 @@ class DefaultSerializer(Serializer):
             return [self.serialize_value(item) for item in value]
         elif isinstance(value, frozendict):
             return {
-                ensure_dict_key_str(key, exception_type=SerializationError): self.serialize_value(value)
-                for key, value in value.items()
+                ensure_dict_key_str(k, exception_type=SerializationError): self.serialize_value(v)
+                for k, v in value.items()
             }
         elif isinstance(value, Enum):
             return self._serialize_enum(value)
