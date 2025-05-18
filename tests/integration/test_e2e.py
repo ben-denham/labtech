@@ -1,6 +1,7 @@
 """Test a set of tasks packed with usage of features end-to-end.
 Loosely based on tasks from the tutorial."""
 
+from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import Any, Protocol, TypedDict
 
@@ -8,8 +9,31 @@ import pytest
 import ray
 
 import labtech
+from labtech.params import clear_custom_param_handlers
 from labtech.runners.ray import RayRunnerBackend
 from labtech.types import Task
+
+
+@pytest.fixture(autouse=True)
+def datetime_param_handler():
+
+    @labtech.param_handler
+    class DatetimeParamHandler:
+
+        def handles(self, value):
+            return isinstance(value, datetime)
+
+        def find_tasks(self, value, *, find_tasks_in_param):
+            return []
+
+        def serialize(self, value, *, serializer):
+            return value.timestamp()
+
+        def deserialize(self, serialized, *, serializer):
+            return datetime.fromtimestamp(serialized)
+
+    yield
+    clear_custom_param_handlers()
 
 
 @labtech.task(cache=None)
@@ -53,6 +77,7 @@ class ClassifierExperiment(ExperimentTask):
 @labtech.task
 class WrappingExperiment(ExperimentTask):
     experiment: ExperimentTask
+    dt: datetime
 
     @property
     def dataset_key(self):
@@ -60,7 +85,8 @@ class WrappingExperiment(ExperimentTask):
 
     def run(self) -> dict:
         return {
-            'inner_experiment': self.experiment.result
+            'inner_experiment': self.experiment.result,
+            'dt': self.dt,
         }
 
 
@@ -92,6 +118,7 @@ class Evaluation(TypedDict):
 
 def basic_evaluation(context: dict[str, Any]) -> Evaluation:
     """Evaluation of a standard setup of multiple levels of dependency."""
+    now = datetime.now()
     classifier_tasks = [
         ClassifierTask(
             n_estimators=n_estimators,
@@ -109,6 +136,7 @@ def basic_evaluation(context: dict[str, Any]) -> Evaluation:
     wrapping_experiments = [
         WrappingExperiment(
             experiment=classifier_experiment,
+            dt=now,
         )
         for classifier_experiment in classifier_experiments
     ]
@@ -125,10 +153,10 @@ def basic_evaluation(context: dict[str, Any]) -> Evaluation:
             '2': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}},
             '3': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}},
             '4': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}},
-            '5': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}}},
-            '6': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}}},
-            '7': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}}},
-            '8': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}}},
+            '5': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 1}}, 'dt': now},
+            '6': {'inner_experiment': {'dataset': 'aaa', 'classifier': {'n_estimators': 2}}, 'dt': now},
+            '7': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 1}}, 'dt': now},
+            '8': {'inner_experiment': {'dataset': 'bbb', 'classifier': {'n_estimators': 2}}, 'dt': now},
         },
     )
 
@@ -195,6 +223,7 @@ class TestE2E:
 
             cached_result = lab.run_task(cached_tasks[0])
             assert cached_result == evaluation['expected_result']
+
 
 class TestE2ERay:
 
