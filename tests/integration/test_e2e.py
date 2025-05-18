@@ -9,7 +9,7 @@ import pytest
 import ray
 
 import labtech
-from labtech.params import clear_custom_param_handlers
+from labtech.params import get_param_handler_manager
 from labtech.runners.ray import RayRunnerBackend
 from labtech.types import Task
 
@@ -33,7 +33,7 @@ def datetime_param_handler():
             return datetime.fromtimestamp(serialized)
 
     yield
-    clear_custom_param_handlers()
+    get_param_handler_manager().clear()
 
 
 @labtech.task(cache=None)

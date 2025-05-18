@@ -12,7 +12,7 @@ from frozendict import frozendict
 
 from .cache import NullCache, PickleCache
 from .exceptions import TaskError
-from .params import get_custom_param_handlers
+from .params import get_param_handler_manager
 from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
 from .utils import ensure_dict_key_str
 
@@ -40,7 +40,7 @@ def immutable_param_value(key: str, value: Any) -> Any:
     sets)."""
     # Any value handled by custom_param_handlers is expected to be
     # immutable and hashable.
-    for custom_param_handler in get_custom_param_handlers():
+    for custom_param_handler in get_param_handler_manager().prioritised_handlers:
         if custom_param_handler.handles(value):
             if not isinstance(value, Hashable):
                 raise TaskError(
@@ -312,7 +312,7 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] 
     if id(param_value) in searched_coll_ids:
         return []
 
-    for custom_param_handler in get_custom_param_handlers():
+    for custom_param_handler in get_param_handler_manager().prioritised_handlers:
         if custom_param_handler.handles(param_value):
             searched_coll_ids = searched_coll_ids | {id(param_value)}
             return custom_param_handler.find_tasks(

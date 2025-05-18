@@ -2,13 +2,13 @@ import pytest
 
 import labtech
 from labtech.exceptions import ParamHandlerError
-from labtech.params import clear_custom_param_handlers, get_custom_param_handlers
+from labtech.params import get_param_handler_manager
 
 
 class TestParamHandler:
 
     def teardown_method(self, method):
-        clear_custom_param_handlers()
+        get_param_handler_manager().clear()
 
     def test_register(self):
 
@@ -31,7 +31,7 @@ class TestParamHandler:
             def deserialize(self, value, *, serializer):
                 return frozenset(value)
 
-        assert [type(handler) for handler in get_custom_param_handlers()] == [
+        assert [type(handler) for handler in get_param_handler_manager().prioritised_handlers] == [
             FrozensetParamHandler,
         ]
 
@@ -71,7 +71,7 @@ class TestParamHandler:
         class FrozensetParamHandlerFour(FrozensetParamHandler):
             pass
 
-        assert [type(handler) for handler in get_custom_param_handlers()] == [
+        assert [type(handler) for handler in get_param_handler_manager().prioritised_handlers] == [
             FrozensetParamHandlerFour,
             FrozensetParamHandlerTwo,
             FrozensetParamHandlerThree,

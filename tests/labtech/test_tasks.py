@@ -9,7 +9,7 @@ import labtech
 import labtech.tasks
 from labtech.cache import BaseCache, NullCache, PickleCache
 from labtech.exceptions import TaskError
-from labtech.params import clear_custom_param_handlers
+from labtech.params import get_param_handler_manager
 from labtech.tasks import _RESERVED_ATTRS, ParamScalar, find_tasks_in_param, immutable_param_value
 from labtech.types import ResultT, Storage, Task, TaskInfo
 
@@ -307,7 +307,7 @@ class TestImmutableParamValue:
                 return set(value)
 
     def teardown_method(self, method):
-        clear_custom_param_handlers()
+        get_param_handler_manager().clear()
 
     def test_empty_list(self) -> None:
         assert immutable_param_value("hello", []) == ()
@@ -405,7 +405,7 @@ class TestFindTasksInParam:
                 return frozenset(value)
 
     def teardown_method(self, method):
-        clear_custom_param_handlers()
+        get_param_handler_manager().clear()
 
     def test_scalar(self, scalar: ParamScalar) -> None:
         assert find_tasks_in_param(scalar) == []

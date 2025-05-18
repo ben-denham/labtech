@@ -1,5 +1,6 @@
+#from functools import cached_property
 from inspect import isclass
-from typing import TypedDict
+from typing import Optional, Type, TypedDict
 
 from .exceptions import ParamHandlerError, UnregisteredParamHandlerError
 from .types import ParamHandler
@@ -11,18 +12,60 @@ class ParamHandlerEntry(TypedDict):
     priority: int
 
 
-_CUSTOM_PARAM_HANDLER_ENTRIES: dict[str, ParamHandlerEntry] = {}
-_CUSTOM_PARAM_HANDLERS = []
+class ParamHandlerManager:
+
+    def __init__(self) -> None:
+        self._entries: dict[str, ParamHandlerEntry] = {}
+        self._prioritised_handlers: Optional[list[ParamHandler]] = None
+
+    def register(self, cls: Type[ParamHandler], *, priority: int) -> None:
+        if not isinstance(cls, ParamHandler):
+            raise ParamHandlerError(
+                (f"Cannot register '{cls.__qualname__}' as a custom parameter handler, "
+                 "as it does not implement all methods of the 'ParamHandler' protocol.")
+            )
+
+        self._entries[fully_qualified_class_name(cls)] = ParamHandlerEntry(
+            handler=cls(),
+            priority=priority,
+        )
+        # Clear cache
+        self._prioritised_handlers = None
+
+    def lookup(self, fq_class_name: str) -> ParamHandler:
+        try:
+            entry = self._entries[fq_class_name]
+        except KeyError:
+            raise UnregisteredParamHandlerError(fully_qualified_class_name)
+        return entry['handler']
+
+    def clear(self) -> None:
+        self._entries = {}
+        # Clear cache
+        self._prioritised_handlers = None
+
+    @property
+    def prioritised_handlers(self) -> list[ParamHandler]:
+        if self._prioritised_handlers is None:
+            self._prioritised_handlers = [
+                entry['handler'] for entry in
+                # Sort param handlers by priority, keeping insertion order
+                # where priorities are equal.
+                sorted(self._entries.values(), key=lambda entry: entry['priority'])
+            ]
+        return self._prioritised_handlers
 
 
-def _update_custom_param_handlers() -> None:
-    global _CUSTOM_PARAM_HANDLERS
-    _CUSTOM_PARAM_HANDLERS = [
-        entry['handler'] for entry in
-        # Sort param handlers by priority, keeping insertion order
-        # where priorities are equal.
-        sorted(_CUSTOM_PARAM_HANDLER_ENTRIES.values(), key=lambda entry: entry['priority'])
-    ]
+_PARAM_HANDLER_MANAGER = ParamHandlerManager()
+
+
+def get_param_handler_manager() -> ParamHandlerManager:
+    return _PARAM_HANDLER_MANAGER
+
+
+def set_param_handler_manager(param_handler_manager: ParamHandlerManager) -> None:
+    global _PARAM_HANDLER_MANAGER
+    _PARAM_HANDLER_MANAGER = param_handler_manager
 
 
 def param_handler(*args, priority: int = 1000):
@@ -54,51 +97,10 @@ def param_handler(*args, priority: int = 1000):
     """
 
     def decorator(cls):
-        global _CUSTOM_PARAM_HANDLERS
-
-        if not isinstance(cls, ParamHandler):
-            raise ParamHandlerError(
-                (f"Cannot register '{cls.__qualname__}' as a custom parameter handler, "
-                 "as it does not implement all methods of the 'ParamHandler' protocol.")
-            )
-
-        _CUSTOM_PARAM_HANDLER_ENTRIES[fully_qualified_class_name(cls)] = ParamHandlerEntry(
-            handler=cls(),
-            priority=priority,
-        )
-        _update_custom_param_handlers()
-
+        get_param_handler_manager().register(cls, priority=priority)
         return cls
 
     if len(args) > 0 and isclass(args[0]):
         return decorator(args[0], *args[1:])
     else:
         return decorator
-
-
-def get_custom_param_handler_entries() -> dict[str, ParamHandlerEntry]:
-    return _CUSTOM_PARAM_HANDLER_ENTRIES
-
-
-def set_custom_param_handler_entries(custom_param_handler_entries: dict[str, ParamHandlerEntry]) -> None:
-    global _CUSTOM_PARAM_HANDLER_ENTRIES
-    _CUSTOM_PARAM_HANDLER_ENTRIES = custom_param_handler_entries
-    _update_custom_param_handlers()
-
-
-def get_custom_param_handlers() -> list[ParamHandler]:
-    return _CUSTOM_PARAM_HANDLERS
-
-
-def lookup_custom_param_handler(fq_class_name: str) -> ParamHandler:
-    try:
-        entry = _CUSTOM_PARAM_HANDLER_ENTRIES[fq_class_name]
-    except KeyError:
-        raise UnregisteredParamHandlerError(fully_qualified_class_name)
-    return entry['handler']
-
-
-def clear_custom_param_handlers() -> None:
-    global _CUSTOM_PARAM_HANDLER_ENTRIES
-    _CUSTOM_PARAM_HANDLER_ENTRIES = {}
-    _update_custom_param_handlers()

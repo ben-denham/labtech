@@ -320,10 +320,10 @@ class Runner(ABC):
         effectively calling:
 
         ```
-        # custom_param_handler_entries should be saved from
-        # labtech.params.get_custom_param_handler_entries() on the main process
-        # and set in any remote processes that don't inherit from the main process:
-        labtech.params.set_custom_param_handler_entries(custom_param_handler_entries)
+        # param_handler_manager should be saved from
+        # labtech.params.get_param_handler_manager() on the main process
+        # and set in remote processes that don't inherit from the main process:
+        labtech.params.set_param_handler_manager(param_handler_manager)
 
         for dependency_task in get_direct_dependencies(task, all_identities=True):
             # Where results_map is expected to contain the TaskResult for
