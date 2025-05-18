@@ -93,6 +93,13 @@ class Serializer:
     def deserialize_value(self, value: jsonable):
         if self.is_serialized_task(value):
             return self.deserialize_task(cast(dict[str, jsonable], value), result_meta=None)
+        elif isinstance(value, list):
+            return tuple([self.deserialize_value(item) for item in value])
+        elif isinstance(value, dict):
+            return frozendict({
+              ensure_dict_key_str(k, exception_type=SerializationError): self.deserialize_value(v)
+              for k, v in value.items()
+            })
         elif self.is_serialized_enum(value):
             return self.deserialize_enum(cast(dict[str, jsonable], value))
         return value
