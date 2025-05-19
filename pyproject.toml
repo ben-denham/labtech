@@ -1,6 +1,6 @@
 [project]
 name = "labtech"
-version = "0.7.1"
+version = "0.7.2"
 license = "GPL-3.0-only"
 description = "Easily run experiment permutations with multi-processing and caching."
 authors = [
