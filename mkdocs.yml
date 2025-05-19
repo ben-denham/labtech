@@ -10,6 +10,7 @@ nav:
   - Multi-Machine Clusters: 'distributed.md'
   - Diagramming: 'diagram.md'
   - Caches and Storage: 'caching.md'
+  - Custom Parameter Handling: 'params.md'
 plugins:
   - search
   - mkdocstrings:

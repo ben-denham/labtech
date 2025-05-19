@@ -200,6 +200,7 @@ To learn more, dive into the following resources:
 * [Option for customising task execution backends](https://ben-denham.github.io/labtech/runners)
 * [Diagramming tools](https://ben-denham.github.io/labtech/diagram)
 * [Distributing across multiple machines](https://ben-denham.github.io/labtech/distributed)
+* [Extensible parameter types](https://ben-denham.github.io/labtech/params)
 * [More examples](https://github.com/ben-denham/labtech/tree/main/examples)
 
 
