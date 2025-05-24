@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 # json encoder and decoder.
 jsonable = None | str | bool | float | int | dict[str, 'jsonable'] | list['jsonable']
 
-
 class Serializer:
 
     def is_serialized_task(self, serialized: jsonable) -> bool:
@@ -118,8 +117,9 @@ class Serializer:
         }
 
     def deserialize_enum(self, serialized: dict[str, jsonable]) -> Enum:
-        enum_cls = self.deserialize_class(serialized['__class__'])
-        return enum_cls[serialized['name']]
+        enum_cls = cast('type[Enum]', self.deserialize_class(serialized['__class__']))
+        name = cast('str', serialized['name'])
+        return enum_cls[name]
 
     def serialize_class(self, cls: type) -> jsonable:
         return f'{cls.__module__}.{cls.__qualname__}'
