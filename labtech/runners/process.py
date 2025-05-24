@@ -22,7 +22,7 @@ from labtech.exceptions import RunnerError, TaskDiedError
 from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
 from labtech.types import Runner, RunnerBackend
-from labtech.utils import LoggerFileProxy, logger
+from labtech.utils import LoggerFileProxy, get_supported_start_methods, logger
 
 from .base import run_or_load_task
 
@@ -496,6 +496,12 @@ class SpawnRunnerBackend(RunnerBackend):
     """
 
     def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> SpawnProcessRunner:
+        if 'spawn' not in get_supported_start_methods():
+            raise RunnerError(
+                ("The 'spawn' start method for processes is not supported by your operating system. "
+                 "Please specify a system-compatible runner_backend.")
+            )
+
         return SpawnProcessRunner(
             context=context,
             storage=storage,
@@ -574,6 +580,12 @@ class ForkRunnerBackend(RunnerBackend):
     """
 
     def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ForkProcessRunner:
+        if 'fork' not in get_supported_start_methods():
+            raise RunnerError(
+                ("The 'fork' start method for processes is not supported by your operating system. "
+                 "Try switching to runner_backend='spawn' or specify another system-compatible runner_backend.")
+            )
+
         return ForkProcessRunner(
             context=context,
             storage=storage,
