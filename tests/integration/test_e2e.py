@@ -175,9 +175,9 @@ active_evaluation_keys = ['basic', 'repeated_dependency']
 
 class TestE2E:
 
-    @pytest.mark.parametrize("max_workers", [1, 4, None])
-    @pytest.mark.parametrize("runner_backend", ['serial', 'fork', 'spawn', 'thread'])
-    @pytest.mark.parametrize("evaluation_key", active_evaluation_keys)
+    @pytest.mark.parametrize('max_workers', [1, 4, None])
+    @pytest.mark.parametrize('runner_backend', ['serial', 'fork', 'spawn', 'thread'])
+    @pytest.mark.parametrize('evaluation_key', active_evaluation_keys)
     def test_e2e(self, max_workers: int, runner_backend: str, evaluation_key: str, context: dict[str, Any], evaluations: dict[str, Evaluation]) -> None:
         evaluation = evaluations[evaluation_key]
         with TemporaryDirectory() as storage_dir:
@@ -213,7 +213,7 @@ class TestE2ERay:
     def teardown_method(self, method):
         ray.shutdown()
 
-    @pytest.mark.parametrize("evaluation_key", active_evaluation_keys)
+    @pytest.mark.parametrize('evaluation_key', active_evaluation_keys)
     def test_e2e_ray(self, evaluation_key: str, context: dict[str, Any], evaluations: dict[str, Evaluation]) -> None:
         evaluation = evaluations[evaluation_key]
         with TemporaryDirectory() as storage_dir:

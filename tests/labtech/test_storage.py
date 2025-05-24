@@ -53,39 +53,39 @@ class TestLocalStorage:
 
         def test_empty_key_raises(self, local_storage: LocalStorage):
             with pytest.raises(StorageError):
-                local_storage.exists("")
+                local_storage.exists('')
 
         def test_nested_key_raises(self, local_storage: LocalStorage):
             with pytest.raises(StorageError):
-                local_storage.exists("nested/key")
+                local_storage.exists('nested/key')
 
         def test_key_with_slash_raises(self, local_storage: LocalStorage):
             with pytest.raises(StorageError):
-                local_storage.exists("key/")
+                local_storage.exists('key/')
 
             with pytest.raises(StorageError):
-                local_storage.exists("key" + os.path.sep)
+                local_storage.exists('key' + os.path.sep)
 
             with pytest.raises(StorageError):
-                local_storage.exists("/key")
+                local_storage.exists('/key')
 
             with pytest.raises(StorageError):
-                local_storage.exists(os.path.sep + "key")
+                local_storage.exists(os.path.sep + 'key')
 
         def test_backslash(self, local_storage: LocalStorage):
             with pytest.raises(StorageError):
-                local_storage.exists("key\\with\\backslashes")
+                local_storage.exists('key\\with\\backslashes')
 
         def test_dot(self, local_storage: LocalStorage):
             with pytest.raises(StorageError):
-                local_storage.exists("key.with.dots")
+                local_storage.exists('key.with.dots')
 
         def test_forwardslash(self, local_storage: LocalStorage):
             with pytest.raises(StorageError):
-                local_storage.exists("key/with/forwardslashes")
+                local_storage.exists('key/with/forwardslashes')
 
         def test_relative_path_trickery(self, local_storage: LocalStorage):
-            key = "other_key"
+            key = 'other_key'
             (local_storage._storage_path / key).touch()
             with pytest.raises(StorageError):
-                local_storage.exists("key/../other_key")
+                local_storage.exists('key/../other_key')
