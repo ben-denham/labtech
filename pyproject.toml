@@ -83,7 +83,7 @@ line-length = 160
 extend-exclude = ["tests/integration/readme/*.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+select = ["E", "F", "W", "I", "TC" ]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore non-top-level imports, repeated imports, and unordered imports in examples

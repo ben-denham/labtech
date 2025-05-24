@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from itertools import zip_longest
 from string import Template
-from typing import Optional, Sequence, cast
+from typing import TYPE_CHECKING, Optional, Sequence, cast
 
 import psutil
 
 from .exceptions import LabError
-from .types import Runner, TaskMonitorInfo, TaskMonitorInfoItem, TaskMonitorInfoValue
 from .utils import tqdm
+
+if TYPE_CHECKING:
+    from .types import Runner, TaskMonitorInfo, TaskMonitorInfoItem, TaskMonitorInfoValue
 
 
 def get_info_value(task_info_item: TaskMonitorInfoItem) -> TaskMonitorInfoValue:
@@ -54,7 +58,7 @@ class TerminalMultilineDisplay(MultilineDisplay):
         for pbar, line in zip_longest(self.pbars, lines, fillvalue=''):
             # Safe to cast pbar, as pbars will always be the longest
             # list and items will never be strings.
-            cast(tqdm, pbar).set_description_str(line)
+            cast('tqdm', pbar).set_description_str(line)
 
     def show(self) -> None:
         pass

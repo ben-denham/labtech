@@ -1,10 +1,10 @@
 """Utilities for defining tasks."""
+from __future__ import annotations
 
 from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
-from types import UnionType
-from typing import Any, Optional, Sequence, TypeAlias, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Sequence, TypeAlias, Union, cast
 
 from frozendict import frozendict
 
@@ -14,6 +14,9 @@ from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task, Tas
 from .utils import ensure_dict_key_str
 
 ParamScalar: TypeAlias = None | str | bool | float | int | Enum
+
+if TYPE_CHECKING:
+    from types import UnionType
 
 
 class CacheDefault:
@@ -40,7 +43,7 @@ def immutable_param_value(key: str, value: Any) -> Any:
             ensure_dict_key_str(dict_key, exception_type=TaskError): immutable_param_value(f'{key}["{dict_key}"]', dict_value)
             for dict_key, dict_value in value.items()
         })
-    is_scalar = isinstance(value, cast(UnionType, ParamScalar))
+    is_scalar = isinstance(value, cast('UnionType', ParamScalar))
     if is_scalar or is_task(value):
         return value
     raise TaskError(f"Unsupported type '{type(value).__qualname__}' in parameter value '{key}'.")
@@ -95,7 +98,7 @@ def _task_current_code_version(self: Task) -> Optional[str]:
 def _task_cache_key(self: Task) -> str:
     if self._cache_key is None:
         object.__setattr__(self, '_cache_key', self._lt.cache.cache_key(self))
-    return cast(str, self._cache_key)
+    return cast('str', self._cache_key)
 
 
 def _task_result(self: Task[ResultT]) -> ResultT:
@@ -255,7 +258,7 @@ def task(*args,
             cache = NullCache()
 
         cls._lt = TaskInfo(
-            cache=cast(Cache, cache),
+            cache=cast('Cache', cache),
             orig_post_init=post_init,
             max_parallel=max_parallel,
             mlflow_run=mlflow_run,
@@ -307,7 +310,7 @@ def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] 
             for item in param_value.values()
             for task in find_tasks_in_param(item, searched_coll_ids)
         ]
-    elif isinstance(param_value, cast(UnionType, ParamScalar)):
+    elif isinstance(param_value, cast('UnionType', ParamScalar)):
         return []
 
     # This should be impossible.

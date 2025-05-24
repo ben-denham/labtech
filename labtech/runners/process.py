@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 import logging
 import multiprocessing
@@ -11,7 +13,7 @@ from itertools import count
 from logging.handlers import QueueHandler
 from queue import Empty, Queue
 from threading import Thread
-from typing import Any, Callable, Iterator, Optional, Sequence, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, Sequence, cast
 from uuid import UUID, uuid4
 
 import psutil
@@ -23,6 +25,14 @@ from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBack
 from labtech.utils import LoggerFileProxy, logger
 
 from .base import run_or_load_task
+
+if TYPE_CHECKING:
+    from multiprocessing.context import BaseContext, SpawnContext
+
+    if sys.platform != 'win32':
+        from multiprocessing.context import ForkContext
+    else:
+        ForkContext = BaseContext
 
 
 class FutureStateError(Exception):
@@ -119,7 +129,7 @@ def _subprocess_target(*, future_id: int, thunk: Callable[[], Any], result_queue
 
 class ProcessExecutor:
 
-    def __init__(self, mp_context: multiprocessing.context.BaseContext, max_workers: Optional[int]):
+    def __init__(self, mp_context: BaseContext, max_workers: Optional[int]):
         self.mp_context = mp_context
         self.max_workers = (os.cpu_count() or 1) if max_workers is None else max_workers
         self._pending_future_to_thunk: dict[Future, Callable[[], Any]] = {}
@@ -338,7 +348,7 @@ class ProcessRunner(Runner, ABC):
             current_process = multiprocessing.current_process()
             process_event_queue.put(ProcessStartEvent(
                 task_name=task_name,
-                pid=cast(int, current_process.pid),
+                pid=cast('int', current_process.pid),
                 use_cache=use_cache,
             ))
 
@@ -418,7 +428,7 @@ class ProcessRunner(Runner, ABC):
         return self.process_monitor.get_process_infos()
 
     @abstractmethod
-    def _get_mp_context(self) -> multiprocessing.context.BaseContext:
+    def _get_mp_context(self) -> BaseContext:
         """Return a multiprocessing context from which to start subprocesses."""
 
     @abstractmethod
@@ -440,7 +450,7 @@ class SpawnProcessRunner(ProcessRunner):
         self.context = context
         self.storage = storage
 
-    def _get_mp_context(self) -> multiprocessing.context.SpawnContext:
+    def _get_mp_context(self) -> SpawnContext:
         return multiprocessing.get_context('spawn')
 
     def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
@@ -508,7 +518,7 @@ class ForkProcessRunner(ProcessRunner):
             results_map=self.results_map,
         )
 
-    def _get_mp_context(self) -> multiprocessing.context.ForkContext:
+    def _get_mp_context(self) -> ForkContext:
         return multiprocessing.get_context('fork')
 
     @staticmethod
