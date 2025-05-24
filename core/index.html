@@ -1000,7 +1000,7 @@
   <h1>Labs and Tasks</h1>
 
 <p>In this document you'll find API reference documentation for
-configuring <a class="autorefs autorefs-internal" title="labtech.Lab" href="#labtech.Lab">Labs</a> and <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: Optional[str] = None, cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT, max_parallel: Optional[int] = None, mlflow_run: bool = False)" href="#labtech.task">tasks</a>. For a
+configuring <a class="autorefs autorefs-internal" title="labtech.Lab" href="#labtech.Lab">Labs</a> and <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: str | None = None, cache: CacheDefault | None | Cache = CACHE_DEFAULT, max_parallel: int | None = None, mlflow_run: bool = False)" href="#labtech.task">tasks</a>. For a
 tutorial-style explanation, see the <a href="../">README</a>.</p>
 
 
@@ -1021,7 +1021,7 @@ tutorial-style explanation, see the <a href="../">README</a>.</p>
         <p>Primary interface for configuring, running, and getting results of tasks.</p>
 <p>A Lab can be used to run tasks with <a class="autorefs autorefs-internal" title="run_tasks(tasks: Sequence[TaskT], *, bust_cache: bool = False, disable_progress: bool = False, disable_top: bool = False, top_format: str = '$name $status since $start_time CPU: $cpu MEM: $rss', top_sort: str = 'start_time', top_n: int = 10) -> dict[TaskT, Any]" href="#labtech.Lab.run_tasks"><code>run_tasks()</code></a>.</p>
 <p>Previously cached tasks can be retrieved with
-<a class="autorefs autorefs-internal" title="cached_tasks(task_types: Sequence[Type[TaskT]]) -> Sequence[TaskT]" href="#labtech.Lab.cached_tasks"><code>cached_tasks()</code></a>, and can then have
+<a class="autorefs autorefs-internal" title="cached_tasks(task_types: Sequence[type[TaskT]]) -> Sequence[TaskT]" href="#labtech.Lab.cached_tasks"><code>cached_tasks()</code></a>, and can then have
 their results loaded with <a class="autorefs autorefs-internal" title="run_tasks(tasks: Sequence[TaskT], *, bust_cache: bool = False, disable_progress: bool = False, disable_top: bool = False, top_format: str = '$name $status since $start_time CPU: $cpu MEM: $rss', top_sort: str = 'start_time', top_n: int = 10) -> dict[TaskT, Any]" href="#labtech.Lab.run_tasks"><code>run_tasks()</code></a>
 or be removed from the cache storage with
 <a class="autorefs autorefs-internal" title="uncache_tasks(tasks: Sequence[Task])" href="#labtech.Lab.uncache_tasks"><code>uncache_tasks()</code></a>.</p>
@@ -1034,14 +1034,7 @@ or be removed from the cache storage with
 
               <details class="quote">
                 <summary>Source code in <code>labtech/lab.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">293</span>
 <span class="normal">294</span>
 <span class="normal">295</span>
 <span class="normal">296</span>
@@ -1295,7 +1288,14 @@ or be removed from the cache storage with
 <span class="normal">544</span>
 <span class="normal">545</span>
 <span class="normal">546</span>
-<span class="normal">547</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Lab</span><span class="p">:</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Lab</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Primary interface for configuring, running, and getting results of tasks.</span>
 
 <span class="sd">    A Lab can be used to run tasks with [`run_tasks()`][labtech.Lab.run_tasks].</span>
@@ -1309,12 +1309,12 @@ or be removed from the cache storage with
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
-                 <span class="n">storage</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Storage</span><span class="p">],</span>
+                 <span class="n">storage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Storage</span><span class="p">,</span>
                  <span class="n">continue_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                 <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">notebook</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LabContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">runner_backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">RunnerBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                 <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">notebook</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">runner_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">RunnerBackend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            storage: Where task results should be cached to. A string or</span>
@@ -1391,7 +1391,7 @@ or be removed from the cache storage with
             <span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
         <span class="k">if</span> <span class="n">runner_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">start_methods</span> <span class="o">=</span> <span class="n">get_all_start_methods</span><span class="p">()</span>
+            <span class="n">start_methods</span> <span class="o">=</span> <span class="n">get_supported_start_methods</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">runner_backend</span> <span class="o">=</span> <span class="n">ThreadRunnerBackend</span><span class="p">()</span>
             <span class="k">elif</span> <span class="s1">&#39;fork&#39;</span> <span class="ow">in</span> <span class="n">start_methods</span><span class="p">:</span>
@@ -1519,7 +1519,7 @@ or be removed from the cache storage with
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">([</span><span class="n">task</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="n">task</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns all task instances present in the Lab&#39;s cache storage for</span>
 <span class="sd">        the given `task_types`, each of which should be a task class</span>
 <span class="sd">        decorated with [`labtech.task`][labtech.task].</span>
@@ -1576,7 +1576,7 @@ or be removed from the cache storage with
 
 
 <h3 id="labtech.Lab.__init__" class="doc doc-heading">
-            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">storage</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Storage</span><span class="p">],</span> <span class="n">continue_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">notebook</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LabContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">runner_backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">RunnerBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">storage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Storage</span><span class="p">,</span> <span class="n">continue_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">notebook</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">runner_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">RunnerBackend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1589,7 +1589,7 @@ or be removed from the cache storage with
     <ul>
         <li class="doc-section-item field-body">
             <b><code>storage</code></b>
-              (<code><span title="typing.Union">Union</span>[<span title="str">str</span>, <span title="pathlib.Path">Path</span>, None, <a class="autorefs autorefs-internal" title="labtech.storage.Storage (labtech.types.Storage)" href="../caching/#labtech.storage.Storage">Storage</a>]</code>)
+              (<code><span title="str">str</span> | <span title="pathlib.Path">Path</span> | None | <a class="autorefs autorefs-internal" title="labtech.storage.Storage (labtech.types.Storage)" href="../caching/#labtech.storage.Storage">Storage</a></code>)
           –
           <div class="doc-md-description">
             <p>Where task results should be cached to. A string or
@@ -1612,7 +1612,7 @@ logged, but execution of other tasks will continue.</p>
         </li>
         <li class="doc-section-item field-body">
             <b><code>max_workers</code></b>
-              (<code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>, default:
+              (<code><span title="int">int</span> | None</code>, default:
                   <code>None</code>
 )
           –
@@ -1626,7 +1626,7 @@ processors on the machine given by <code>os.cpu_count()</code>, while
         </li>
         <li class="doc-section-item field-body">
             <b><code>notebook</code></b>
-              (<code><span title="typing.Optional">Optional</span>[<span title="bool">bool</span>]</code>, default:
+              (<code><span title="bool">bool</span> | None</code>, default:
                   <code>None</code>
 )
           –
@@ -1638,11 +1638,11 @@ detect whether the code is being run from an IPython notebook.</p>
         </li>
         <li class="doc-section-item field-body">
             <b><code>context</code></b>
-              (<code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="labtech.types.LabContext = dict[str, Any]
+              (<code><a class="autorefs autorefs-internal" title="labtech.types.LabContext: TypeAlias = dict[str, Any]
 
   
       module-attribute
-   (labtech.types.LabContext)" href="#labtech.types.LabContext">LabContext</a>]</code>, default:
+   (labtech.types.LabContext)" href="#labtech.types.LabContext">LabContext</a> | None</code>, default:
                   <code>None</code>
 )
           –
@@ -1655,7 +1655,7 @@ constant between runs (e.g. datasets).</p>
         </li>
         <li class="doc-section-item field-body">
             <b><code>runner_backend</code></b>
-              (<code><span title="typing.Optional">Optional</span>[<span title="str">str</span> | <a class="autorefs autorefs-internal" title="labtech.types.RunnerBackend" href="../runners/#labtech.types.RunnerBackend">RunnerBackend</a>]</code>, default:
+              (<code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="labtech.types.RunnerBackend" href="../runners/#labtech.types.RunnerBackend">RunnerBackend</a> | None</code>, default:
                   <code>None</code>
 )
           –
@@ -1708,14 +1708,7 @@ optionally be set to one of the following options:</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
-<span class="normal">305</span>
-<span class="normal">306</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">306</span>
 <span class="normal">307</span>
 <span class="normal">308</span>
 <span class="normal">309</span>
@@ -1813,13 +1806,20 @@ optionally be set to one of the following options:</p>
 <span class="normal">401</span>
 <span class="normal">402</span>
 <span class="normal">403</span>
-<span class="normal">404</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
-             <span class="n">storage</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Storage</span><span class="p">],</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+             <span class="n">storage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Storage</span><span class="p">,</span>
              <span class="n">continue_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-             <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-             <span class="n">notebook</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-             <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LabContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-             <span class="n">runner_backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">RunnerBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+             <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">notebook</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">runner_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">RunnerBackend</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
 <span class="sd">        storage: Where task results should be cached to. A string or</span>
@@ -1896,7 +1896,7 @@ optionally be set to one of the following options:</p>
         <span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
     <span class="k">if</span> <span class="n">runner_backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">start_methods</span> <span class="o">=</span> <span class="n">get_all_start_methods</span><span class="p">()</span>
+        <span class="n">start_methods</span> <span class="o">=</span> <span class="n">get_supported_start_methods</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_workers</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">runner_backend</span> <span class="o">=</span> <span class="n">ThreadRunnerBackend</span><span class="p">()</span>
         <span class="k">elif</span> <span class="s1">&#39;fork&#39;</span> <span class="ow">in</span> <span class="n">start_methods</span><span class="p">:</span>
@@ -1952,11 +1952,11 @@ assigned to a <code>result</code> attribute on the task itself.</p>
     <ul>
         <li class="doc-section-item field-body">
             <b><code>tasks</code></b>
-              (<code><span title="typing.Sequence">Sequence</span>[<span title="labtech.types.TaskT">TaskT</span>]</code>)
+              (<code><span title="collections.abc.Sequence">Sequence</span>[<span title="labtech.types.TaskT">TaskT</span>]</code>)
           –
           <div class="doc-md-description">
             <p>The tasks to execute. Each should be an instance of a class
-decorated with <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: Optional[str] = None, cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT, max_parallel: Optional[int] = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a>.</p>
+decorated with <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: str | None = None, cache: CacheDefault | None | Cache = CACHE_DEFAULT, max_parallel: int | None = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a>.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -2063,14 +2063,7 @@ corresponding result.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">406</span>
-<span class="normal">407</span>
-<span class="normal">408</span>
-<span class="normal">409</span>
-<span class="normal">410</span>
-<span class="normal">411</span>
-<span class="normal">412</span>
-<span class="normal">413</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">413</span>
 <span class="normal">414</span>
 <span class="normal">415</span>
 <span class="normal">416</span>
@@ -2151,7 +2144,14 @@ corresponding result.</p>
 <span class="normal">491</span>
 <span class="normal">492</span>
 <span class="normal">493</span>
-<span class="normal">494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span>
               <span class="n">bust_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
               <span class="n">disable_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
               <span class="n">disable_top</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2281,19 +2281,19 @@ arguments as <code>run_tasks</code>.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">496</span>
-<span class="normal">497</span>
-<span class="normal">498</span>
-<span class="normal">499</span>
-<span class="normal">500</span>
-<span class="normal">501</span>
-<span class="normal">502</span>
-<span class="normal">503</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">503</span>
 <span class="normal">504</span>
 <span class="normal">505</span>
 <span class="normal">506</span>
 <span class="normal">507</span>
-<span class="normal">508</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">[</span><span class="n">ResultT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultT</span><span class="p">:</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">[</span><span class="n">ResultT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultT</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a single task and return its result. Supports the same keyword</span>
 <span class="sd">    arguments as `run_tasks`.</span>
 
@@ -2316,7 +2316,7 @@ arguments as <code>run_tasks</code>.</p>
 
 
 <h3 id="labtech.Lab.cached_tasks" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">cached_tasks</span><span class="p">(</span><span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">cached_tasks</span><span class="p">(</span><span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]</span></code>
 
 </h3>
 
@@ -2325,7 +2325,7 @@ arguments as <code>run_tasks</code>.</p>
 
         <p>Returns all task instances present in the Lab's cache storage for
 the given <code>task_types</code>, each of which should be a task class
-decorated with <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: Optional[str] = None, cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT, max_parallel: Optional[int] = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a>.</p>
+decorated with <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: str | None = None, cache: CacheDefault | None | Cache = CACHE_DEFAULT, max_parallel: int | None = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a>.</p>
 <p>Does not load task results from the cache storage, but they
 can be loaded by calling
 <a class="autorefs autorefs-internal" title="run_tasks(tasks: Sequence[TaskT], *, bust_cache: bool = False, disable_progress: bool = False, disable_top: bool = False, top_format: str = '$name $status since $start_time CPU: $cpu MEM: $rss', top_sort: str = 'start_time', top_n: int = 10) -> dict[TaskT, Any]" href="#labtech.Lab.run_tasks"><code>run_tasks()</code></a> with the returned task
@@ -2334,14 +2334,7 @@ instances.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">510</span>
-<span class="normal">511</span>
-<span class="normal">512</span>
-<span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span>
-<span class="normal">517</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">517</span>
 <span class="normal">518</span>
 <span class="normal">519</span>
 <span class="normal">520</span>
@@ -2357,7 +2350,14 @@ instances.</p>
 <span class="normal">530</span>
 <span class="normal">531</span>
 <span class="normal">532</span>
-<span class="normal">533</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]:</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cached_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TaskT</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns all task instances present in the Lab&#39;s cache storage for</span>
 <span class="sd">    the given `task_types`, each of which should be a task class</span>
 <span class="sd">    decorated with [`labtech.task`][labtech.task].</span>
@@ -2404,11 +2404,11 @@ storage.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">535</span>
-<span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if a result is present for given task in the Lab&#39;s cache</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
     <span class="n">check_tasks</span><span class="p">([</span><span class="n">task</span><span class="p">])</span>
@@ -2436,13 +2436,13 @@ storage.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/lab.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">541</span>
-<span class="normal">542</span>
-<span class="normal">543</span>
-<span class="normal">544</span>
-<span class="normal">545</span>
-<span class="normal">546</span>
-<span class="normal">547</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">uncache_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes cached results for the given tasks from the Lab&#39;s cache</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
     <span class="n">check_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
@@ -2467,7 +2467,7 @@ storage.</p>
 
 
 <h2 id="labtech.task" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">code_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">CacheDefault</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="n">CACHE_DEFAULT</span><span class="p">,</span> <span class="n">max_parallel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mlflow_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">code_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="n">CacheDefault</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Cache</span> <span class="o">=</span> <span class="n">CACHE_DEFAULT</span><span class="p">,</span> <span class="n">max_parallel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mlflow_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span></code>
 
 </h2>
 
@@ -2542,7 +2542,7 @@ implementation may make use of the task's parameter values.</p>
     <ul>
         <li class="doc-section-item field-body">
             <b><code>cache</code></b>
-              (<code><span title="typing.Union">Union</span>[<span title="labtech.tasks.CacheDefault">CacheDefault</span>, None, <span title="labtech.types.Cache">Cache</span>]</code>, default:
+              (<code><span title="labtech.tasks.CacheDefault">CacheDefault</span> | None | <span title="labtech.types.Cache">Cache</span></code>, default:
                   <code><span title="labtech.tasks.CACHE_DEFAULT">CACHE_DEFAULT</span></code>
 )
           –
@@ -2556,7 +2556,7 @@ of this type of task. Defaults to a
         </li>
         <li class="doc-section-item field-body">
             <b><code>code_version</code></b>
-              (<code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>, default:
+              (<code><span title="str">str</span> | None</code>, default:
                   <code>None</code>
 )
           –
@@ -2572,7 +2572,7 @@ be used, e.g. 'v1', '2025-04-22', etc.</p>
         </li>
         <li class="doc-section-item field-body">
             <b><code>max_parallel</code></b>
-              (<code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>, default:
+              (<code><span title="int">int</span> | None</code>, default:
                   <code>None</code>
 )
           –
@@ -2602,13 +2602,7 @@ mlflow logging calls from the task's <code>run()</code> method.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/tasks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
 <span class="normal">141</span>
@@ -2752,10 +2746,16 @@ mlflow logging calls from the task's <code>run()</code> method.</p>
 <span class="normal">279</span>
 <span class="normal">280</span>
 <span class="normal">281</span>
-<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
-         <span class="n">code_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-         <span class="n">cache</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">CacheDefault</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="n">CACHE_DEFAULT</span><span class="p">,</span>
-         <span class="n">max_parallel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
+         <span class="n">code_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+         <span class="n">cache</span><span class="p">:</span> <span class="n">CacheDefault</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Cache</span> <span class="o">=</span> <span class="n">CACHE_DEFAULT</span><span class="p">,</span>
+         <span class="n">max_parallel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
          <span class="n">mlflow_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class decorator for defining task type classes.</span>
 
@@ -2878,7 +2878,7 @@ mlflow logging calls from the task's <code>run()</code> method.</p>
             <span class="n">cache</span> <span class="o">=</span> <span class="n">NullCache</span><span class="p">()</span>
 
         <span class="bp">cls</span><span class="o">.</span><span class="n">_lt</span> <span class="o">=</span> <span class="n">TaskInfo</span><span class="p">(</span>
-            <span class="n">cache</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Cache</span><span class="p">,</span> <span class="n">cache</span><span class="p">),</span>
+            <span class="n">cache</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="s1">&#39;Cache&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="p">),</span>
             <span class="n">orig_post_init</span><span class="o">=</span><span class="n">post_init</span><span class="p">,</span>
             <span class="n">max_parallel</span><span class="o">=</span><span class="n">max_parallel</span><span class="p">,</span>
             <span class="n">mlflow_run</span><span class="o">=</span><span class="n">mlflow_run</span><span class="p">,</span>
@@ -2907,7 +2907,7 @@ mlflow logging calls from the task's <code>run()</code> method.</p>
             </details>
     </div>
 
-</div><p>Any task type decorated with <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: Optional[str] = None, cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT, max_parallel: Optional[int] = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a> will
+</div><p>Any task type decorated with <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: str | None = None, cache: CacheDefault | None | Cache = CACHE_DEFAULT, max_parallel: int | None = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a> will
 provide the following attributes and methods:</p>
 
 
@@ -2932,7 +2932,7 @@ provide the following attributes and methods:</p>
 
 
         <p>Interface provided by any class that is decorated by
-<a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: Optional[str] = None, cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT, max_parallel: Optional[int] = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a>.</p>
+<a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: str | None = None, cache: CacheDefault | None | Cache = CACHE_DEFAULT, max_parallel: int | None = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a>.</p>
 
 
 
@@ -2942,7 +2942,13 @@ provide the following attributes and methods:</p>
 
               <details class="quote">
                 <summary>Source code in <code>labtech/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 66</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
 <span class="normal"> 67</span>
 <span class="normal"> 68</span>
 <span class="normal"> 69</span>
@@ -3008,23 +3014,19 @@ provide the following attributes and methods:</p>
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Task</span><span class="p">(</span><span class="n">Protocol</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">CovariantResultT</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface provided by any class that is decorated by</span>
 <span class="sd">    [`labtech.task`][labtech.task].&quot;&quot;&quot;</span>
     <span class="n">_lt</span><span class="p">:</span> <span class="n">TaskInfo</span>
     <span class="n">_is_task</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span>
-    <span class="n">_results_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ResultsMap</span><span class="p">]</span>
-    <span class="n">_cache_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LabContext</span><span class="p">]</span>
+    <span class="n">_results_map</span><span class="p">:</span> <span class="n">ResultsMap</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">_cache_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Context variables from the Lab that can be accessed when the task is running.&quot;&quot;&quot;</span>
-    <span class="n">result_meta</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ResultMeta</span><span class="p">]</span>
+    <span class="n">result_meta</span><span class="p">:</span> <span class="n">ResultMeta</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Metadata about the execution of the task.&quot;&quot;&quot;</span>
-    <span class="n">code_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">code_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Identifier for the version of task&#39;s implementation. If this task was</span>
 <span class="sd">    loaded from cache, it may have a different value to that currently specified</span>
 <span class="sd">    in the decorator.&quot;&quot;&quot;</span>
@@ -3036,7 +3038,7 @@ provide the following attributes and methods:</p>
         <span class="k">pass</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">current_code_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">current_code_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Identifier for the current version of task&#39;s implementation</span>
 <span class="sd">        as specified in the [`labtech.task`][labtech.task] decorator.&quot;&quot;&quot;</span>
 
@@ -3083,6 +3085,8 @@ provide the following attributes and methods:</p>
 <span class="sd">        instead of being called directly.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3101,7 +3105,7 @@ provide the following attributes and methods:</p>
 
 
 <h3 id="labtech.types.Task.context" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LabContext</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span> <span class="o">|</span> <span class="kc">None</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -3123,7 +3127,7 @@ provide the following attributes and methods:</p>
 
 
 <h3 id="labtech.types.Task.result_meta" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">result_meta</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ResultMeta</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">result_meta</span><span class="p">:</span> <span class="n">ResultMeta</span> <span class="o">|</span> <span class="kc">None</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -3145,7 +3149,7 @@ provide the following attributes and methods:</p>
 
 
 <h3 id="labtech.types.Task.code_version" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">code_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">code_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -3169,7 +3173,7 @@ in the decorator.</p>
 
 
 <h3 id="labtech.types.Task.current_code_version" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">current_code_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">current_code_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -3181,7 +3185,7 @@ in the decorator.</p>
     <div class="doc doc-contents ">
 
         <p>Identifier for the current version of task's implementation
-as specified in the <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: Optional[str] = None, cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT, max_parallel: Optional[int] = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a> decorator.</p>
+as specified in the <a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: str | None = None, cache: CacheDefault | None | Cache = CACHE_DEFAULT, max_parallel: int | None = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a> decorator.</p>
 
     </div>
 
@@ -3252,9 +3256,9 @@ running.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/types.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the context that is made available to the task while it is</span>
 <span class="sd">    running.&quot;&quot;&quot;</span>
 </code></pre></div></td></tr></table></div>
@@ -3283,14 +3287,14 @@ task's parameter values.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/types.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">runner_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">runner_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;User-overridable method to a dictionary of options to</span>
 <span class="sd">    further control the behaviour of specific types of runner</span>
 <span class="sd">    backend - refer to the documentation of each runner backend</span>
@@ -3326,17 +3330,17 @@ other kinds of processes in parallel processing frameworks.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/types.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">117</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabContext</span><span class="p">:</span>
+<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">LabContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;User-overridable method to filter/transform the context to</span>
 <span class="sd">    be provided to the task. The default implementation provides</span>
 <span class="sd">    the full context to the task. The filtering may take into</span>
@@ -3372,14 +3376,14 @@ instead of being called directly.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/types.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;User-provided method that executes the task parameterised by the</span>
 <span class="sd">    attributes of the task.</span>
 
@@ -3458,20 +3462,20 @@ cache, the metadata is also loaded from the cache.</p>
 
               <details class="quote">
                 <summary>Source code in <code>labtech/types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ResultMeta</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Metadata about the execution of a task. If the task is loaded from</span>
 <span class="sd">    cache, the metadata is also loaded from the cache.&quot;&quot;&quot;</span>
-    <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The timestamp when the task&#39;s execution began.&quot;&quot;&quot;</span>
-    <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The time that the task took to execute.&quot;&quot;&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -3491,7 +3495,7 @@ cache, the metadata is also loaded from the cache.</p>
 
 
 <h3 id="labtech.types.ResultMeta.start" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -3513,7 +3517,7 @@ cache, the metadata is also loaded from the cache.</p>
 
 
 <h3 id="labtech.types.ResultMeta.duration" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">duration</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">|</span> <span class="kc">None</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -3545,7 +3549,7 @@ cache, the metadata is also loaded from the cache.</p>
 
 
 <h2 id="labtech.types.LabContext" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">LabContext</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">LabContext</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3572,15 +3576,15 @@ cache, the metadata is also loaded from the cache.</p>
     <div class="doc doc-contents first">
 
         <p>Returns <code>True</code> if the given <code>cls</code> is a class decorated with
-<a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: Optional[str] = None, cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT, max_parallel: Optional[int] = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a>.</p>
+<a class="autorefs autorefs-internal" title="labtech.task(*args, code_version: str | None = None, cache: CacheDefault | None | Cache = CACHE_DEFAULT, max_parallel: int | None = None, mlflow_run: bool = False)" href="#labtech.task"><code>labtech.task</code></a>.</p>
 
 
             <details class="quote">
               <summary>Source code in <code>labtech/types.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_task_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_task_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns `True` if the given `cls` is a class decorated with</span>
 <span class="sd">    [`labtech.task`][labtech.task].&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">isclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;_lt&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">TaskInfo</span><span class="p">)</span>
@@ -3606,9 +3610,9 @@ cache, the metadata is also loaded from the cache.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/types.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_task</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_task</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns `True` if the given `obj` is an instance of a task class.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">is_task_type</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;_is_task&#39;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
