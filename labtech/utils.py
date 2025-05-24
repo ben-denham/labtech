@@ -114,7 +114,7 @@ def ensure_dict_key_str(value, *, exception_type: Type[Exception]) -> str:
     if not isinstance(value, str):
         raise exception_type(("Parameter dictionary keys must be strings, "
                               f"found: '{value}'"))
-    return cast(str, value)
+    return cast('str', value)
 
 
 def is_ipython() -> bool:

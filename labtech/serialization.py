@@ -92,7 +92,7 @@ class Serializer:
 
     def deserialize_value(self, value: jsonable):
         if self.is_serialized_task(value):
-            return self.deserialize_task(cast(dict[str, jsonable], value), result_meta=None)
+            return self.deserialize_task(cast('dict[str, jsonable]', value), result_meta=None)
         elif isinstance(value, list):
             return tuple([self.deserialize_value(item) for item in value])
         elif isinstance(value, dict):
@@ -101,7 +101,7 @@ class Serializer:
               for k, v in value.items()
             })
         elif self.is_serialized_enum(value):
-            return self.deserialize_enum(cast(dict[str, jsonable], value))
+            return self.deserialize_enum(cast('dict[str, jsonable]', value))
         return value
 
     def is_serialized_enum(self, serialized: jsonable) -> bool:
@@ -122,6 +122,6 @@ class Serializer:
         return f'{cls.__module__}.{cls.__qualname__}'
 
     def deserialize_class(self, serialized_class: jsonable) -> Type:
-        cls_module, cls_name = cast(str, serialized_class).rsplit('.', 1)
+        cls_module, cls_name = cast('str', serialized_class).rsplit('.', 1)
         module = __import__(cls_module, fromlist=[cls_name])
         return getattr(module, cls_name)
