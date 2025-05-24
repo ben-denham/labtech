@@ -135,6 +135,7 @@ class Task(Protocol, Generic[CovariantResultT]):
 
         """
 
+    def __hash__(self) -> int: ...
 
 TaskT = TypeVar("TaskT", bound=Task)
 
