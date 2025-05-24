@@ -2,14 +2,16 @@
 Loosely based on tasks from the tutorial."""
 
 from tempfile import TemporaryDirectory
-from typing import Any, Protocol, TypedDict
+from typing import TYPE_CHECKING, Any, Protocol, TypedDict
 
 import pytest
 import ray
 
 import labtech
 from labtech.runners.ray import RayRunnerBackend
-from labtech.types import Task
+
+if TYPE_CHECKING:
+    from labtech.types import Task
 
 
 @labtech.task(cache=None)
@@ -86,7 +88,7 @@ def context() -> dict[str, Any]:
 
 
 class Evaluation(TypedDict):
-    task: Task
+    task: 'Task'
     expected_result: Any
 
 

@@ -1,16 +1,23 @@
+from __future__ import annotations
+
 import multiprocessing
 from collections import deque
 from dataclasses import dataclass
-from typing import Iterator, Optional, Sequence
+from typing import TYPE_CHECKING
 
 import psutil
 
 from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import Runner, RunnerBackend
 from labtech.utils import logger
 
 from .base import run_or_load_task
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from labtech.types import LabContext, ResultMeta, Storage, Task, TaskMonitorInfo, TaskResult
 
 
 @dataclass(frozen=True)
@@ -39,7 +46,7 @@ class SerialRunner(Runner):
             use_cache=use_cache,
         ))
 
-    def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
+    def wait(self, *, timeout_seconds: float | None) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
         try:
             task_submission = self.task_submissions.popleft()
         except IndexError:
@@ -114,7 +121,7 @@ class SerialRunnerBackend(RunnerBackend):
     """Runner Backend that runs each task serially in the main process
     and thread."""
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> SerialRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> SerialRunner:
         return SerialRunner(
             context=context,
             storage=storage,

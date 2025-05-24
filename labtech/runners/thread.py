@@ -1,19 +1,27 @@
+from __future__ import annotations
+
 import os
 import threading
-from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from importlib import import_module
-from typing import Iterator, Optional, Sequence
+from typing import TYPE_CHECKING
 
 import psutil
 
 from labtech.exceptions import RunnerError
 from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import Runner, RunnerBackend
 from labtech.utils import OrderedSet, logger, make_logger_handler
 
 from .base import run_or_load_task
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+    from concurrent.futures import Future
+
+    from labtech.types import LabContext, ResultMeta, Storage, Task, TaskMonitorInfo, TaskResult
 
 
 class KillThread(Exception):
@@ -29,7 +37,7 @@ class TaskConfig:
 
 class ThreadRunner(Runner):
 
-    def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> None:
+    def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> None:
         self.context = context
         self.storage = storage
         self.max_workers = (os.cpu_count() or 1) + 4 if max_workers is None else max_workers
@@ -84,7 +92,7 @@ class ThreadRunner(Runner):
         )
         self.future_to_task[future] = task
 
-    def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
+    def wait(self, *, timeout_seconds: float | None) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
         done, _ = wait(
             self.future_to_task.keys(),
             timeout=timeout_seconds,
@@ -171,7 +179,7 @@ class ThreadRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> ThreadRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ThreadRunner:
         return ThreadRunner(
             context=context,
             storage=storage,

@@ -1,14 +1,16 @@
-from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import pytest
 
 import labtech
 from labtech.lab import Lab
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 @pytest.fixture()
-def lab(tmp_path: Path) -> Lab:
+def lab(tmp_path: "Path") -> Lab:
     return Lab(storage=tmp_path, max_workers=1)
 
 

@@ -83,8 +83,12 @@ line-length = 160
 extend-exclude = ["tests/integration/readme/*.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+select = ["E", "F", "W", "I", "TC", "UP006", "UP007", "UP035", "UP037"]
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore non-top-level imports, repeated imports, and unordered imports in examples
-"examples/*.ipynb" = ["E402", "F811", "I001"]
+# Ignore non-top-level imports, repeated imports, and unformatted imports in examples
+"examples/*.ipynb" = ["E402", "F811", "I001", "TC"]
+
+[tool.ruff.lint.flake8-type-checking]
+strict = true
+quote-annotations = true

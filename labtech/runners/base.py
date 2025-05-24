@@ -1,15 +1,22 @@
+from __future__ import annotations
+
 from contextlib import contextmanager
 from dataclasses import fields
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING
 
 from frozendict import frozendict
 
 from labtech.exceptions import LabError
 from labtech.tasks import is_task
-from labtech.types import LabContext, ResultMeta, Storage, Task, TaskResult
+from labtech.types import ResultMeta, TaskResult
 from labtech.utils import logger
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from labtech.types import LabContext, Storage, Task
 
 
 @contextmanager

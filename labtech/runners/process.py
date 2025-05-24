@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 import logging
 import multiprocessing
@@ -9,20 +11,34 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from itertools import count
 from logging.handlers import QueueHandler
-from queue import Empty, Queue
+from queue import Empty
 from threading import Thread
-from typing import Any, Callable, Iterator, Optional, Sequence, cast
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING, cast
+from uuid import uuid4
 
 import psutil
 
 from labtech.exceptions import RunnerError, TaskDiedError
 from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import Runner, RunnerBackend
 from labtech.utils import LoggerFileProxy, logger
 
 from .base import run_or_load_task
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator, Sequence
+    from multiprocessing.context import BaseContext, SpawnContext
+    from queue import Queue
+    from typing import Any
+    from uuid import UUID
+
+    from labtech.types import LabContext, ResultMeta, ResultsMap, Storage, Task, TaskMonitorInfo, TaskResult
+
+    if sys.platform != 'win32':
+        from multiprocessing.context import ForkContext
+    else:
+        ForkContext = BaseContext
 
 
 class FutureStateError(Exception):
@@ -55,8 +71,8 @@ class Future:
     # all futures are generated in the main process):
     id: int = field(default_factory=count().__next__, init=False)
     _state: FutureState = FutureState.PENDING
-    _ex: Optional[BaseException] = None
-    _result: Optional[Any] = None
+    _ex: BaseException | None = None
+    _result: Any | None = None
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
@@ -119,7 +135,7 @@ def _subprocess_target(*, future_id: int, thunk: Callable[[], Any], result_queue
 
 class ProcessExecutor:
 
-    def __init__(self, mp_context: multiprocessing.context.BaseContext, max_workers: Optional[int]):
+    def __init__(self, mp_context: BaseContext, max_workers: int | None):
         self.mp_context = mp_context
         self.max_workers = (os.cpu_count() or 1) if max_workers is None else max_workers
         self._pending_future_to_thunk: dict[Future, Callable[[], Any]] = {}
@@ -170,7 +186,7 @@ class ProcessExecutor:
             future.cancel()
             del self._running_id_to_future_and_process[future.id]
 
-    def _consume_result_queue(self, *, timeout_seconds: Optional[float]):
+    def _consume_result_queue(self, *, timeout_seconds: float | None):
         # Avoid race condition of a process finishing after we have
         # consumed the result_queue by fetching process statuses
         # before checking for process completion.
@@ -217,7 +233,7 @@ class ProcessExecutor:
             future.set_exception(TaskDiedError())
             del self._running_id_to_future_and_process[future.id]
 
-    def wait(self, futures: Sequence[Future], *, timeout_seconds: Optional[float]) -> tuple[list[Future], list[Future]]:
+    def wait(self, futures: Sequence[Future], *, timeout_seconds: float | None) -> tuple[list[Future], list[Future]]:
         """Wait up to timeout_seconds or until at least one of the
         given futures is done, then return a list of futures in a done
         state and a list of futures in all other states."""
@@ -267,7 +283,7 @@ class ProcessMonitor:
             else:
                 raise RunnerError(f'Unexpected process event: {event}')
 
-    def _get_process_info(self, start_event: ProcessStartEvent) -> Optional[TaskMonitorInfo]:
+    def _get_process_info(self, start_event: ProcessStartEvent) -> TaskMonitorInfo | None:
         pid = start_event.pid
         try:
             if start_event.task_name not in self.active_processes_and_children:
@@ -298,7 +314,7 @@ class ProcessMonitor:
 class ProcessRunner(Runner, ABC):
     """Base class for Runner's based on Python multiprocessing."""
 
-    def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
+    def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None):
         self.process_event_queue = multiprocessing.Manager().Queue(-1)
         self.process_monitor = ProcessMonitor(process_event_queue = self.process_event_queue)
         self.log_queue = multiprocessing.Manager().Queue(-1)
@@ -338,7 +354,7 @@ class ProcessRunner(Runner, ABC):
             current_process = multiprocessing.current_process()
             process_event_queue.put(ProcessStartEvent(
                 task_name=task_name,
-                pid=cast(int, current_process.pid),
+                pid=cast('int', current_process.pid),
                 use_cache=use_cache,
             ))
 
@@ -372,7 +388,7 @@ class ProcessRunner(Runner, ABC):
         )
         self.future_to_task[future] = task
 
-    def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
+    def wait(self, *, timeout_seconds: float | None) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
         self._consume_log_queue()
         done, _ = self.executor.wait(list(self.future_to_task.keys()), timeout_seconds=timeout_seconds)
         for future in done:
@@ -418,7 +434,7 @@ class ProcessRunner(Runner, ABC):
         return self.process_monitor.get_process_infos()
 
     @abstractmethod
-    def _get_mp_context(self) -> multiprocessing.context.BaseContext:
+    def _get_mp_context(self) -> BaseContext:
         """Return a multiprocessing context from which to start subprocesses."""
 
     @abstractmethod
@@ -435,12 +451,12 @@ class ProcessRunner(Runner, ABC):
 
 class SpawnProcessRunner(ProcessRunner):
 
-    def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
+    def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None):
         super().__init__(context=context, storage=storage, max_workers=max_workers)
         self.context = context
         self.storage = storage
 
-    def _get_mp_context(self) -> multiprocessing.context.SpawnContext:
+    def _get_mp_context(self) -> SpawnContext:
         return multiprocessing.get_context('spawn')
 
     def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
@@ -479,7 +495,7 @@ class SpawnRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> SpawnProcessRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> SpawnProcessRunner:
         return SpawnProcessRunner(
             context=context,
             storage=storage,
@@ -499,7 +515,7 @@ _RUNNER_FORK_MEMORY: dict[UUID, RunnerMemory] = {}
 
 class ForkProcessRunner(ProcessRunner):
 
-    def __init__(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]):
+    def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None):
         super().__init__(context=context, storage=storage, max_workers=max_workers)
         self.uuid = uuid4()
         _RUNNER_FORK_MEMORY[self.uuid] = RunnerMemory(
@@ -508,7 +524,7 @@ class ForkProcessRunner(ProcessRunner):
             results_map=self.results_map,
         )
 
-    def _get_mp_context(self) -> multiprocessing.context.ForkContext:
+    def _get_mp_context(self) -> ForkContext:
         return multiprocessing.get_context('fork')
 
     @staticmethod
@@ -557,7 +573,7 @@ class ForkRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> ForkProcessRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ForkProcessRunner:
         return ForkProcessRunner(
             context=context,
             storage=storage,

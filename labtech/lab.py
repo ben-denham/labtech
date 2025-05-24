@@ -1,11 +1,12 @@
 """Lab and related utilities responsible for running tasks."""
+from __future__ import annotations
 
 import concurrent.futures.process
 import math
 from collections import Counter, defaultdict
 from multiprocessing import get_all_start_methods
 from pathlib import Path
-from typing import Any, Iterable, Optional, Sequence, Set, Type, Union
+from typing import TYPE_CHECKING
 
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -14,8 +15,15 @@ from .monitor import TaskMonitor
 from .runners import ForkRunnerBackend, SerialRunnerBackend, SpawnRunnerBackend, ThreadRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
-from .types import LabContext, ResultMeta, ResultT, RunnerBackend, Storage, Task, TaskT, is_task, is_task_type
-from .utils import OrderedSet, base_tqdm, is_ipython, logger, tqdm, tqdm_notebook
+from .types import ResultMeta, is_task, is_task_type
+from .utils import OrderedSet, is_ipython, logger, tqdm, tqdm_notebook
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+    from typing import Any
+
+    from .types import LabContext, ResultT, RunnerBackend, Storage, Task, TaskT
+    from .utils import base_tqdm
 
 
 def check_tasks(tasks: Sequence[Task]) -> None:
@@ -27,7 +35,7 @@ def check_tasks(tasks: Sequence[Task]) -> None:
             )
 
 
-def check_task_types(task_types: Sequence[Type[Task]]) -> None:
+def check_task_types(task_types: Sequence[type[Task]]) -> None:
     for task_type in task_types:
         if not is_task_type(task_type):
             raise LabError(
@@ -38,15 +46,15 @@ def check_task_types(task_types: Sequence[Type[Task]]) -> None:
 
 class TaskState:
 
-    def __init__(self, *, coordinator: 'TaskCoordinator', tasks: Sequence[Task]):
+    def __init__(self, *, coordinator: TaskCoordinator, tasks: Sequence[Task]):
         self.coordinator = coordinator
 
         self.pending_tasks: OrderedSet[Task] = OrderedSet()
-        self.processed_task_ids: Set[int] = set()
-        self.task_to_direct_dependencies: dict[Task, Set[Task]] = defaultdict(set)
-        self.task_to_pending_dependencies: dict[Task, Set[Task]] = defaultdict(set)
-        self.task_to_pending_dependents: dict[Task, Set[Task]] = defaultdict(set)
-        self.type_to_active_tasks: dict[Type[Task], Set[Task]] = defaultdict(set)
+        self.processed_task_ids: set[int] = set()
+        self.task_to_direct_dependencies: dict[Task, set[Task]] = defaultdict(set)
+        self.task_to_pending_dependencies: dict[Task, set[Task]] = defaultdict(set)
+        self.task_to_pending_dependents: dict[Task, set[Task]] = defaultdict(set)
+        self.type_to_active_tasks: dict[type[Task], set[Task]] = defaultdict(set)
         # We need to track all unique instances of a task (i.e. that
         # hash the same, but have different identities) so that we can
         # ensure all are updated. Duplicated task instances may occur
@@ -87,7 +95,7 @@ class TaskState:
         self.pending_tasks.remove(task)
         self.type_to_active_tasks[type(task)].add(task)
 
-    def complete_task(self, task: Task, *, result_meta: Optional[ResultMeta]) -> OrderedSet[Task]:
+    def complete_task(self, task: Task, *, result_meta: ResultMeta | None) -> OrderedSet[Task]:
         # A result_meta of None indicates task failure
         if result_meta is not None:
             for task_instance in self.task_to_instances[task]:
@@ -126,7 +134,7 @@ class TaskState:
     def check_cyclic_dependences(self):
         visited = {task: False for task in self.pending_tasks}
 
-        def check_cycle(task: Task, parents: Set[Task]):
+        def check_cycle(task: Task, parents: set[Task]):
             for dependency in self.task_to_direct_dependencies[task]:
                 if dependency == task or dependency in parents:
                     raise LabError(f"Cyclic dependency: Task '{dependency}' depends on itself.")
@@ -143,7 +151,7 @@ class TaskState:
 
 class TaskCoordinator:
 
-    def __init__(self, lab: 'Lab', bust_cache: bool, disable_progress: bool,
+    def __init__(self, lab: Lab, bust_cache: bool, disable_progress: bool,
                  disable_top: bool, top_format: str, top_sort: str, top_n: int):
         self.lab = lab
         self.bust_cache = bust_cache
@@ -153,7 +161,7 @@ class TaskCoordinator:
         self.top_sort = top_sort
         self.top_n = top_n
 
-    def get_pbar(self, *, task_type: Type[Task], task_count: int) -> base_tqdm:
+    def get_pbar(self, *, task_type: type[Task], task_count: int) -> base_tqdm:
         pbar_func = tqdm_notebook if self.lab.notebook else tqdm
         return pbar_func(
             desc=task_type.__qualname__,
@@ -297,12 +305,12 @@ class Lab:
     """
 
     def __init__(self, *,
-                 storage: Union[str, Path, None, Storage],
+                 storage: str | Path | None | Storage,
                  continue_on_failure: bool = True,
-                 max_workers: Optional[int] = None,
-                 notebook: Optional[bool] = None,
-                 context: Optional[LabContext] = None,
-                 runner_backend: Optional[str | RunnerBackend] = None):
+                 max_workers: int | None = None,
+                 notebook: bool | None = None,
+                 context: LabContext | None = None,
+                 runner_backend: str | RunnerBackend | None = None):
         """
         Args:
             storage: Where task results should be cached to. A string or
@@ -507,7 +515,7 @@ class Lab:
         results = self.run_tasks([task], **kwargs)
         return results[task]
 
-    def cached_tasks(self, task_types: Sequence[Type[TaskT]]) -> Sequence[TaskT]:
+    def cached_tasks(self, task_types: Sequence[type[TaskT]]) -> Sequence[TaskT]:
         """Returns all task instances present in the Lab's cache storage for
         the given `task_types`, each of which should be a task class
         decorated with [`labtech.task`][labtech.task].

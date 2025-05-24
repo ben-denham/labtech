@@ -1,30 +1,24 @@
 """Core types of labtech."""
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from inspect import isclass
-from typing import (
-    IO,
-    Any,
-    Callable,
-    Generic,
-    Iterator,
-    Literal,
-    Optional,
-    Protocol,
-    Sequence,
-    Type,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Any, Generic, Protocol, TypeAlias, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator, Sequence
+    from datetime import timedelta
+    from typing import IO, Literal
 
 
 @dataclass(frozen=True)
 class TaskInfo:
-    orig_post_init: Optional[Callable]
-    cache: 'Cache'
-    current_code_version: Optional[str]
-    max_parallel: Optional[int]
+    orig_post_init: Callable | None
+    cache: Cache
+    current_code_version: str | None
+    max_parallel: int | None
     mlflow_run: bool
 
 
@@ -32,16 +26,16 @@ CovariantResultT = TypeVar('CovariantResultT', covariant=True)
 ResultT = TypeVar('ResultT')
 """Type variable for result returned by the `run` method of a
 [`Task`][labtech.types.Task]."""
-LabContext = dict[str, Any]
+LabContext: TypeAlias = dict[str, Any]
 
 
 @dataclass(frozen=True)
 class ResultMeta:
     """Metadata about the execution of a task. If the task is loaded from
     cache, the metadata is also loaded from the cache."""
-    start: Optional[datetime]
+    start: datetime | None
     """The timestamp when the task's execution began."""
-    duration: Optional[timedelta]
+    duration: timedelta | None
     """The time that the task took to execute."""
 
 
@@ -53,13 +47,13 @@ class TaskResult(Generic[ResultT]):
 
 class ResultsMap(Protocol, Generic[ResultT]):
 
-    def __getitem__(self, task: 'Task[ResultT]') -> TaskResult[ResultT]:
+    def __getitem__(self, task: Task[ResultT]) -> TaskResult[ResultT]:
         pass
 
-    def get(self, task: 'Task[ResultT]') -> Optional[TaskResult[ResultT]]:
+    def get(self, task: Task[ResultT]) -> TaskResult[ResultT] | None:
         pass
 
-    def __contains__(self, task: 'Task[ResultT]') -> bool:
+    def __contains__(self, task: Task[ResultT]) -> bool:
         pass
 
 
@@ -69,13 +63,13 @@ class Task(Protocol, Generic[CovariantResultT]):
     [`labtech.task`][labtech.task]."""
     _lt: TaskInfo
     _is_task: Literal[True]
-    _results_map: Optional[ResultsMap]
-    _cache_key: Optional[str]
-    context: Optional[LabContext]
+    _results_map: ResultsMap | None
+    _cache_key: str | None
+    context: LabContext | None
     """Context variables from the Lab that can be accessed when the task is running."""
-    result_meta: Optional[ResultMeta]
+    result_meta: ResultMeta | None
     """Metadata about the execution of the task."""
-    code_version: Optional[str]
+    code_version: str | None
     """Identifier for the version of task's implementation. If this task was
     loaded from cache, it may have a different value to that currently specified
     in the decorator."""
@@ -87,7 +81,7 @@ class Task(Protocol, Generic[CovariantResultT]):
         pass
 
     @property
-    def current_code_version(self) -> Optional[str]:
+    def current_code_version(self) -> str | None:
         """Identifier for the current version of task's implementation
         as specified in the [`labtech.task`][labtech.task] decorator."""
 
@@ -199,7 +193,7 @@ class Cache(ABC):
         `storage`."""
 
     @abstractmethod
-    def load_task(self, storage: Storage, task_type: Type[TaskT], key: str) -> TaskT:
+    def load_task(self, storage: Storage, task_type: type[TaskT], key: str) -> TaskT:
         """Loads the task instance of the given `task_type` for the given
         `key` from the given `storage`.
 
@@ -275,7 +269,7 @@ class Runner(ABC):
         """
 
     @abstractmethod
-    def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
+    def wait(self, *, timeout_seconds: float | None) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
         """Wait up to timeout_seconds or until at least one of the
         submitted tasks is done, then return an iterator of tasks in a
         done state and a list of tasks in all other states.
@@ -331,7 +325,7 @@ class RunnerBackend(ABC):
     """Factory class to construct [Runner][labtech.types.Runner] objects."""
 
     @abstractmethod
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> Runner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> Runner:
         """Return a Runner prepared with the given configuration.
 
         Args:

@@ -1,16 +1,23 @@
+from __future__ import annotations
+
 import multiprocessing
 from dataclasses import dataclass
 from datetime import datetime
 from threading import Thread
 from time import monotonic, sleep
-from typing import Iterator, Optional, Sequence
+from typing import TYPE_CHECKING
 
 from labtech.exceptions import RunnerError
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, ResultT, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult, is_task
+from labtech.types import ResultMeta, Runner, RunnerBackend, TaskResult, is_task
 from labtech.utils import logger
 
 from .base import run_or_load_task
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from labtech.types import LabContext, ResultT, Storage, Task, TaskMonitorInfo
 
 try:
     import ray
@@ -148,7 +155,7 @@ class RayRunner(Runner):
             result_value_ref=result_value_ref,
         )
 
-    def wait(self, *, timeout_seconds: Optional[float]) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
+    def wait(self, *, timeout_seconds: float | None) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
         result_meta_refs = list(self.pending_detail_map.keys())
         done_result_meta_refs, _ = ray.wait(
             result_meta_refs,
@@ -313,7 +320,7 @@ class RayRunnerBackend(RunnerBackend):
         self.monitor_interval_seconds = monitor_interval_seconds
         self.monitor_timeout_seconds = monitor_timeout_seconds
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> Runner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> Runner:
         if max_workers is not None:
             raise RunnerError((
                 'Remove max_workers from your Lab configuration, as RayRunnerBackend only supports max_workers=None. '
