@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from dataclasses import FrozenInstanceError
 from enum import Enum
@@ -48,7 +50,7 @@ class ExampleTask:
         _ExampleEnum.A,
     ],
 )
-def scalar(request: pytest.FixtureRequest) -> 'ParamScalar':
+def scalar(request: pytest.FixtureRequest) -> ParamScalar:
     return request.param
 
 
@@ -57,10 +59,10 @@ class BadCache(BaseCache):
 
     KEY_PREFIX = 'bad__'
 
-    def save_result(self, storage: 'Storage', task: 'Task[ResultT]', result: 'ResultT'):
+    def save_result(self, storage: Storage, task: Task[ResultT], result: ResultT):
         raise NotImplementedError
 
-    def load_result(self, storage: 'Storage', task: 'Task[ResultT]') -> 'ResultT':
+    def load_result(self, storage: Storage, task: Task[ResultT]) -> ResultT:
         raise NotImplementedError
 
 
@@ -307,7 +309,7 @@ class TestImmutableParamValue:
             frozendict({'a': 2}),
         )
 
-    def test_scalar(self, scalar: 'ParamScalar') -> None:
+    def test_scalar(self, scalar: ParamScalar) -> None:
         assert immutable_param_value('hello', scalar) is scalar
 
     def test_unhandled(self) -> None:
@@ -325,7 +327,7 @@ class TestImmutableParamValue:
 
 
 class TestFindTasksInParam:
-    def test_scalar(self, scalar: 'ParamScalar') -> None:
+    def test_scalar(self, scalar: ParamScalar) -> None:
         assert find_tasks_in_param(scalar) == []
 
     def test_task(self) -> None:
