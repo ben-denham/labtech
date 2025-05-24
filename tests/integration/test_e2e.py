@@ -183,7 +183,7 @@ class TestE2E:
     def test_e2e(self, max_workers: int, runner_backend: str, evaluation_key: str, context: dict[str, Any], evaluations: dict[str, Evaluation]) -> None:
         evaluation = evaluations[evaluation_key]
 
-        # MacOS and Windows don't support fork, so test graceful failure:
+        # macOS and Windows don't support fork, so test graceful failure:
         if runner_backend == 'fork' and platform.system() in {'Darwin', 'Windows'}:
             lab = labtech.Lab(
                 storage=None,

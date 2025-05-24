@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import builtins
 import logging
+import platform
 import re
+from multiprocessing import get_all_start_methods
 from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 from tqdm import tqdm as base_tqdm
@@ -123,6 +125,15 @@ def ensure_dict_key_str(value, *, exception_type: type[Exception]) -> str:
 
 def is_ipython() -> bool:
     return hasattr(builtins, '__IPYTHON__')
+
+
+def get_supported_start_methods() -> list[str]:
+    start_methods = get_all_start_methods()
+    # Even though macOS reports that it can support process forking,
+    # it is not considered safe: https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods
+    if 'fork' in start_methods and platform.system() == 'Darwin':
+        start_methods.remove('fork')
+    return start_methods
 
 
 # Disable tqdm monitoring, as we need to avoid threads if we'll be

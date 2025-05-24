@@ -4,7 +4,6 @@ from __future__ import annotations
 import concurrent.futures.process
 import math
 from collections import Counter, defaultdict
-from multiprocessing import get_all_start_methods
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -16,7 +15,7 @@ from .runners import ForkRunnerBackend, SerialRunnerBackend, SpawnRunnerBackend,
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
 from .types import ResultMeta, is_task, is_task_type
-from .utils import OrderedSet, is_ipython, logger, tqdm, tqdm_notebook
+from .utils import OrderedSet, get_supported_start_methods, is_ipython, logger, tqdm, tqdm_notebook
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -387,7 +386,7 @@ class Lab:
             context = {}
         self.context = context
         if runner_backend is None:
-            start_methods = get_all_start_methods()
+            start_methods = get_supported_start_methods()
             if self.max_workers == 1:
                 runner_backend = ThreadRunnerBackend()
             elif 'fork' in start_methods:
