@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Literal
 
 import pytest
@@ -10,7 +12,7 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture()
-def lab(tmp_path: 'Path') -> Lab:
+def lab(tmp_path: Path) -> Lab:
     return Lab(storage=tmp_path, max_workers=1)
 
 

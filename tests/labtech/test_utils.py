@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 from typing import TYPE_CHECKING
 
@@ -43,7 +45,7 @@ class TestOrderedSet:
 
 
 class TestLoggerFileProxy:
-    def test_prefix_added(self, mocker: 'MockerFixture') -> None:
+    def test_prefix_added(self, mocker: MockerFixture) -> None:
         logger_func = mocker.Mock()
         mocker.patch('sys.stdout', LoggerFileProxy(logger_func, 'some_prefix:'))
         print('some_message')
