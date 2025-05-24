@@ -18,11 +18,12 @@ import psutil
 
 from labtech.exceptions import RunnerError, TaskDiedError
 from labtech.monitor import get_process_info
+from labtech.params import ParamHandlerManager
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import LabContext, ResultMeta, ResultsMap, Storage, Task, TaskMonitorInfo, TaskResult
 from labtech.utils import LoggerFileProxy, logger
 
-from .base import run_or_load_task
+from .base import Runner, RunnerBackend, run_or_load_task
 
 
 class FutureStateError(Exception):
@@ -479,7 +480,8 @@ class SpawnRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> SpawnProcessRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage,
+                     param_handler_manager: ParamHandlerManager, max_workers: Optional[int]) -> SpawnProcessRunner:
         return SpawnProcessRunner(
             context=context,
             storage=storage,
@@ -557,7 +559,8 @@ class ForkRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> ForkProcessRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage,
+                     param_handler_manager: ParamHandlerManager, max_workers: Optional[int]) -> ForkProcessRunner:
         return ForkProcessRunner(
             context=context,
             storage=storage,

@@ -76,6 +76,7 @@ object as a parameter to a task:
 * Constructing the object in a dependent task
 * Passing the object in an `Enum` parameter
 * Passing the object in the lab context
+* Defining a custom parameter handler
 
 #### Constructing objects in dependent tasks
 
@@ -282,6 +283,78 @@ lab = labtech.Lab(
         'DATASETS': DATASETS,
     },
 )
+results = lab.run_tasks(experiments)
+```
+
+#### Defining a custom parameter handler
+
+Advanced users may want to extend Labtech to support additional types
+of parameters. To do so, you can declare a custom parameter type
+handler class with the [`@param_handler`](/params) decorator.
+
+The example below demonstrates defining a handler for [Scipy
+probability distributions](https://docs.scipy.org/doc/scipy/reference/stats.html):
+
+``` {.python .code}
+import scipy.stats
+from scipy.stats.distributions import rv_frozen
+
+
+@labtech.param_handler
+class DistributionParamHandler:
+    """
+    There are two important limitations to this implementation:
+
+    1. Distributions with complex arguments are not supported
+       (e.g. rv_histogram, which takes arrays as arguments).
+    2. Equivalent distributions expressed with different arguments
+       (e.g. positional vs keyword arguments) will be treated as
+       different parameter values for the purposes of caching.
+
+    """
+
+    def handles(self, value):
+        return isinstance(value, rv_frozen)
+
+    def find_tasks(self, value, *, find_tasks_in_param):
+        return []
+
+    def serialize(self, value, *, serializer):
+        return {
+            'name': value.dist.name,
+            'args': [serializer.serialize_value(arg) for arg in value.args],
+            'kwds': {
+                key: serializer.serialize_value(kwd) for key, kwd in
+                sorted(value.kwds.items(), key=lambda pair: pair[0])
+            },
+        }
+
+    def deserialize(self, serialized, *, serializer):
+        dist_cls = getattr(scipy.stats, serialized['name'])
+        args = [serializer.deserialize_value(arg) for arg in serialized['args']]
+        kwds = {
+           key: serializer.deserialize_value(kwd)
+           for key, kwd in serialized['kwds']
+        }
+        return dist_cls(*args, **kwds)
+
+
+@labtech.task
+class Experiment:
+    distribution: rv_frozen
+
+    def run(self):
+        return self.distribution.mean()
+
+
+experiments = [
+    Experiment(distribution=distribution)
+    for distribution in [
+        scipy.stats.norm(loc=42),
+        scipy.stats.expon(loc=2),
+    ]
+]
+lab = labtech.Lab(storage=None)
 results = lab.run_tasks(experiments)
 ```
 

@@ -36,12 +36,12 @@ See: [Multi-Machine Clusters](./distributed.md)
 You can define your own Runner Backend to execute tasks with a
 different form of parallelism or distributed computing platform by
 defining an implementation of the
-[`RunnerBackend`][labtech.types.RunnerBackend] abstract base class:
+[`RunnerBackend`][labtech.runners.RunnerBackend] abstract base class:
 
-::: labtech.types.RunnerBackend
+::: labtech.runners.RunnerBackend
     options:
         heading_level: 4
 
-::: labtech.types.Runner
+::: labtech.runners.Runner
     options:
         heading_level: 4

@@ -9,6 +9,7 @@ import labtech
 import labtech.tasks
 from labtech.cache import BaseCache, NullCache, PickleCache
 from labtech.exceptions import TaskError
+from labtech.params import ParamHandlerManager
 from labtech.tasks import _RESERVED_ATTRS, ParamScalar, find_tasks_in_param, immutable_param_value
 from labtech.types import ResultT, Storage, Task, TaskInfo
 
@@ -262,6 +263,52 @@ class TestTask:
 
 
 class TestImmutableParamValue:
+
+    def setup_method(self, method):
+
+        @labtech.param_handler
+        class FrozensetParamHandler:
+
+            def handles(self, value):
+                return isinstance(value, frozenset)
+
+            def find_tasks(self, value, *, find_tasks_in_param):
+                return [
+                    task
+                    for item in sorted(value, key=hash)
+                    for task in find_tasks_in_param(item)
+                ]
+
+            def serialize(self, value, *, serializer):
+                return [serializer.serialize_value(item) for item in sorted(value, key=hash)]
+
+            def deserialize(self, serialized, *, serializer):
+                return frozenset([serializer.deserialize_value(item) for item in serialized])
+
+        @labtech.param_handler
+        class SetParamHandler:
+            """This is not a valid param handler, because sets are not
+            hashable."""
+
+            def handles(self, value):
+                return isinstance(value, set)
+
+            def find_tasks(self, value, *, find_tasks_in_param):
+                return [
+                    task
+                    for item in sorted(value, key=hash)
+                    for task in find_tasks_in_param(item)
+                ]
+
+            def serialize(self, value, *, serializer):
+                return [serializer.serialize_value(item) for item in sorted(value, key=hash)]
+
+            def deserialize(self, serialized, *, serializer):
+                return set([serializer.deserialize_value(item) for item in serialized])
+
+    def teardown_method(self, method):
+        ParamHandlerManager.get().clear()
+
     def test_empty_list(self) -> None:
         assert immutable_param_value("hello", []) == ()
 
@@ -306,6 +353,20 @@ class TestImmutableParamValue:
     def test_scalar(self, scalar: ParamScalar) -> None:
         assert immutable_param_value("hello", scalar) is scalar
 
+    def test_custom_param(self) -> None:
+        example_frozenset = frozenset(['one', 2, frozenset([3, 'four'])])
+        assert immutable_param_value("hello", example_frozenset) is example_frozenset
+
+    def test_custom_param_unhashable(self, scalar: ParamScalar) -> None:
+        example_set = set(['one', 2, frozenset([3, 'four'])])
+        with pytest.raises(
+                TaskError, match=(
+                    "Type 'set' in parameter value 'hello' is handled by "
+                    "'TestImmutableParamValue.setup_method.<locals>.SetParamHandler', but is not hashable."
+                )
+        ):
+            immutable_param_value("hello", example_set)
+
     def test_unhandled(self) -> None:
         with pytest.raises(
             TaskError, match="Unsupported type '_BadObject' in parameter value 'hello'."
@@ -321,6 +382,31 @@ class TestImmutableParamValue:
 
 
 class TestFindTasksInParam:
+
+    def setup_method(self, method):
+
+        @labtech.param_handler
+        class FrozensetParamHandler:
+
+            def handles(self, value):
+                return isinstance(value, frozenset)
+
+            def find_tasks(self, value, *, find_tasks_in_param):
+                return [
+                    task
+                    for item in sorted(value, key=hash)
+                    for task in find_tasks_in_param(item)
+                ]
+
+            def serialize(self, value, *, serializer):
+                return list(sorted(value, key=hash))
+
+            def deserialize(self, value, *, serializer):
+                return frozenset(value)
+
+    def teardown_method(self, method):
+        ParamHandlerManager.get().clear()
+
     def test_scalar(self, scalar: ParamScalar) -> None:
         assert find_tasks_in_param(scalar) == []
 
@@ -361,6 +447,14 @@ class TestFindTasksInParam:
         task2 = ExampleTask(2)
         assert find_tasks_in_param([task1, task2], searched_coll_ids={id(task1)}) == [
             task2
+        ]
+
+    def test_custom_param_handler(self) -> None:
+        task1 = ExampleTask(1)
+        task2 = ExampleTask(2)
+        assert find_tasks_in_param(frozenset([1, task1, frozenset([task2, 2])])) == [
+            task1,
+            task2,
         ]
 
     def test_unhandled(self) -> None:

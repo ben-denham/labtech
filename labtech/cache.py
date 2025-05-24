@@ -10,8 +10,8 @@ from typing import Any, Optional, Type
 
 from . import __version__ as labtech_version
 from .exceptions import CacheError, TaskNotFound
-from .serialization import Serializer
-from .types import Cache, ResultMeta, ResultT, Storage, Task, TaskResult, TaskT
+from .serialization import DefaultSerializer
+from .types import Cache, ResultMeta, ResultT, Serializer, Storage, Task, TaskResult, TaskT
 
 
 class NullCache(Cache):
@@ -50,7 +50,7 @@ class BaseCache(Cache):
     METADATA_FILENAME = 'metadata.json'
 
     def __init__(self, *, serializer: Optional[Serializer] = None):
-        self.serializer = serializer or Serializer()
+        self.serializer = serializer or DefaultSerializer()
 
     def cache_key(self, task: Task) -> str:
         serialized_str = json.dumps(self.serializer.serialize_task(task)).encode('utf-8')

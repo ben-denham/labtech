@@ -6,11 +6,12 @@ from typing import Iterator, Optional, Sequence
 import psutil
 
 from labtech.monitor import get_process_info
+from labtech.params import ParamHandlerManager
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import LabContext, ResultMeta, Storage, Task, TaskMonitorInfo, TaskResult
 from labtech.utils import logger
 
-from .base import run_or_load_task
+from .base import Runner, RunnerBackend, run_or_load_task
 
 
 @dataclass(frozen=True)
@@ -114,7 +115,8 @@ class SerialRunnerBackend(RunnerBackend):
     """Runner Backend that runs each task serially in the main process
     and thread."""
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> SerialRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage,
+                     param_handler_manager: ParamHandlerManager, max_workers: Optional[int]) -> SerialRunner:
         return SerialRunner(
             context=context,
             storage=storage,

@@ -9,11 +9,12 @@ import psutil
 
 from labtech.exceptions import RunnerError
 from labtech.monitor import get_process_info
+from labtech.params import ParamHandlerManager
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import LabContext, ResultMeta, Storage, Task, TaskMonitorInfo, TaskResult
 from labtech.utils import OrderedSet, logger, make_logger_handler
 
-from .base import run_or_load_task
+from .base import Runner, RunnerBackend, run_or_load_task
 
 
 class KillThread(Exception):
@@ -171,7 +172,8 @@ class ThreadRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: Optional[int]) -> ThreadRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage,
+                     param_handler_manager: ParamHandlerManager, max_workers: Optional[int]) -> ThreadRunner:
         return ThreadRunner(
             context=context,
             storage=storage,

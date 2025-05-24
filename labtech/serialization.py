@@ -2,23 +2,61 @@
 
 from dataclasses import fields
 from enum import Enum
-from typing import Optional, Type, Union, cast
+from typing import Any, Optional, Type, cast
 
 from frozendict import frozendict
 
-from .exceptions import SerializationError
-from .types import ResultMeta, Task, is_task
-from .utils import ensure_dict_key_str
-
-# Type to represent any value that can be handled by Python's default
-# json encoder and decoder.
-jsonable = Union[None, str, bool, float, int,
-                 dict[str, 'jsonable'], list['jsonable']]
+from .exceptions import SerializationError, UnregisteredParamHandlerError
+from .params import ParamHandlerManager
+from .types import ParamHandler, ResultMeta, Serializer, Task, is_task, jsonable
+from .utils import ensure_dict_key_str, fully_qualified_class_name
 
 
-class Serializer:
+class DefaultSerializer(Serializer):
+    """Default Serializer implementation."""
 
-    def is_serialized_task(self, serialized: jsonable) -> bool:
+    def _is_serialized_custom(self, serialized: jsonable) -> bool:
+        return isinstance(serialized, dict) and bool(serialized.get('_is_custom', False))
+
+    def _serialize_custom(self, custom_param_handler: ParamHandler, value: Any) -> dict[str, jsonable]:
+        return {
+            '_is_custom': True,
+            '__class__': self.serialize_class(custom_param_handler.__class__),
+            'value': custom_param_handler.serialize(
+                value=value,
+                serializer=self,
+            ),
+        }
+
+    def _deserialize_custom(self, serialized: dict[str, jsonable]) -> Any:
+        if not self._is_serialized_custom(serialized):
+            raise SerializationError(("deserialize_custom() must be called with a "
+                                      f"serialized custom value, received: '{serialized}'"))
+
+        try:
+            custom_param_handler = ParamHandlerManager.get().lookup(cast(str, serialized['__class__']))
+        except UnregisteredParamHandlerError:
+            custom_param_handler = self.deserialize_class(serialized['__class__'])()
+        return custom_param_handler.deserialize(
+            serialized=serialized['value'],
+            serializer=self,
+        )
+
+    def _is_serialized_enum(self, serialized: jsonable) -> bool:
+        return isinstance(serialized, dict) and bool(serialized.get('_is_enum', False))
+
+    def _serialize_enum(self, value: Enum) -> jsonable:
+        return {
+            '_is_enum': True,
+            '__class__': self.serialize_class(value.__class__),
+            'name': value.name,
+        }
+
+    def _deserialize_enum(self, serialized: dict[str, jsonable]) -> Enum:
+        enum_cls = self.deserialize_class(serialized['__class__'])
+        return enum_cls[serialized['name']]
+
+    def _is_serialized_task(self, serialized: jsonable) -> bool:
         return isinstance(serialized, dict) and bool(serialized.get('_is_task', False))
 
     def serialize_task(self, task: Task) -> dict[str, jsonable]:
@@ -44,7 +82,7 @@ class Serializer:
         return serialized
 
     def deserialize_task(self, serialized: dict[str, jsonable], *, result_meta: Optional[ResultMeta]) -> Task:
-        if not self.is_serialized_task(serialized):
+        if not self._is_serialized_task(serialized):
             raise SerializationError(("deserialize_task() must be called with a "
                                       f"serialized Task, received: '{serialized}'"))
 
@@ -69,18 +107,22 @@ class Serializer:
         task._set_result_meta(result_meta)
         return task
 
-    def serialize_value(self, value) -> jsonable:
+    def serialize_value(self, value: Any) -> jsonable:
+        for custom_param_handler in ParamHandlerManager.get().prioritised_handlers:
+            if custom_param_handler.handles(value):
+                return self._serialize_custom(custom_param_handler, value)
+
         if is_task(value):
             return self.serialize_task(value)
         elif isinstance(value, tuple):
             return [self.serialize_value(item) for item in value]
         elif isinstance(value, frozendict):
             return {
-                ensure_dict_key_str(key, exception_type=SerializationError): self.serialize_value(value)
-                for key, value in value.items()
+                ensure_dict_key_str(k, exception_type=SerializationError): self.serialize_value(v)
+                for k, v in value.items()
             }
         elif isinstance(value, Enum):
-            return self.serialize_enum(value)
+            return self._serialize_enum(value)
         elif ((value is None)
               or isinstance(value, str)
               or isinstance(value, bool)
@@ -91,7 +133,9 @@ class Serializer:
                                   "that your task's parameters only use supported types."))
 
     def deserialize_value(self, value: jsonable):
-        if self.is_serialized_task(value):
+        if self._is_serialized_custom(value):
+            return self._deserialize_custom(cast(dict[str, jsonable], value))
+        elif self._is_serialized_task(value):
             return self.deserialize_task(cast(dict[str, jsonable], value), result_meta=None)
         elif isinstance(value, list):
             return tuple([self.deserialize_value(item) for item in value])
@@ -100,26 +144,12 @@ class Serializer:
               ensure_dict_key_str(k, exception_type=SerializationError): self.deserialize_value(v)
               for k, v in value.items()
             })
-        elif self.is_serialized_enum(value):
-            return self.deserialize_enum(cast(dict[str, jsonable], value))
+        elif self._is_serialized_enum(value):
+            return self._deserialize_enum(cast(dict[str, jsonable], value))
         return value
 
-    def is_serialized_enum(self, serialized: jsonable) -> bool:
-        return isinstance(serialized, dict) and bool(serialized.get('_is_enum', False))
-
-    def serialize_enum(self, value: Enum) -> jsonable:
-        return {
-            '_is_enum': True,
-            '__class__': self.serialize_class(value.__class__),
-            'name': value.name,
-        }
-
-    def deserialize_enum(self, serialized: dict[str, jsonable]) -> Enum:
-        enum_cls = self.deserialize_class(serialized['__class__'])
-        return enum_cls[serialized['name']]
-
     def serialize_class(self, cls: Type) -> jsonable:
-        return f'{cls.__module__}.{cls.__qualname__}'
+        return fully_qualified_class_name(cls)
 
     def deserialize_class(self, serialized_class: jsonable) -> Type:
         cls_module, cls_name = cast(str, serialized_class).rsplit('.', 1)

@@ -11,10 +11,11 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 from .exceptions import LabError, TaskNotFound
 from .monitor import TaskMonitor
-from .runners import ForkRunnerBackend, SerialRunnerBackend, SpawnRunnerBackend, ThreadRunnerBackend
+from .params import ParamHandlerManager
+from .runners import ForkRunnerBackend, RunnerBackend, SerialRunnerBackend, SpawnRunnerBackend, ThreadRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
-from .types import LabContext, ResultMeta, ResultT, RunnerBackend, Storage, Task, TaskT, is_task, is_task_type
+from .types import LabContext, ResultMeta, ResultT, Storage, Task, TaskT, is_task, is_task_type
 from .utils import OrderedSet, base_tqdm, is_ipython, logger, tqdm, tqdm_notebook
 
 
@@ -201,13 +202,14 @@ class TaskCoordinator:
         runner = self.lab.runner_backend.build_runner(
             context=self.lab.context,
             max_workers=self.lab.max_workers,
+            param_handler_manager=ParamHandlerManager.get(),
             storage=self.lab._storage,
         )
 
         task_monitor = None
         if not self.disable_top:
             task_monitor = TaskMonitor(
-                runner=runner,
+                get_task_infos=runner.get_task_infos,
                 top_format=self.top_format,
                 top_sort=self.top_sort,
                 top_n=self.top_n,
@@ -359,7 +361,7 @@ class Lab:
                   useful when troubleshooting issues running tasks on different
                   threads and processes.
                 * Any instance of a
-                  [`RunnerBackend`][labtech.types.RunnerBackend],
+                  [`RunnerBackend`][labtech.runners.RunnerBackend],
                   allowing for custom task management implementations.
 
                 For details on the differences between `'fork'` and
