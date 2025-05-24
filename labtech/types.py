@@ -2,10 +2,11 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from inspect import isclass
 from typing import (
     IO,
+    TYPE_CHECKING,
     Any,
     Callable,
     Generic,
@@ -17,6 +18,9 @@ from typing import (
     Type,
     TypeVar,
 )
+
+if TYPE_CHECKING:
+    from datetime import timedelta
 
 
 @dataclass(frozen=True)
@@ -41,7 +45,7 @@ class ResultMeta:
     cache, the metadata is also loaded from the cache."""
     start: Optional[datetime]
     """The timestamp when the task's execution began."""
-    duration: Optional[timedelta]
+    duration: Optional['timedelta']
     """The time that the task took to execute."""
 
 

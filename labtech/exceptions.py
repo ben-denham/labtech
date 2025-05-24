@@ -1,4 +1,5 @@
 """Custom exceptions that may be raised by labtech."""
+from __future__ import annotations
 
 
 class LabtechError(Exception):

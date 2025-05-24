@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 import multiprocessing
 from collections import deque
 from dataclasses import dataclass
-from typing import Iterator, Optional, Sequence
+from typing import TYPE_CHECKING, Iterator, Optional, Sequence
 
 import psutil
 
 from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import Runner, RunnerBackend
 from labtech.utils import logger
 
 from .base import run_or_load_task
+
+if TYPE_CHECKING:
+    from labtech.types import LabContext, ResultMeta, Storage, Task, TaskMonitorInfo, TaskResult
 
 
 @dataclass(frozen=True)

@@ -1,17 +1,20 @@
 """Cache classes that control formatting of task results in storage."""
-
+from __future__ import annotations
 
 import hashlib
 import json
 import pickle
 from abc import abstractmethod
 from datetime import datetime, timedelta
-from typing import Any, Optional, Type
+from typing import TYPE_CHECKING, Any, Optional, Type
 
 from . import __version__ as labtech_version
 from .exceptions import CacheError, TaskNotFound
 from .serialization import Serializer
-from .types import Cache, ResultMeta, ResultT, Storage, Task, TaskResult, TaskT
+from .types import Cache, ResultMeta, TaskResult
+
+if TYPE_CHECKING:
+    from .types import ResultT, Storage, Task, TaskT
 
 
 class NullCache(Cache):

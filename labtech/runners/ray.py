@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 import multiprocessing
 from dataclasses import dataclass
 from datetime import datetime
 from threading import Thread
 from time import monotonic, sleep
-from typing import Iterator, Optional, Sequence
+from typing import TYPE_CHECKING, Iterator, Optional, Sequence
 
 from labtech.exceptions import RunnerError
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, ResultT, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult, is_task
+from labtech.types import ResultMeta, Runner, RunnerBackend, TaskResult, is_task
 from labtech.utils import logger
 
 from .base import run_or_load_task
+
+if TYPE_CHECKING:
+    from labtech.types import LabContext, ResultT, Storage, Task, TaskMonitorInfo
 
 try:
     import ray

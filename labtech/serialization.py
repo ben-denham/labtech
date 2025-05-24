@@ -2,13 +2,16 @@
 
 from dataclasses import fields
 from enum import Enum
-from typing import Optional, Type, Union, cast
+from typing import TYPE_CHECKING, Optional, Type, Union, cast
 
 from frozendict import frozendict
 
 from .exceptions import SerializationError
-from .types import ResultMeta, Task, is_task
+from .types import is_task
 from .utils import ensure_dict_key_str
+
+if TYPE_CHECKING:
+    from .types import ResultMeta, Task
 
 # Type to represent any value that can be handled by Python's default
 # json encoder and decoder.
@@ -21,7 +24,7 @@ class Serializer:
     def is_serialized_task(self, serialized: jsonable) -> bool:
         return isinstance(serialized, dict) and bool(serialized.get('_is_task', False))
 
-    def serialize_task(self, task: Task) -> dict[str, jsonable]:
+    def serialize_task(self, task: 'Task') -> dict[str, jsonable]:
         if not is_task(task):
             raise SerializationError(("serialize_task() must be called with a Task, "
                                       f"received: '{task}'"))
@@ -43,7 +46,7 @@ class Serializer:
 
         return serialized
 
-    def deserialize_task(self, serialized: dict[str, jsonable], *, result_meta: Optional[ResultMeta]) -> Task:
+    def deserialize_task(self, serialized: dict[str, jsonable], *, result_meta: Optional['ResultMeta']) -> 'Task':
         if not self.is_serialized_task(serialized):
             raise SerializationError(("deserialize_task() must be called with a "
                                       f"serialized Task, received: '{serialized}'"))

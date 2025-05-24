@@ -11,23 +11,27 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from itertools import count
 from logging.handlers import QueueHandler
-from queue import Empty, Queue
+from queue import Empty
 from threading import Thread
 from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, Sequence, cast
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import psutil
 
 from labtech.exceptions import RunnerError, TaskDiedError
 from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, ResultsMap, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import Runner, RunnerBackend
 from labtech.utils import LoggerFileProxy, logger
 
 from .base import run_or_load_task
 
 if TYPE_CHECKING:
     from multiprocessing.context import BaseContext, SpawnContext
+    from queue import Queue
+    from uuid import UUID
+
+    from labtech.types import LabContext, ResultMeta, ResultsMap, Storage, Task, TaskMonitorInfo, TaskResult
 
     if sys.platform != 'win32':
         from multiprocessing.context import ForkContext

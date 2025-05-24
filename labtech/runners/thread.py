@@ -1,19 +1,26 @@
+from __future__ import annotations
+
 import os
 import threading
-from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from importlib import import_module
-from typing import Iterator, Optional, Sequence
+from typing import TYPE_CHECKING, Iterator, Optional, Sequence
 
 import psutil
 
 from labtech.exceptions import RunnerError
 from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
-from labtech.types import LabContext, ResultMeta, Runner, RunnerBackend, Storage, Task, TaskMonitorInfo, TaskResult
+from labtech.types import Runner, RunnerBackend
 from labtech.utils import OrderedSet, logger, make_logger_handler
 
 from .base import run_or_load_task
+
+if TYPE_CHECKING:
+    from concurrent.futures import Future
+
+    from labtech.types import LabContext, ResultMeta, Storage, Task, TaskMonitorInfo, TaskResult
 
 
 class KillThread(Exception):

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from itertools import zip_longest
 from string import Template
-from typing import TYPE_CHECKING, Optional, Sequence, cast
+from typing import TYPE_CHECKING, cast
 
 import psutil
 
@@ -12,6 +12,8 @@ from .exceptions import LabError
 from .utils import tqdm
 
 if TYPE_CHECKING:
+    from typing import Optional, Sequence
+
     from .types import Runner, TaskMonitorInfo, TaskMonitorInfoItem, TaskMonitorInfoValue
 
 

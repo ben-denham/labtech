@@ -1,11 +1,12 @@
 """Lab and related utilities responsible for running tasks."""
+from __future__ import annotations
 
 import concurrent.futures.process
 import math
 from collections import Counter, defaultdict
 from multiprocessing import get_all_start_methods
 from pathlib import Path
-from typing import Any, Iterable, Optional, Sequence, Set, Type, Union
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Set, Type, Union
 
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -14,8 +15,12 @@ from .monitor import TaskMonitor
 from .runners import ForkRunnerBackend, SerialRunnerBackend, SpawnRunnerBackend, ThreadRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
-from .types import LabContext, ResultMeta, ResultT, RunnerBackend, Storage, Task, TaskT, is_task, is_task_type
-from .utils import OrderedSet, base_tqdm, is_ipython, logger, tqdm, tqdm_notebook
+from .types import ResultMeta, is_task, is_task_type
+from .utils import OrderedSet, is_ipython, logger, tqdm, tqdm_notebook
+
+if TYPE_CHECKING:
+    from .types import LabContext, ResultT, RunnerBackend, Storage, Task, TaskT
+    from .utils import base_tqdm
 
 
 def check_tasks(tasks: Sequence[Task]) -> None:
@@ -38,7 +43,7 @@ def check_task_types(task_types: Sequence[Type[Task]]) -> None:
 
 class TaskState:
 
-    def __init__(self, *, coordinator: 'TaskCoordinator', tasks: Sequence[Task]):
+    def __init__(self, *, coordinator: TaskCoordinator, tasks: Sequence[Task]):
         self.coordinator = coordinator
 
         self.pending_tasks: OrderedSet[Task] = OrderedSet()
@@ -143,7 +148,7 @@ class TaskState:
 
 class TaskCoordinator:
 
-    def __init__(self, lab: 'Lab', bust_cache: bool, disable_progress: bool,
+    def __init__(self, lab: Lab, bust_cache: bool, disable_progress: bool,
                  disable_top: bool, top_format: str, top_sort: str, top_n: int):
         self.lab = lab
         self.bust_cache = bust_cache

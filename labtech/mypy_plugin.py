@@ -1,12 +1,16 @@
 """Mypy plugin for classes decorated with `labtech.task`."""
+from __future__ import annotations
 
-from typing import Type
+from typing import TYPE_CHECKING, Type
 
 import mypy.plugins.dataclasses
 from mypy.nodes import COVARIANT, ArgKind
-from mypy.plugin import ClassDefContext, Plugin
+from mypy.plugin import Plugin
 from mypy.plugins.common import add_attribute_to_class
 from mypy.types import AnyType, CallableType, Instance, LiteralType, NoneType, TypeOfAny, TypeVarId, TypeVarType, UnionType
+
+if TYPE_CHECKING:
+    from mypy.plugin import ClassDefContext
 
 task_makers = {'labtech.tasks.task'}
 """Set of decorator functions that return "task" classes."""

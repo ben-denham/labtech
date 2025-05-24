@@ -1,6 +1,7 @@
 import re
 from dataclasses import FrozenInstanceError
 from enum import Enum
+from typing import TYPE_CHECKING
 
 import pytest
 from frozendict import frozendict
@@ -9,8 +10,11 @@ import labtech
 import labtech.tasks
 from labtech.cache import BaseCache, NullCache, PickleCache
 from labtech.exceptions import TaskError
-from labtech.tasks import _RESERVED_ATTRS, ParamScalar, find_tasks_in_param, immutable_param_value
-from labtech.types import ResultT, Storage, Task, TaskInfo
+from labtech.tasks import _RESERVED_ATTRS, find_tasks_in_param, immutable_param_value
+
+if TYPE_CHECKING:
+    from labtech.tasks import ParamScalar
+    from labtech.types import ResultT, Storage, Task, TaskInfo
 
 
 class _BadObject:
@@ -44,7 +48,7 @@ class ExampleTask:
         _ExampleEnum.A,
     ],
 )
-def scalar(request: pytest.FixtureRequest) -> ParamScalar:
+def scalar(request: pytest.FixtureRequest) -> "ParamScalar":
     return request.param
 
 
@@ -53,10 +57,10 @@ class BadCache(BaseCache):
 
     KEY_PREFIX = "bad__"
 
-    def save_result(self, storage: Storage, task: Task[ResultT], result: ResultT):
+    def save_result(self, storage: "Storage", task: "Task[ResultT]", result: "ResultT"):
         raise NotImplementedError
 
-    def load_result(self, storage: Storage, task: Task[ResultT]) -> ResultT:
+    def load_result(self, storage: "Storage", task: "Task[ResultT]") -> "ResultT":
         raise NotImplementedError
 
 
@@ -303,7 +307,7 @@ class TestImmutableParamValue:
             frozendict({"a": 2}),
         )
 
-    def test_scalar(self, scalar: ParamScalar) -> None:
+    def test_scalar(self, scalar: "ParamScalar") -> None:
         assert immutable_param_value("hello", scalar) is scalar
 
     def test_unhandled(self) -> None:
@@ -321,7 +325,7 @@ class TestImmutableParamValue:
 
 
 class TestFindTasksInParam:
-    def test_scalar(self, scalar: ParamScalar) -> None:
+    def test_scalar(self, scalar: "ParamScalar") -> None:
         assert find_tasks_in_param(scalar) == []
 
     def test_task(self) -> None:

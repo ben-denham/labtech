@@ -10,13 +10,15 @@ from frozendict import frozendict
 
 from .cache import NullCache, PickleCache
 from .exceptions import TaskError
-from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task, TaskInfo, is_task, is_task_type
+from .types import TaskInfo, is_task, is_task_type
 from .utils import ensure_dict_key_str
 
 ParamScalar: TypeAlias = None | str | bool | float | int | Enum
 
 if TYPE_CHECKING:
     from types import UnionType
+
+    from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task
 
 
 class CacheDefault:

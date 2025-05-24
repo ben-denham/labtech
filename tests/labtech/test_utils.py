@@ -1,8 +1,10 @@
 import sys
-
-from pytest_mock import MockerFixture
+from typing import TYPE_CHECKING
 
 from labtech.utils import LoggerFileProxy, OrderedSet
+
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
 
 
 class TestOrderedSet:
@@ -41,7 +43,7 @@ class TestOrderedSet:
 
 
 class TestLoggerFileProxy:
-    def test_prefix_added(self, mocker: MockerFixture) -> None:
+    def test_prefix_added(self, mocker: 'MockerFixture') -> None:
         logger_func = mocker.Mock()
         mocker.patch('sys.stdout', LoggerFileProxy(logger_func, 'some_prefix:'))
         print('some_message')
