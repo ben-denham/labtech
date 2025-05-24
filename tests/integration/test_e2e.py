@@ -1,6 +1,7 @@
 """Test a set of tasks packed with usage of features end-to-end.
 Loosely based on tasks from the tutorial."""
 
+import platform
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict
 
@@ -8,6 +9,7 @@ import pytest
 import ray
 
 import labtech
+from labtech.exceptions import RunnerError
 from labtech.runners.ray import RayRunnerBackend
 
 if TYPE_CHECKING:
@@ -180,6 +182,19 @@ class TestE2E:
     @pytest.mark.parametrize('evaluation_key', active_evaluation_keys)
     def test_e2e(self, max_workers: int, runner_backend: str, evaluation_key: str, context: dict[str, Any], evaluations: dict[str, Evaluation]) -> None:
         evaluation = evaluations[evaluation_key]
+
+        # MacOS and Windows don't support fork, so test graceful failure:
+        if runner_backend == 'fork' and platform.system() in {'Darwin', 'Windows'}:
+            lab = labtech.Lab(
+                storage=None,
+                context=context,
+                max_workers=max_workers,
+                runner_backend=runner_backend,
+            )
+            with pytest.raises(RunnerError, match="The 'fork' start method for processes is not supported by your operating system."):
+                lab.run_task(evaluation['task'])
+            return
+
         with TemporaryDirectory() as storage_dir:
             lab = labtech.Lab(
                 storage=storage_dir,
