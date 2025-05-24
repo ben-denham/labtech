@@ -1,13 +1,18 @@
 """Storage providers for cached task results."""
+from __future__ import annotations
 
 import os
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path, PosixPath
-from typing import IO, Sequence, Union
+from typing import TYPE_CHECKING
 
 from .exceptions import StorageError
 from .types import Storage
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import IO
 
 
 def validate_file_path_key(key: str, *, storage_path: Path) -> None:
@@ -45,7 +50,7 @@ class LocalStorage(Storage):
     """Storage provider that stores cached results in a local filesystem
     directory."""
 
-    def __init__(self, storage_dir: Union[str, Path], *, with_gitignore: bool = True):
+    def __init__(self, storage_dir: str | Path, *, with_gitignore: bool = True):
         """
         Args:
             storage_dir: Path to the directory where cached results will be
@@ -104,7 +109,7 @@ class FsspecStorage(Storage, ABC):
     [`fsspec`](https://filesystem-spec.readthedocs.io) filesystem for
     storage."""
 
-    def __init__(self, storage_dir: Union[str, Path]):
+    def __init__(self, storage_dir: str | Path):
         """
         Args:
             storage_dir: Path to the directory where cached results will be

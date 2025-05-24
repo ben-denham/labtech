@@ -6,7 +6,7 @@ import json
 import pickle
 from abc import abstractmethod
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, Optional, Type
+from typing import TYPE_CHECKING
 
 from . import __version__ as labtech_version
 from .exceptions import CacheError, TaskNotFound
@@ -14,6 +14,8 @@ from .serialization import Serializer
 from .types import Cache, ResultMeta, TaskResult
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from .types import ResultT, Storage, Task, TaskT
 
 
@@ -29,7 +31,7 @@ class NullCache(Cache):
     def save(self, storage: Storage, task: Task[ResultT], result: TaskResult[ResultT]):
         pass
 
-    def load_task(self, storage: Storage, task_type: Type[TaskT], key: str) -> TaskT:
+    def load_task(self, storage: Storage, task_type: type[TaskT], key: str) -> TaskT:
         raise TaskNotFound
 
     def load_result_with_meta(self, storage: Storage, task: Task[ResultT]) -> TaskResult[ResultT]:
@@ -52,7 +54,7 @@ class BaseCache(Cache):
 
     METADATA_FILENAME = 'metadata.json'
 
-    def __init__(self, *, serializer: Optional[Serializer] = None):
+    def __init__(self, *, serializer: Serializer | None = None):
         self.serializer = serializer or Serializer()
 
     def cache_key(self, task: Task) -> str:
@@ -88,7 +90,7 @@ class BaseCache(Cache):
             json.dump(metadata, metadata_file, indent=2)
         self.save_result(storage, task, task_result.value)
 
-    def load_metadata(self, storage: Storage, task_type: Type[Task], key: str) -> dict[str, Any]:
+    def load_metadata(self, storage: Storage, task_type: type[Task], key: str) -> dict[str, Any]:
         if not key.startswith(f'{self.KEY_PREFIX}{task_type.__qualname__}'):
             raise TaskNotFound
         with storage.file_handle(key, self.METADATA_FILENAME, mode='r') as metadata_file:
@@ -111,7 +113,7 @@ class BaseCache(Cache):
             duration=duration,
         )
 
-    def load_task(self, storage: Storage, task_type: Type[TaskT], key: str) -> TaskT:
+    def load_task(self, storage: Storage, task_type: type[TaskT], key: str) -> TaskT:
         metadata = self.load_metadata(storage, task_type, key)
         result_meta = self.build_result_meta(metadata)
         task = self.serializer.deserialize_task(metadata['task'], result_meta=result_meta)
@@ -165,7 +167,7 @@ class PickleCache(BaseCache):
     KEY_PREFIX = 'pickle__'
     RESULT_FILENAME = 'data.pickle'
 
-    def __init__(self, *, serializer: Optional[Serializer] = None,
+    def __init__(self, *, serializer: Serializer | None = None,
                  pickle_protocol: int = pickle.HIGHEST_PROTOCOL):
         super().__init__(serializer=serializer)
         self.pickle_protocol = pickle_protocol

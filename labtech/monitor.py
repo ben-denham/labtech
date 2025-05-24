@@ -12,7 +12,7 @@ from .exceptions import LabError
 from .utils import tqdm
 
 if TYPE_CHECKING:
-    from typing import Optional, Sequence
+    from collections.abc import Sequence
 
     from .types import Runner, TaskMonitorInfo, TaskMonitorInfoItem, TaskMonitorInfoValue
 
@@ -159,7 +159,7 @@ class TaskMonitor:
 def get_process_info(process: psutil.Process, *,
                      previous_child_processes: dict[int, psutil.Process],
                      name: str,
-                     status: str) -> tuple[Optional[TaskMonitorInfo], dict[int, psutil.Process]]:
+                     status: str) -> tuple[TaskMonitorInfo | None, dict[int, psutil.Process]]:
     """Utility for constructing a TaskMonitorInfo for a given process.
 
     Because psutil reports 0% CPU usage for newly created process

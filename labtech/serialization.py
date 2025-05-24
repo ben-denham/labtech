@@ -1,8 +1,9 @@
 """Serialization/deserialization of tasks to/from JSON."""
+from __future__ import annotations
 
 from dataclasses import fields
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Type, Union, cast
+from typing import TYPE_CHECKING, cast
 
 from frozendict import frozendict
 
@@ -15,8 +16,7 @@ if TYPE_CHECKING:
 
 # Type to represent any value that can be handled by Python's default
 # json encoder and decoder.
-jsonable = Union[None, str, bool, float, int,
-                 dict[str, 'jsonable'], list['jsonable']]
+jsonable = None | str | bool | float | int | dict[str, 'jsonable'] | list['jsonable']
 
 
 class Serializer:
@@ -24,7 +24,7 @@ class Serializer:
     def is_serialized_task(self, serialized: jsonable) -> bool:
         return isinstance(serialized, dict) and bool(serialized.get('_is_task', False))
 
-    def serialize_task(self, task: 'Task') -> dict[str, jsonable]:
+    def serialize_task(self, task: Task) -> dict[str, jsonable]:
         if not is_task(task):
             raise SerializationError(("serialize_task() must be called with a Task, "
                                       f"received: '{task}'"))
@@ -46,7 +46,7 @@ class Serializer:
 
         return serialized
 
-    def deserialize_task(self, serialized: dict[str, jsonable], *, result_meta: Optional['ResultMeta']) -> 'Task':
+    def deserialize_task(self, serialized: dict[str, jsonable], *, result_meta: ResultMeta | None) -> Task:
         if not self.is_serialized_task(serialized):
             raise SerializationError(("deserialize_task() must be called with a "
                                       f"serialized Task, received: '{serialized}'"))
@@ -121,10 +121,10 @@ class Serializer:
         enum_cls = self.deserialize_class(serialized['__class__'])
         return enum_cls[serialized['name']]
 
-    def serialize_class(self, cls: Type) -> jsonable:
+    def serialize_class(self, cls: type) -> jsonable:
         return f'{cls.__module__}.{cls.__qualname__}'
 
-    def deserialize_class(self, serialized_class: jsonable) -> Type:
+    def deserialize_class(self, serialized_class: jsonable) -> type:
         cls_module, cls_name = cast('str', serialized_class).rsplit('.', 1)
         module = __import__(cls_module, fromlist=[cls_name])
         return getattr(module, cls_name)

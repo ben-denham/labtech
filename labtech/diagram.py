@@ -2,13 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, fields
 from textwrap import indent
-from typing import TYPE_CHECKING, Any, Sequence, get_args, get_origin, get_type_hints
+from typing import TYPE_CHECKING, get_args, get_origin, get_type_hints
 
 from .tasks import find_tasks_in_param
 from .types import is_task
 from .utils import is_ipython
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any
+
     from .types import Task
 
 

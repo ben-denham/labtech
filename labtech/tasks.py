@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, fields
 from enum import Enum
 from inspect import isclass
-from typing import TYPE_CHECKING, Any, Optional, Sequence, TypeAlias, Union, cast
+from typing import TYPE_CHECKING, cast
 
 from frozendict import frozendict
 
@@ -13,13 +13,14 @@ from .exceptions import TaskError
 from .types import TaskInfo, is_task, is_task_type
 from .utils import ensure_dict_key_str
 
-ParamScalar: TypeAlias = None | str | bool | float | int | Enum
-
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from types import UnionType
+    from typing import Any, TypeAlias
 
     from .types import Cache, LabContext, ResultMeta, ResultsMap, ResultT, Task
 
+ParamScalar: TypeAlias = None | str | bool | float | int | Enum
 
 class CacheDefault:
     pass
@@ -74,7 +75,7 @@ def _task_set_result_meta(self: Task, result_meta: ResultMeta):
     object.__setattr__(self, 'result_meta', result_meta)
 
 
-def _task_set_code_version(self: Task, code_version: Optional[str]):
+def _task_set_code_version(self: Task, code_version: str | None):
     # cache_key depends on the code_version, so clear any cached
     # cache_key:
     object.__setattr__(self, '_cache_key', None)
@@ -93,7 +94,7 @@ def _task_runner_options_default(self: Task) -> dict[str, Any]:
     return {}
 
 
-def _task_current_code_version(self: Task) -> Optional[str]:
+def _task_current_code_version(self: Task) -> str | None:
     return self._lt.current_code_version
 
 
@@ -135,9 +136,9 @@ def _task__setstate__(self: Task, state: dict[str, Any]) -> None:
 
 
 def task(*args,
-         code_version: Optional[str] = None,
-         cache: Union[CacheDefault, None, Cache] = CACHE_DEFAULT,
-         max_parallel: Optional[int] = None,
+         code_version: str | None = None,
+         cache: CacheDefault | None | Cache = CACHE_DEFAULT,
+         max_parallel: int | None = None,
          mlflow_run: bool = False):
     """Class decorator for defining task type classes.
 
@@ -287,7 +288,7 @@ def task(*args,
         return decorator
 
 
-def find_tasks_in_param(param_value: Any, searched_coll_ids: Optional[set[int]] = None) -> Sequence[Task]:
+def find_tasks_in_param(param_value: Any, searched_coll_ids: set[int] | None = None) -> Sequence[Task]:
     """Given a parameter value, return all tasks within it found through a recursive search."""
     if searched_coll_ids is None:
         searched_coll_ids = set()

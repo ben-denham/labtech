@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from dataclasses import fields
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from frozendict import frozendict
 
@@ -14,6 +14,8 @@ from labtech.types import ResultMeta, TaskResult
 from labtech.utils import logger
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from labtech.types import LabContext, Storage, Task
 
 

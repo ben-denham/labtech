@@ -1,12 +1,16 @@
 """General labtech utilities."""
+from __future__ import annotations
 
 import builtins
 import logging
 import re
-from typing import Generic, Optional, Sequence, Type, TypeVar, cast
+from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 from tqdm import tqdm as base_tqdm
 from tqdm.notebook import tqdm as base_tqdm_notebook
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def make_logger_handler(*, task_name_placeholder: str = '%(processName)s') -> logging.StreamHandler:
@@ -54,7 +58,7 @@ class OrderedSet(Generic[T]):
     """A set that returns items in the order they were added when
     iterated over."""
 
-    def __init__(self, items: Optional[Sequence[T]] = None):
+    def __init__(self, items: Sequence[T] | None = None):
         self.values: dict[T, T] = {}
         if items is not None:
             for item in items:
@@ -80,7 +84,7 @@ class OrderedSet(Generic[T]):
     def __iter__(self):
         return iter(self.values)
 
-    def __add__(self, other: 'OrderedSet[T]') -> 'OrderedSet[T]':
+    def __add__(self, other: OrderedSet[T]) -> OrderedSet[T]:
         combined: OrderedSet[T] = OrderedSet()
         combined.values.update(self.values)
         combined.values.update(other.values)
@@ -110,7 +114,7 @@ class LoggerFileProxy:
             self.logger_func('\n'.join([f'{self.prefix}{buf}' for buf in self.bufs]))
 
 
-def ensure_dict_key_str(value, *, exception_type: Type[Exception]) -> str:
+def ensure_dict_key_str(value, *, exception_type: type[Exception]) -> str:
     if not isinstance(value, str):
         raise exception_type(("Parameter dictionary keys must be strings, "
                               f"found: '{value}'"))
