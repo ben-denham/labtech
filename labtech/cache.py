@@ -19,6 +19,13 @@ if TYPE_CHECKING:
     from .types import ResultT, Storage, Task, TaskT
 
 
+def _format_class_name(cls):
+    """Format a qualified class name in format that can be safely
+    represented in a filename."""
+    # Nested classes may have periods that need to be replaced.
+    return cls.__qualname__.replace('.', '-')
+
+
 class NullCache(Cache):
     """Cache that never stores results in the storage provider."""
 
@@ -63,7 +70,7 @@ class BaseCache(Cache):
         # hashes, and security concerns with sha1 are not relevant to
         # our use case.
         hashed = hashlib.sha1(serialized_str).hexdigest()
-        return f'{self.KEY_PREFIX}{task.__class__.__qualname__}__{hashed}'
+        return f'{self.KEY_PREFIX}{_format_class_name(task.__class__)}__{hashed}'
 
     def is_cached(self, storage: Storage, task: Task) -> bool:
         return storage.exists(task.cache_key)
@@ -91,7 +98,7 @@ class BaseCache(Cache):
         self.save_result(storage, task, task_result.value)
 
     def load_metadata(self, storage: Storage, task_type: type[Task], key: str) -> dict[str, Any]:
-        if not key.startswith(f'{self.KEY_PREFIX}{task_type.__qualname__}'):
+        if not key.startswith(f'{self.KEY_PREFIX}{_format_class_name(task_type)}'):
             raise TaskNotFound
         with storage.file_handle(key, self.METADATA_FILENAME, mode='r') as metadata_file:
             metadata = json.load(metadata_file)

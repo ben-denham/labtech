@@ -122,9 +122,17 @@ class Serializer:
         return enum_cls[name]
 
     def serialize_class(self, cls: type) -> jsonable:
-        return f'{cls.__module__}.{cls.__qualname__}'
+        # Handle nested classes by splitting class nesting path by ">".
+        return f'{cls.__module__}.{cls.__qualname__.replace(".", ">")}'
 
     def deserialize_class(self, serialized_class: jsonable) -> type:
-        cls_module, cls_name = cast('str', serialized_class).rsplit('.', 1)
-        module = __import__(cls_module, fromlist=[cls_name])
-        return getattr(module, cls_name)
+        cls_module, cls_qualname = cast('str', serialized_class).rsplit('.', 1)
+        cls_name_parts = cls_qualname.split('>')
+        module = __import__(cls_module, fromlist=[cls_name_parts[0]])
+
+        cls = getattr(module, cls_name_parts[0])
+        for part in cls_name_parts[1:]:
+            # Navigate to nested class.
+            cls = getattr(cls, part)
+
+        return cls
