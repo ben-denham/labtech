@@ -16,12 +16,15 @@ if TYPE_CHECKING:
     from labtech.types import Task
 
 
-@labtech.task(cache=None)
-class ClassifierTask:
-    n_estimators: int
+class Classifiers:
 
-    def run(self) -> dict:
-        return {'n_estimators': self.n_estimators}
+    # Testing a nested class
+    @labtech.task(cache=None)
+    class ClassifierTask:
+        n_estimators: int
+
+        def run(self) -> dict:
+            return {'n_estimators': self.n_estimators}
 
 
 class ExperimentTask(Protocol):
@@ -33,7 +36,7 @@ class ExperimentTask(Protocol):
 
 @labtech.task
 class ClassifierExperiment(ExperimentTask):
-    classifier_task: ClassifierTask
+    classifier_task: Classifiers.ClassifierTask
     dataset_key: str
 
     def filter_context(self, context: dict[str, Any]) -> dict[str, Any]:
@@ -97,7 +100,7 @@ class Evaluation(TypedDict):
 def basic_evaluation(context: dict[str, Any]) -> Evaluation:
     """Evaluation of a standard setup of multiple levels of dependency."""
     classifier_tasks = [
-        ClassifierTask(
+        Classifiers.ClassifierTask(
             n_estimators=n_estimators,
         )
         for n_estimators in range(1, 3)
@@ -142,7 +145,7 @@ def repeated_dependency_evaluation(context: dict[str, Any]) -> Evaluation:
     dependency task."""
     def experiment_factory():
         return ClassifierExperiment(
-            classifier_task=ClassifierTask(n_estimators=2),
+            classifier_task=Classifiers.ClassifierTask(n_estimators=2),
             dataset_key=list(context['DATASETS'].keys())[0],
         )
     experiment = experiment_factory()
