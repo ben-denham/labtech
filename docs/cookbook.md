@@ -926,20 +926,29 @@ if __name__ == '__main__':
 For details, see [Safe importing of main module](https://docs.python.org/3/library/multiprocessing.html#multiprocessing-safe-main-import).
 
 
-### Why do I see the following error: `AttributeError: Can't get attribute 'YOUR_TASK_CLASS' on <module '__main__' (built-in)>`?
+<div id="spawn-interactive-main"></div>
 
-You will see this error (as part of a very long stack trace) when
-running a Lab with `runner_backend='spawn'` (the default on macOS and
-Windows) from an interactive Python shell.
+### Why do I see the following error: `RunnerError: Unable to submit YourTaskType tasks to SpawnProcessRunner because the task type is defined in the __main__ module from an interactive Python session`?
 
-The solution to this error is to define all of your labtech `Task`
-types in a separate `.py` Python module file which you can import into
-your interactive shell session (e.g. `from my_module import MyTask`).
+You may see this error when running a Lab with
+`runner_backend='spawn'` (the default on macOS and Windows) from an
+interactive Python shell (e.g. a Jupyter notebook session or a Python
+script).
+
+The solution to this error is to define all of the classes you are
+using from your labtech context and tasks (including task types) in a
+separate `.py` Python module file which you can import into your
+interactive shell session (e.g. `from my_module import MyClass`).
 
 The reason for this error is that "spawned" task subprocesses will not
 receive a copy the current state of your `__main__` module (which
 contains the variables you declare interactively in the Python shell,
-including task definitions). This error does not occur with
+including class definitions). This error does not occur with
 `runner_backend='fork'` (the default on Linux) because forked
 subprocesses *do* receive the current state of all modules (including
 `__main__`) from the parent process.
+
+
+### Why do I see the following error: `AttributeError: Can't get attribute 'YOUR_CLASS' on <module '__main__' (built-in)>`?
+
+[See the answer to the question directly above.](#spawn-interactive-main)

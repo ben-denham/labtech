@@ -5,6 +5,7 @@ import builtins
 import logging
 import platform
 import re
+import sys
 from multiprocessing import get_all_start_methods
 from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
@@ -123,6 +124,10 @@ def ensure_dict_key_str(value, *, exception_type: type[Exception]) -> str:
     return cast('str', value)
 
 
+def is_interactive() -> bool:
+    return hasattr(sys, 'ps1')
+
+
 def is_ipython() -> bool:
     return hasattr(builtins, '__IPYTHON__')
 
@@ -151,6 +156,7 @@ __all__ = [
     'OrderedSet',
     'LoggerFileProxy',
     'ensure_dict_key_str',
+    'is_interactive',
     'is_ipython',
     'tqdm',
     'tqdm_notebook',
