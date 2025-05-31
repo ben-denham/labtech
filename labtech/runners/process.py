@@ -38,47 +38,43 @@ if TYPE_CHECKING:
         ForkContext = BaseContext
 
 
-class ProcessEvent:
-    pass
-
-
 @dataclass(frozen=True)
-class ProcessStartEvent(ProcessEvent):
+class TaskStartEvent:
     task_name: str
     pid: int
     use_cache: bool
 
 
 @dataclass(frozen=True)
-class ProcessEndEvent(ProcessEvent):
+class TaskEndEvent:
     task_name: str
 
 
 class ProcessMonitor:
 
-    def __init__(self, *, process_event_queue: Queue):
-        self.process_event_queue = process_event_queue
-        self.active_process_events: dict[str, ProcessStartEvent] = {}
+    def __init__(self, *, task_event_queue: Queue):
+        self.task_event_queue = task_event_queue
+        self.active_task_events: dict[str, TaskStartEvent] = {}
         self.active_processes_and_children: dict[str, tuple[psutil.Process, dict[int, psutil.Process]]] = {}
 
     def _consume_monitor_queue(self):
         while True:
             try:
-                event = self.process_event_queue.get_nowait()
+                event = self.task_event_queue.get_nowait()
             except Empty:
                 break
 
-            if isinstance(event, ProcessStartEvent):
-                self.active_process_events[event.task_name] = event
-            elif isinstance(event, ProcessEndEvent):
-                if event.task_name in self.active_process_events:
-                    del self.active_process_events[event.task_name]
+            if isinstance(event, TaskStartEvent):
+                self.active_task_events[event.task_name] = event
+            elif isinstance(event, TaskEndEvent):
+                if event.task_name in self.active_task_events:
+                    del self.active_task_events[event.task_name]
                     if event.task_name in self.active_processes_and_children:
                         del self.active_processes_and_children[event.task_name]
             else:
-                raise RunnerError(f'Unexpected process event: {event}')
+                raise RunnerError(f'Unexpected task event: {event}')
 
-    def _get_process_info(self, start_event: ProcessStartEvent) -> TaskMonitorInfo | None:
+    def _get_process_info(self, start_event: TaskStartEvent) -> TaskMonitorInfo | None:
         pid = start_event.pid
         try:
             if start_event.task_name not in self.active_processes_and_children:
@@ -99,7 +95,7 @@ class ProcessMonitor:
     def get_process_infos(self) -> list[TaskMonitorInfo]:
         self._consume_monitor_queue()
         process_infos: list[TaskMonitorInfo] = []
-        for start_event in self.active_process_events.values():
+        for start_event in self.active_task_events.values():
             process_info = self._get_process_info(start_event)
             if process_info is not None:
                 process_infos.append(process_info)
@@ -111,8 +107,8 @@ class ProcessRunner(Runner, ABC):
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None):
         mp_context = self._get_mp_context()
-        self.process_event_queue = mp_context.Manager().Queue(-1)
-        self.process_monitor = ProcessMonitor(process_event_queue = self.process_event_queue)
+        self.task_event_queue = mp_context.Manager().Queue(-1)
+        self.process_monitor = ProcessMonitor(task_event_queue = self.task_event_queue)
         self.log_queue = multiprocessing.Manager().Queue(-1)
         self.executor = ProcessExecutor(
             mp_context=mp_context,
@@ -135,7 +131,7 @@ class ProcessRunner(Runner, ABC):
     @staticmethod
     def _subprocess_func(*, task: Task, task_name: str, use_cache: bool,
                          results_map: ResultsMap, filtered_context: LabContext,
-                         storage: Storage, process_event_queue: Queue,
+                         storage: Storage, task_event_queue: Queue,
                          log_queue: Queue) -> TaskResult:
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         # Subprocesses should log onto the queue in order to printed
@@ -150,7 +146,7 @@ class ProcessRunner(Runner, ABC):
 
         try:
             current_process = multiprocessing.current_process()
-            process_event_queue.put(ProcessStartEvent(
+            task_event_queue.put(TaskStartEvent(
                 task_name=task_name,
                 pid=cast('int', current_process.pid),
                 use_cache=use_cache,
@@ -171,7 +167,7 @@ class ProcessRunner(Runner, ABC):
             finally:
                 current_process.name = orig_process_name
         finally:
-            process_event_queue.put(ProcessEndEvent(
+            task_event_queue.put(TaskEndEvent(
                 task_name=task_name,
             ))
             sys.stdout.flush()
@@ -185,7 +181,7 @@ class ProcessRunner(Runner, ABC):
             task=task,
             task_name=task_name,
             use_cache=use_cache,
-            process_event_queue=self.process_event_queue,
+            task_event_queue=self.task_event_queue,
             log_queue=self.log_queue,
         )
         self.future_to_task[future] = task
@@ -241,7 +237,7 @@ class ProcessRunner(Runner, ABC):
 
     @abstractmethod
     def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
-                     use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
+                     use_cache: bool, task_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
         """Should submit the execution of self._subprocess_func() on the given
         task to the given executor and return the resulting ExecutorFuture.
 
@@ -262,7 +258,7 @@ class SpawnProcessRunner(ProcessRunner):
         return multiprocessing.get_context('spawn')
 
     def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
-                     use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
+                     use_cache: bool, task_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
         if is_interactive() and task.__class__.__module__ == '__main__':
             raise RunnerError(
                 (f'Unable to submit {task.__class__.__qualname__} tasks to '
@@ -293,7 +289,7 @@ class SpawnProcessRunner(ProcessRunner):
             results_map=results_map,
             filtered_context=filtered_context,
             storage=self.storage,
-            process_event_queue=process_event_queue,
+            task_event_queue=task_event_queue,
             log_queue=log_queue,
         )
 
@@ -347,7 +343,7 @@ class ForkProcessRunner(ProcessRunner):
 
     @staticmethod
     def _fork_subprocess_func(*, _subprocess_func: Callable, task: Task, task_name: str,
-                              use_cache: bool, process_event_queue: Queue, log_queue: Queue,
+                              use_cache: bool, task_event_queue: Queue, log_queue: Queue,
                               uuid: UUID) -> TaskResult:
         runner_memory = _RUNNER_FORK_MEMORY[uuid]
         return _subprocess_func(
@@ -357,19 +353,19 @@ class ForkProcessRunner(ProcessRunner):
             filtered_context=task.filter_context(runner_memory.context),
             storage=runner_memory.storage,
             results_map=runner_memory.results_map,
-            process_event_queue=process_event_queue,
+            task_event_queue=task_event_queue,
             log_queue=log_queue,
         )
 
     def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
-                     use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
+                     use_cache: bool, task_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
         return executor.submit(
             self._fork_subprocess_func,
             _subprocess_func=self._subprocess_func,
             task=task,
             task_name=task_name,
             use_cache=use_cache,
-            process_event_queue=process_event_queue,
+            task_event_queue=task_event_queue,
             log_queue=log_queue,
             uuid=self.uuid,
         )
