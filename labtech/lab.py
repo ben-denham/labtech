@@ -4,6 +4,7 @@ from __future__ import annotations
 import concurrent.futures.process
 import math
 from collections import Counter, defaultdict
+from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -290,6 +291,13 @@ class TaskCoordinator:
                     task_monitor.close()
 
 
+class DefaultStorage(StrEnum):
+    singleton = 'labtech_storage'
+
+
+default_storage = DefaultStorage.singleton
+
+
 class Lab:
     """Primary interface for configuring, running, and getting results of tasks.
 
@@ -304,7 +312,7 @@ class Lab:
     """
 
     def __init__(self, *,
-                 storage: str | Path | None | Storage,
+                 storage: str | Path | None | Storage | DefaultStorage = default_storage,
                  continue_on_failure: bool = True,
                  max_workers: int | None = None,
                  notebook: bool | None = None,
@@ -316,7 +324,8 @@ class Lab:
                 [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
                 will be interpreted as the path to a local directory, `None`
                 will result in no caching. Any [Storage][labtech.types.Storage]
-                instance may also be specified.
+                instance may also be specified. Defaults to a "labtech_storage"
+                directory inside the current working directory.
             continue_on_failure: If `True`, exceptions raised by tasks will be
                 logged, but execution of other tasks will continue.
             max_workers: The maximum number of parallel worker processes for
@@ -374,7 +383,10 @@ class Lab:
                 `multiprocessing` start methods](https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods).
 
         """
-        if isinstance(storage, str) or isinstance(storage, Path):
+        if isinstance(storage, DefaultStorage):
+            logger.warning(f'Caching labtech results in a local "{storage.value}" directory. Construct Lab() with a storage argument to suppress this warning.')
+            storage = LocalStorage(storage.value)
+        elif isinstance(storage, str) or isinstance(storage, Path):
             storage = LocalStorage(storage)
         elif storage is None:
             storage = NullStorage()
