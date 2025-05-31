@@ -115,6 +115,7 @@ class LoggerFileProxy:
     def flush(self):
         if self.bufs:
             self.logger_func('\n'.join([f'{self.prefix}{buf}' for buf in self.bufs]))
+            self.bufs = []
 
 
 def ensure_dict_key_str(value, *, exception_type: type[Exception]) -> str:
