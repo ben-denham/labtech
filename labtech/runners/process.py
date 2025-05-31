@@ -151,7 +151,7 @@ class ProcessExecutor:
         for future in futures_to_start:
             thunk = self._pending_future_to_thunk[future]
             del self._pending_future_to_thunk[future]
-            process = multiprocessing.Process(
+            process = self.mp_context.Process(
                 target=_subprocess_target,
                 kwargs=dict(
                     future_id=future.id,
