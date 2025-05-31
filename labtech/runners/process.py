@@ -22,7 +22,7 @@ from labtech.exceptions import RunnerError, TaskDiedError
 from labtech.monitor import get_process_info
 from labtech.tasks import get_direct_dependencies
 from labtech.types import Runner, RunnerBackend
-from labtech.utils import LoggerFileProxy, get_supported_start_methods, logger
+from labtech.utils import LoggerFileProxy, get_supported_start_methods, is_interactive, logger
 
 from .base import run_or_load_task
 
@@ -151,7 +151,7 @@ class ProcessExecutor:
         for future in futures_to_start:
             thunk = self._pending_future_to_thunk[future]
             del self._pending_future_to_thunk[future]
-            process = multiprocessing.Process(
+            process = self.mp_context.Process(
                 target=_subprocess_target,
                 kwargs=dict(
                     future_id=future.id,
@@ -461,6 +461,16 @@ class SpawnProcessRunner(ProcessRunner):
 
     def _submit_task(self, executor: ProcessExecutor, task: Task, task_name: str,
                      use_cache: bool, process_event_queue: Queue, log_queue: Queue) -> Future:
+        if is_interactive() and task.__class__.__module__ == '__main__':
+            raise RunnerError(
+                (f'Unable to submit {task.__class__.__qualname__} tasks to '
+                 'SpawnProcessRunner because the task type is defined in the '
+                 '__main__ module from an interactive Python session. '
+                 'Please define your task types in a separate `.py` Python '
+                 'module file. For details, see: '
+                 'https://ben-denham.github.io/labtech/cookbook/#spawn-interactive-main')
+            )
+
         filtered_context: LabContext = {}
         results_map: dict[Task, TaskResult] = {}
         if not use_cache:
