@@ -33,6 +33,9 @@ if TYPE_CHECKING:
 
     from labtech.types import LabContext, ResultMeta, ResultsMap, Storage, Task, TaskMonitorInfo, TaskResult
 
+Future = ConcurrentFuture | ExecutorFuture
+FutureT = TypeVar('FutureT', bound=Future, covariant=True)
+
 
 @dataclass(frozen=True)
 class TaskStartEvent:
@@ -145,64 +148,15 @@ def _task_subprocess_func(*, task: Task, task_name: str, use_cache: bool,
         sys.stderr = orig_stderr
 
 
-FutureT = TypeVar('FutureT', bound=ExecutorFuture | ConcurrentFuture)
-
-
-class ProcessManager(ABC, Generic[FutureT]):
-
-    def __init__(self) -> None:
-        self.results_map: dict[Task, TaskResult] = {}
-
-    def set_result(self, task: Task, task_result: TaskResult) -> None:
-        self.results_map[task] = task_result
-
-    def get_result(self, task: Task) -> TaskResult:
-        return self.results_map[task]
-
-    def remove_result(self, task: Task) -> None:
-        if task not in self.results_map:
-            return
-        logger.debug(f"Removing result from in-memory cache for task: '{task}'")
-        del self.results_map[task]
-
-    @abstractmethod
-    def schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool,
-                            task_event_queue: Queue, log_queue: Queue) -> FutureT:
-        """Should submit the execution of _task_subprocess_func() on the given
-        in a subprocess and return the resulting future.
-
-        The implementation of this method to load or otherwise prepare
-        context or dependency results for the task.
-
-        """
-
-    @abstractmethod
-    def get_completed_futures(self, futures: list[FutureT], timeout_seconds: float | None) -> list[FutureT]:
-        """Return a sub-sequence of the given futures that have been completed."""
-
-    @abstractmethod
-    def cancel(self) -> None:
-        """Cancel all scheduled subprocesses that have not yet been started."""
-
-    @abstractmethod
-    def stop(self) -> None:
-        """Stop all currently running subprocesses."""
-
-    @abstractmethod
-    def close(self) -> None:
-        """Stop all currently running subprocesses."""
-
-
-class ProcessRunner(Runner, Generic[FutureT]):
+class ProcessRunner(Runner, Generic[FutureT], ABC):
     """Runner based on Python multiprocessing."""
 
-    def __init__(self, *, process_manager: ProcessManager[FutureT]) -> None:
-        self.process_manager = process_manager
-
+    def __init__(self) -> None:
         self.log_queue = multiprocessing.Manager().Queue(-1)
         self.task_event_queue = multiprocessing.Manager().Queue(-1)
         self.process_monitor = ProcessMonitor(task_event_queue = self.task_event_queue)
 
+        self.results_map: dict[Task, TaskResult] = {}
         self.future_to_task: dict[FutureT, Task] = {}
 
     def _consume_log_queue(self):
@@ -216,18 +170,16 @@ class ProcessRunner(Runner, Generic[FutureT]):
             logger.handle(record)
 
     def submit_task(self, task: Task, task_name: str, use_cache: bool) -> None:
-        future = self.process_manager.schedule_subprocess(
+        future = self._schedule_subprocess(
             task=task,
             task_name=task_name,
             use_cache=use_cache,
-            task_event_queue=self.task_event_queue,
-            log_queue=self.log_queue,
         )
         self.future_to_task[future] = task
 
     def wait(self, *, timeout_seconds: float | None) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
         self._consume_log_queue()
-        done = self.process_manager.get_completed_futures(
+        done = self._get_completed_futures(
             futures=list(self.future_to_task.keys()),
             timeout_seconds=timeout_seconds,
         )
@@ -240,7 +192,7 @@ class ProcessRunner(Runner, Generic[FutureT]):
             except BaseException as ex:
                 yield (task, ex)
             else:
-                self.process_manager.set_result(task, task_result)
+                self.results_map[task] = task_result
                 yield (task, task_result.meta)
         self.future_to_task = {
             future: self.future_to_task[future]
@@ -248,15 +200,9 @@ class ProcessRunner(Runner, Generic[FutureT]):
             if future not in done
         }
 
-    def cancel(self) -> None:
-        self.process_manager.cancel()
-
-    def stop(self) -> None:
-        self.process_manager.stop()
-
     def close(self) -> None:
         self._consume_log_queue()
-        self.process_manager.close()
+        self._close_executor()
 
     def pending_task_count(self) -> int:
         return len(self.future_to_task)
@@ -265,11 +211,40 @@ class ProcessRunner(Runner, Generic[FutureT]):
         return self.process_monitor.get_process_infos()
 
     def get_result(self, task: Task) -> TaskResult:
-        return self.process_manager.get_result(task)
+        return self.results_map[task]
 
     def remove_results(self, tasks: Sequence[Task]) -> None:
         for task in tasks:
-            self.process_manager.remove_result(task)
+            if task not in self.results_map:
+                return
+            logger.debug(f"Removing result from in-memory cache for task: '{task}'")
+            del self.results_map[task]
+
+    @abstractmethod
+    def _schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool) -> FutureT:
+        """Should submit the execution of _task_subprocess_func()
+        for the given task in a subprocess and return the resulting Future.
+
+        The implementation of this method to load or otherwise prepare
+        context or dependency results for the task.
+
+        """
+
+    @abstractmethod
+    def _get_completed_futures(self, futures: list[FutureT], timeout_seconds: float | None) -> list[FutureT]:
+        """Return a sub-sequence of the given futures that have been completed."""
+
+    @abstractmethod
+    def cancel(self) -> None:
+        pass
+
+    @abstractmethod
+    def stop(self) -> None:
+        pass
+
+    @abstractmethod
+    def _close_executor(self) -> None:
+        """Stop all currently running subprocesses."""
 
 
 def _spawn_start_method_check() -> None:
@@ -302,7 +277,7 @@ def _fork_start_method_check() -> None:
 
 # === Subprocess Pools  ===
 
-class PoolProcessManager(ProcessManager[ConcurrentFuture], ABC):
+class PoolProcessRunner(ProcessRunner[ConcurrentFuture], ABC):
 
     def __init__(self, *, mp_context: BaseContext, max_workers: int | None) -> None:
         super().__init__()
@@ -311,9 +286,9 @@ class PoolProcessManager(ProcessManager[ConcurrentFuture], ABC):
             max_workers=max_workers,
         )
 
-    def get_completed_futures(self, futures: list[ExecutorFuture], timeout_seconds: float | None) -> list[ExecutorFuture]:
+    def _get_completed_futures(self, futures: list[ConcurrentFuture], timeout_seconds: float | None) -> list[ConcurrentFuture]:
         done, _ = wait_futures(futures, timeout=timeout_seconds, return_when=FIRST_COMPLETED)
-        return done
+        return list(done)
 
     def cancel(self) -> None:
         self.concurrent_executor.shutdown(wait=True, cancel_futures=True)
@@ -323,11 +298,11 @@ class PoolProcessManager(ProcessManager[ConcurrentFuture], ABC):
         for process in self.concurrent_executor._processes.values():
             process.terminate()
 
-    def close(self) -> None:
+    def _close_executor(self) -> None:
         self.concurrent_executor.shutdown(wait=True)
 
 
-class SpawnPoolProcessManager(PoolProcessManager):
+class SpawnPoolProcessRunner(PoolProcessRunner):
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> None:
         super().__init__(
@@ -337,8 +312,7 @@ class SpawnPoolProcessManager(PoolProcessManager):
         self.context = context
         self.storage = storage
 
-    def schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool,
-                            task_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
+    def _schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool) -> ConcurrentFuture:
         _spawn_interactive_main_check(self.__class__, task)
 
         filtered_context: LabContext = {}
@@ -362,8 +336,8 @@ class SpawnPoolProcessManager(PoolProcessManager):
             results_map=results_map,
             filtered_context=filtered_context,
             storage=self.storage,
-            task_event_queue=task_event_queue,
-            log_queue=log_queue,
+            task_event_queue=self.task_event_queue,
+            log_queue=self.log_queue,
         )
 
 
@@ -376,14 +350,12 @@ class SpawnPoolRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ProcessRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> SpawnPoolProcessRunner:
         _spawn_start_method_check()
-        return ProcessRunner(
-            process_manager=SpawnPoolProcessManager(
-                context=context,
-                storage=storage,
-                max_workers=max_workers,
-            )
+        return SpawnPoolProcessRunner(
+            context=context,
+            storage=storage,
+            max_workers=max_workers,
         )
 
 
@@ -396,7 +368,7 @@ class PoolRunnerMemory:
 _RUNNER_FORK_POOL_MEMORY: dict[UUID, PoolRunnerMemory] = {}
 
 
-class ForkPoolProcessManager(PoolProcessManager):
+class ForkPoolProcessRunner(PoolProcessRunner):
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> None:
         super().__init__(
@@ -412,7 +384,7 @@ class ForkPoolProcessManager(PoolProcessManager):
     @staticmethod
     def _fork_task_subprocess_func(*, task: Task, task_name: str, use_cache: bool,
                                    results_map: ResultsMap, task_event_queue: Queue,
-                                   log_queue: Queue, uuid: UUID):
+                                   log_queue: Queue, uuid: UUID) -> TaskResult:
         runner_memory = _RUNNER_FORK_POOL_MEMORY[uuid]
         return _task_subprocess_func(
             task=task,
@@ -425,8 +397,7 @@ class ForkPoolProcessManager(PoolProcessManager):
             log_queue=log_queue,
         )
 
-    def schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool,
-                            task_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
+    def _schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool) -> ConcurrentFuture:
         results_map: dict[Task, TaskResult] = {}
         if not use_cache:
             # In order to minimise memory use, only transfer results
@@ -442,17 +413,17 @@ class ForkPoolProcessManager(PoolProcessManager):
             task_name=task_name,
             use_cache=use_cache,
             results_map=results_map,
-            task_event_queue=task_event_queue,
-            log_queue=log_queue,
+            task_event_queue=self.task_event_queue,
+            log_queue=self.log_queue,
             uuid=self.uuid,
         )
 
-    def close(self) -> None:
-        super().close()
+    def _close_executor(self) -> None:
+        super()._close_executor()
         try:
             del _RUNNER_FORK_POOL_MEMORY[self.uuid]
         except KeyError:
-            # uuid not may be found if close() is called twice.
+            # uuid not may be found if _close_executor() is called twice.
             pass
 
 
@@ -465,20 +436,18 @@ class ForkPoolRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ProcessRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ForkPoolProcessRunner:
         _fork_start_method_check()
-        return ProcessRunner(
-            process_manager=ForkPoolProcessManager(
-                context=context,
-                storage=storage,
-                max_workers=max_workers,
-            )
+        return ForkPoolProcessRunner(
+            context=context,
+            storage=storage,
+            max_workers=max_workers,
         )
 
 
 # === Subprocesses Per-Task  ===
 
-class PerTaskProcessManager(ProcessManager[ExecutorFuture]):
+class PerTaskProcessRunner(ProcessRunner[ExecutorFuture], ABC):
 
     def __init__(self, *, mp_context: BaseContext, max_workers: int | None) -> None:
         super().__init__()
@@ -487,7 +456,7 @@ class PerTaskProcessManager(ProcessManager[ExecutorFuture]):
             max_workers=max_workers,
         )
 
-    def get_completed_futures(self, futures: list[ExecutorFuture], timeout_seconds: float | None) -> list[ExecutorFuture]:
+    def _get_completed_futures(self, futures: list[ExecutorFuture], timeout_seconds: float | None) -> list[ExecutorFuture]:
         done, _ = self.executor.wait(futures, timeout_seconds=timeout_seconds)
         return done
 
@@ -497,11 +466,11 @@ class PerTaskProcessManager(ProcessManager[ExecutorFuture]):
     def stop(self) -> None:
         self.executor.stop()
 
-    def close(self) -> None:
+    def _close_executor(self) -> None:
         pass
 
 
-class SpawnPerTaskProcessManager(PerTaskProcessManager):
+class SpawnPerTaskProcessRunner(PerTaskProcessRunner):
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> None:
         super().__init__(
@@ -511,8 +480,7 @@ class SpawnPerTaskProcessManager(PerTaskProcessManager):
         self.context = context
         self.storage = storage
 
-    def schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool,
-                            task_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
+    def _schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool) -> ExecutorFuture:
         _spawn_interactive_main_check(self.__class__, task)
 
         filtered_context: LabContext = {}
@@ -536,8 +504,8 @@ class SpawnPerTaskProcessManager(PerTaskProcessManager):
             results_map=results_map,
             filtered_context=filtered_context,
             storage=self.storage,
-            task_event_queue=task_event_queue,
-            log_queue=log_queue,
+            task_event_queue=self.task_event_queue,
+            log_queue=self.log_queue,
         )
 
 
@@ -550,14 +518,12 @@ class SpawnPerTaskRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ProcessRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> SpawnPerTaskProcessRunner:
         _spawn_start_method_check()
-        return ProcessRunner(
-            process_manager=SpawnPerTaskProcessManager(
-                context=context,
-                storage=storage,
-                max_workers=max_workers,
-            )
+        return SpawnPerTaskProcessRunner(
+            context=context,
+            storage=storage,
+            max_workers=max_workers,
         )
 
 
@@ -571,7 +537,7 @@ class PerTaskRunnerMemory:
 _RUNNER_FORK_PER_TASK_MEMORY: dict[UUID, PerTaskRunnerMemory] = {}
 
 
-class ForkPerTaskProcessManager(PerTaskProcessManager):
+class ForkPerTaskProcessRunner(PerTaskProcessRunner):
 
     def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> None:
         super().__init__(
@@ -588,7 +554,7 @@ class ForkPerTaskProcessManager(PerTaskProcessManager):
     @staticmethod
     def _fork_task_subprocess_func(*, task: Task, task_name: str, use_cache: bool,
                                    task_event_queue: Queue, log_queue: Queue,
-                                   uuid: UUID):
+                                   uuid: UUID) -> TaskResult:
         runner_memory = _RUNNER_FORK_PER_TASK_MEMORY[uuid]
         return _task_subprocess_func(
             task=task,
@@ -601,24 +567,23 @@ class ForkPerTaskProcessManager(PerTaskProcessManager):
             log_queue=log_queue,
         )
 
-    def schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool,
-                            task_event_queue: Queue, log_queue: Queue) -> ExecutorFuture:
+    def _schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool) -> ExecutorFuture:
         return self.executor.submit(
             self._fork_task_subprocess_func,
             task=task,
             task_name=task_name,
             use_cache=use_cache,
-            task_event_queue=task_event_queue,
-            log_queue=log_queue,
+            task_event_queue=self.task_event_queue,
+            log_queue=self.log_queue,
             uuid=self.uuid,
         )
 
-    def close(self) -> None:
-        super().close()
+    def _close_executor(self) -> None:
+        super()._close_executor()
         try:
             del _RUNNER_FORK_PER_TASK_MEMORY[self.uuid]
         except KeyError:
-            # uuid not may be found if close() is called twice.
+            # uuid not may be found if _close_executor() is called twice.
             pass
 
 
@@ -631,12 +596,10 @@ class ForkPerTaskRunnerBackend(RunnerBackend):
 
     """
 
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ProcessRunner:
+    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> ForkPerTaskProcessRunner:
         _fork_start_method_check()
-        return ProcessRunner(
-            process_manager=ForkPerTaskProcessManager(
-                context=context,
-                storage=storage,
-                max_workers=max_workers,
-            )
+        return ForkPerTaskProcessRunner(
+            context=context,
+            storage=storage,
+            max_workers=max_workers,
         )
