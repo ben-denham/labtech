@@ -61,22 +61,20 @@ class ExecutorFuture:
     def __hash__(self) -> int:
         return hash(self.id)
 
-    @property
     def done(self) -> bool:
         return self._state in {FutureState.FINISHED, FutureState.CANCELLED}
 
-    @property
     def cancelled(self) -> bool:
         return self._state == FutureState.CANCELLED
 
     def set_result(self, result: Any):
-        if self.done:
+        if self.done():
             raise FutureStateError(f'Attempted to set a result on a {self._state} future.')
         self._result = result
         self._state = FutureState.FINISHED
 
     def set_exception(self, ex: BaseException):
-        if self.done:
+        if self.done():
             raise FutureStateError(f'Attempted to set an exception on a {self._state} future.')
         self._ex = ex
         self._state = FutureState.FINISHED
@@ -96,7 +94,7 @@ def split_done_futures(futures: Sequence[ExecutorFuture]) -> tuple[list[Executor
     done_futures = []
     not_done_futures = []
     for future in futures:
-        if future.done:
+        if future.done():
             done_futures.append(future)
         else:
             not_done_futures.append(future)
@@ -188,7 +186,7 @@ class ProcessExecutor:
 
                 future, _ = self._running_id_to_future_and_process[future_id]
                 del self._running_id_to_future_and_process[future_id]
-                if not future.done:
+                if not future.done():
                     if isinstance(result_or_ex, BaseException):
                         future.set_exception(result_or_ex)
                     else:
@@ -207,7 +205,7 @@ class ProcessExecutor:
         # If any processes have died without the future being
         # cancelled or finished, then set an exception for it.
         for future in dead_process_futures:
-            if future.done:
+            if future.done():
                 continue
             future.set_exception(TaskDiedError())
             del self._running_id_to_future_and_process[future.id]
