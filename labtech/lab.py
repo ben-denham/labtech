@@ -358,11 +358,11 @@ class Lab:
                   The default on platforms that support forked Python
                   subprocesses when `max_workers > 1`: Linux and other
                   POSIX systems, but not macOS or Windows.
-                * `'fork-ondemand'`: Uses the
+                * `'fork-per-task'`: Uses the
                   [`ForkPerTaskRunnerBackend`][labtech.runners.ForkPerTaskRunnerBackend]
                   to run each task in a forked subprocess. Shares
                   dependency task results as well as the context in
-                  memory shared between subprocesses, but at the cost
+                  memory shared between subprocesses but at the cost
                   of forking a new subprocess for each task. Best used
                   when dependency task results are large compared to
                   the overall number of tasks.
@@ -420,7 +420,7 @@ class Lab:
         elif isinstance(runner_backend, str):
             if runner_backend == 'fork':
                 runner_backend = ForkPoolRunnerBackend()
-            elif runner_backend == 'fork-ondemand':
+            elif runner_backend == 'fork-per-task':
                 runner_backend = ForkPerTaskRunnerBackend()
             elif runner_backend == 'spawn':
                 runner_backend = SpawnPoolRunnerBackend()
