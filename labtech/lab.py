@@ -12,7 +12,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 from .exceptions import LabError, TaskNotFound
 from .monitor import TaskMonitor
-from .runners import ForkPoolRunnerBackend, SerialRunnerBackend, SpawnPoolRunnerBackend, ThreadRunnerBackend
+from .runners import ForkPerTaskRunnerBackend, ForkPoolRunnerBackend, SerialRunnerBackend, SpawnPoolRunnerBackend, ThreadRunnerBackend
 from .storage import LocalStorage, NullStorage
 from .tasks import get_direct_dependencies
 from .types import ResultMeta, is_task, is_task_type
@@ -343,14 +343,6 @@ class Lab:
             runner_backend: Controls how tasks are run in parallel. It can
                 optionally be set to one of the following options:
 
-                * `'fork'`: Uses the
-                  [`ForkPoolRunnerBackend`][labtech.runners.ForkPoolRunnerBackend]
-                  to run tasks on a pool of forked subprocesses. Memory use
-                  is reduced by sharing the context and dependency task
-                  results between tasks with memory inherited from the
-                  parent process. The default on platforms that support
-                  forked Python subprocesses when `max_workers > 1`: Linux
-                  and other POSIX systems, but not macOS or Windows.
                 * `'spawn'`: Uses the
                   [`SpawnPoolRunnerBackend`][labtech.runners.SpawnPoolRunnerBackend]
                   to run tasks on a pool of spawned subprocesses. The
@@ -358,6 +350,22 @@ class Lab:
                   copied/duplicated into the memory of each
                   subprocess. The default on macOS and Windows when
                   `max_workers > 1`.
+                * `'fork'`: Uses the
+                  [`ForkPoolRunnerBackend`][labtech.runners.ForkPoolRunnerBackend]
+                  to run tasks on a pool of forked subprocesses.
+                  Memory use is reduced by sharing the context between
+                  tasks with memory inherited from the parent process.
+                  The default on platforms that support forked Python
+                  subprocesses when `max_workers > 1`: Linux and other
+                  POSIX systems, but not macOS or Windows.
+                * `'fork-ondemand'`: Uses the
+                  [`ForkPerTaskRunnerBackend`][labtech.runners.ForkPerTaskRunnerBackend]
+                  to run each task in a forked subprocess. Shares
+                  dependency task results as well as the context in
+                  memory shared between subprocesses, but at the cost
+                  of forking a new subprocess for each task. Best used
+                  when dependency task results are large compared to
+                  the overall number of tasks.
                 * `'thread'`: Uses the
                   [`ThreadRunnerBackend`][labtech.runners.ThreadRunnerBackend]
                   to run each task in a separate Python thread. Because
@@ -412,6 +420,8 @@ class Lab:
         elif isinstance(runner_backend, str):
             if runner_backend == 'fork':
                 runner_backend = ForkPoolRunnerBackend()
+            elif runner_backend == 'fork-ondemand':
+                runner_backend = ForkPerTaskRunnerBackend()
             elif runner_backend == 'spawn':
                 runner_backend = SpawnPoolRunnerBackend()
             elif runner_backend == 'serial':

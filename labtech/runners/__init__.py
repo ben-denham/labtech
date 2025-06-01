@@ -1,7 +1,6 @@
 from .process import (
     ForkPerTaskRunnerBackend,
     ForkPoolRunnerBackend,
-    SpawnPerTaskRunnerBackend,
     SpawnPoolRunnerBackend,
 )
 from .serial import SerialRunnerBackend
@@ -11,7 +10,6 @@ __all__ = [
     'ForkPoolRunnerBackend',
     'SpawnPoolRunnerBackend',
     'ForkPerTaskRunnerBackend',
-    'SpawnPerTaskRunnerBackend',
     'SerialRunnerBackend',
     'ThreadRunnerBackend',
 ]

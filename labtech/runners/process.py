@@ -470,63 +470,6 @@ class PerTaskProcessRunner(ProcessRunner[ExecutorFuture], ABC):
         pass
 
 
-class SpawnPerTaskProcessRunner(PerTaskProcessRunner):
-
-    def __init__(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> None:
-        super().__init__(
-            mp_context=multiprocessing.get_context('spawn'),
-            max_workers=max_workers,
-        )
-        self.context = context
-        self.storage = storage
-
-    def _schedule_subprocess(self, *, task: Task, task_name: str, use_cache: bool) -> ExecutorFuture:
-        _spawn_interactive_main_check(self.__class__, task)
-
-        filtered_context: LabContext = {}
-        results_map: dict[Task, TaskResult] = {}
-        if not use_cache:
-            # In order to minimise memory use, only transfer context
-            # and results to the subprocess if we are going to run the
-            # task (and not just load its result from cache) and allow
-            # the task to filter the context to only what it needs.
-            filtered_context = task.filter_context(self.context)
-            results_map = {
-                dependency_task: self.results_map[dependency_task]
-                for dependency_task in get_direct_dependencies(task, all_identities=False)
-            }
-
-        return self.executor.submit(
-            _task_subprocess_func,
-            task=task,
-            task_name=task_name,
-            use_cache=use_cache,
-            results_map=results_map,
-            filtered_context=filtered_context,
-            storage=self.storage,
-            task_event_queue=self.task_event_queue,
-            log_queue=self.log_queue,
-        )
-
-
-class SpawnPerTaskRunnerBackend(RunnerBackend):
-    """
-    Runner Backend that runs each task in a spawned subprocess.
-
-    The required context and dependency task results are
-    copied/duplicated into the memory of each subprocess.
-
-    """
-
-    def build_runner(self, *, context: LabContext, storage: Storage, max_workers: int | None) -> SpawnPerTaskProcessRunner:
-        _spawn_start_method_check()
-        return SpawnPerTaskProcessRunner(
-            context=context,
-            storage=storage,
-            max_workers=max_workers,
-        )
-
-
 @dataclass
 class PerTaskRunnerMemory:
     context: LabContext

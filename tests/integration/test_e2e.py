@@ -10,7 +10,6 @@ import ray
 
 import labtech
 from labtech.exceptions import RunnerError
-from labtech.runners.process import ForkPerTaskRunnerBackend, SpawnPerTaskRunnerBackend
 from labtech.runners.ray import RayRunnerBackend
 
 if TYPE_CHECKING:
@@ -182,13 +181,13 @@ active_evaluation_keys = ['basic', 'repeated_dependency']
 class TestE2E:
 
     @pytest.mark.parametrize('max_workers', [1, 4, None])
-    @pytest.mark.parametrize('runner_backend', ['serial', 'fork', ForkPerTaskRunnerBackend(), 'spawn', SpawnPerTaskRunnerBackend(), 'thread'])
+    @pytest.mark.parametrize('runner_backend', ['serial', 'fork', 'fork-ondemand', 'spawn', 'thread'])
     @pytest.mark.parametrize('evaluation_key', active_evaluation_keys)
     def test_e2e(self, max_workers: int, runner_backend: str, evaluation_key: str, context: dict[str, Any], evaluations: dict[str, Evaluation]) -> None:
         evaluation = evaluations[evaluation_key]
 
         # macOS and Windows don't support fork, so test graceful failure:
-        if runner_backend == 'fork' and platform.system() in {'Darwin', 'Windows'}:
+        if runner_backend in {'fork', 'fork-ondemand'} and platform.system() in {'Darwin', 'Windows'}:
             lab = labtech.Lab(
                 storage=None,
                 context=context,
