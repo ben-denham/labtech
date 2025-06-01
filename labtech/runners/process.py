@@ -428,11 +428,15 @@ class ForkPoolProcessRunner(PoolProcessRunner):
 
 
 class ForkPoolRunnerBackend(RunnerBackend):
-    """
-    Runner Backend that runs tasks on a pool of forked subprocesses.
+    """Runner Backend that runs tasks on a pool of forked subprocesses.
 
     The context is shared in-memory between each subprocess. Dependency task
     results are copied/duplicated into the memory of each subprocess.
+
+    Because process forking is more efficient than spawning, and
+    because of the added benefit of not duplicating the context for
+    each task, this runner backend is recommended for any system that
+    supports process forking.
 
     """
 
@@ -531,11 +535,17 @@ class ForkPerTaskProcessRunner(PerTaskProcessRunner):
 
 
 class ForkPerTaskRunnerBackend(RunnerBackend):
-    """
-    Runner Backend that runs each task in a forked subprocess.
+    """Runner Backend that runs each task in a separate forked
+    subprocess.
 
     The context and dependency task results are shared in-memory
-    between each subprocess.
+    between each subprocess but at the cost of forking a new
+    subprocess for each task.
+
+    This runner backend is best used when dependency task results are
+    large (so time will be saved through memory sharing) compared to
+    the overall number of tasks (for large numbers of tasks, forking a
+    separate process for each may be a substantial overhead).
 
     """
 
