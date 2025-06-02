@@ -31,7 +31,7 @@ print(results)
 
 """
 
-__version__ = '0.7.3'
+__version__ = '0.8.0'
 
 from .lab import Lab
 from .tasks import task
