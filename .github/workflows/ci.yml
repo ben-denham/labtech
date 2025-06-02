@@ -14,6 +14,12 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        resolution: ["highest"]
+        include:
+          - python-version: "3.11"
+            os: "ubuntu-latest"
+            resolution: "lowest-direct"
+
 
     steps:
       - uses: actions/checkout@v3
@@ -31,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           python --version
-          uv sync
+          uv sync --resolution ${{ matrix.resolution }}
 
       - name: Build
         run: |
