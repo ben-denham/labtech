@@ -672,8 +672,15 @@ define a [`filter_context()`][labtech.types.Task.filter_context] in
 order to only pass necessary parts of the context to each task.
 
 If you are running a Lab with with `runner_backend='fork'` (the
-default on Linux), then you can rely on Labtech to share results and
-context between task processes using shared memory.
+default on Linux), then you can rely on Labtech to share the context
+between task processes using shared memory. Furthermore,
+`runner_backend='fork-per-task'` will also share task results between
+processes using shared memory, but at the cost of forking a new
+subprocess for each task - `runner_backend='fork-per-task'` is best
+used when dependency task results are large (so time will be saved
+through memory sharing) compared to the overall number of tasks (for
+large numbers of tasks, forking a separate process for each may be a
+substantial overhead).
 
 ### How can I see when a task was run and how long it took to execute?
 
@@ -688,9 +695,9 @@ print(f'The task execution took: {aggregation_task.result_meta.duration}')
 
 ### How can I access the results of intermediate/dependency tasks?
 
-To conserve memory, labtech's default behaviour is to unload the
-results of intermediate/dependency tasks once their directly dependent
-tasks have finished executing.
+To conserve memory, labtech unloads the results of
+intermediate/dependency tasks once their directly dependent tasks have
+finished executing.
 
 A simple approach to access the results of an intermediate task may
 simply be to include it's results as part of the result of the task
