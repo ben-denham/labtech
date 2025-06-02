@@ -369,18 +369,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#labtech.runners.ForkRunnerBackend" class="md-nav__link">
+  <a href="#labtech.runners.SpawnPoolRunnerBackend" class="md-nav__link">
     <span class="md-ellipsis">
-      ForkRunnerBackend
+      SpawnPoolRunnerBackend
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#labtech.runners.SpawnRunnerBackend" class="md-nav__link">
+  <a href="#labtech.runners.ForkPoolRunnerBackend" class="md-nav__link">
     <span class="md-ellipsis">
-      SpawnRunnerBackend
+      ForkPoolRunnerBackend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.runners.ForkPerTaskRunnerBackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      ForkPerTaskRunnerBackend
     </span>
   </a>
   
@@ -662,18 +671,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#labtech.runners.ForkRunnerBackend" class="md-nav__link">
+  <a href="#labtech.runners.SpawnPoolRunnerBackend" class="md-nav__link">
     <span class="md-ellipsis">
-      ForkRunnerBackend
+      SpawnPoolRunnerBackend
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#labtech.runners.SpawnRunnerBackend" class="md-nav__link">
+  <a href="#labtech.runners.ForkPoolRunnerBackend" class="md-nav__link">
     <span class="md-ellipsis">
-      SpawnRunnerBackend
+      ForkPoolRunnerBackend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.runners.ForkPerTaskRunnerBackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      ForkPerTaskRunnerBackend
     </span>
   </a>
   
@@ -877,8 +895,8 @@ instance of one of the following Runner Backend classes for the
 
 
 
-<h3 id="labtech.runners.ForkRunnerBackend" class="doc doc-heading">
-            <code>labtech.runners.ForkRunnerBackend</code>
+<h3 id="labtech.runners.SpawnPoolRunnerBackend" class="doc doc-heading">
+            <code>labtech.runners.SpawnPoolRunnerBackend</code>
 
 
 </h3>
@@ -889,9 +907,9 @@ instance of one of the following Runner Backend classes for the
               Bases: <code><a class="autorefs autorefs-internal" title="labtech.types.RunnerBackend" href="#labtech.types.RunnerBackend">RunnerBackend</a></code></p>
 
 
-        <p>Runner Backend that runs each task in a forked subprocess.</p>
-<p>The context and dependency task results are shared in-memory
-between each subprocess.</p>
+        <p>Runner Backend that runs tasks on a pool of spawned subprocesses.</p>
+<p>The required context and dependency task results are
+copied/duplicated into the memory of each subprocess.</p>
 
 
 
@@ -924,8 +942,8 @@ between each subprocess.</p>
 
 
 
-<h3 id="labtech.runners.SpawnRunnerBackend" class="doc doc-heading">
-            <code>labtech.runners.SpawnRunnerBackend</code>
+<h3 id="labtech.runners.ForkPoolRunnerBackend" class="doc doc-heading">
+            <code>labtech.runners.ForkPoolRunnerBackend</code>
 
 
 </h3>
@@ -936,9 +954,66 @@ between each subprocess.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="labtech.types.RunnerBackend" href="#labtech.types.RunnerBackend">RunnerBackend</a></code></p>
 
 
-        <p>Runner Backend that runs each task in a spawned subprocess.</p>
-<p>The required context and dependency task results are
-copied/duplicated into the memory of each subprocess.</p>
+        <p>Runner Backend that runs tasks on a pool of forked subprocesses.</p>
+<p>The context is shared in-memory between each subprocess. Dependency task
+results are copied/duplicated into the memory of each subprocess.</p>
+<p>Because process forking is more efficient than spawning, and
+because of the added benefit of not duplicating the context for
+each task, this runner backend is recommended for any system that
+supports process forking.</p>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="labtech.runners.ForkPerTaskRunnerBackend" class="doc doc-heading">
+            <code>labtech.runners.ForkPerTaskRunnerBackend</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="labtech.types.RunnerBackend" href="#labtech.types.RunnerBackend">RunnerBackend</a></code></p>
+
+
+        <p>Runner Backend that runs each task in a separate forked
+subprocess.</p>
+<p>The context and dependency task results are shared in-memory
+between each subprocess but at the cost of forking a new
+subprocess for each task.</p>
+<p>This runner backend is best used when dependency task results are
+large (so time will be saved through memory sharing) compared to
+the overall number of tasks (for large numbers of tasks, forking a
+separate process for each may be a substantial overhead).</p>
 
 
 

@@ -544,9 +544,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#why-do-i-see-the-following-error-attributeerror-cant-get-attribute-your_task_class-on-module-__main__-built-in" class="md-nav__link">
+  <a href="#why-do-i-see-the-following-error-runnererror-unable-to-submit-yourtasktype-tasks-to-spawnprocessrunner-because-the-task-type-is-defined-in-the-__main__-module-from-an-interactive-python-session" class="md-nav__link">
     <span class="md-ellipsis">
-      Why do I see the following error: AttributeError: Can't get attribute 'YOUR_TASK_CLASS' on &lt;module '__main__' (built-in)&gt;?
+      Why do I see the following error: RunnerError: Unable to submit YourTaskType tasks to SpawnProcessRunner because the task type is defined in the __main__ module from an interactive Python session?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-do-i-see-the-following-error-attributeerror-cant-get-attribute-your_class-on-module-__main__-built-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why do I see the following error: AttributeError: Can't get attribute 'YOUR_CLASS' on &lt;module '__main__' (built-in)&gt;?
     </span>
   </a>
   
@@ -929,9 +938,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#why-do-i-see-the-following-error-attributeerror-cant-get-attribute-your_task_class-on-module-__main__-built-in" class="md-nav__link">
+  <a href="#why-do-i-see-the-following-error-runnererror-unable-to-submit-yourtasktype-tasks-to-spawnprocessrunner-because-the-task-type-is-defined-in-the-__main__-module-from-an-interactive-python-session" class="md-nav__link">
     <span class="md-ellipsis">
-      Why do I see the following error: AttributeError: Can't get attribute 'YOUR_TASK_CLASS' on &lt;module '__main__' (built-in)&gt;?
+      Why do I see the following error: RunnerError: Unable to submit YourTaskType tasks to SpawnProcessRunner because the task type is defined in the __main__ module from an interactive Python session?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-do-i-see-the-following-error-attributeerror-cant-get-attribute-your_class-on-module-__main__-built-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why do I see the following error: AttributeError: Can't get attribute 'YOUR_CLASS' on &lt;module '__main__' (built-in)&gt;?
     </span>
   </a>
   
@@ -1545,8 +1563,15 @@ these values as small as possible. One way to achieve this is to
 define a <a class="autorefs autorefs-internal" title="filter_context(context: LabContext) -> LabContext" href="../core/#labtech.types.Task.filter_context"><code>filter_context()</code></a> in
 order to only pass necessary parts of the context to each task.</p>
 <p>If you are running a Lab with with <code>runner_backend='fork'</code> (the
-default on Linux), then you can rely on Labtech to share results and
-context between task processes using shared memory.</p>
+default on Linux), then you can rely on Labtech to share the context
+between task processes using shared memory. Furthermore,
+<code>runner_backend='fork-per-task'</code> will also share task results between
+processes using shared memory, but at the cost of forking a new
+subprocess for each task - <code>runner_backend='fork-per-task'</code> is best
+used when dependency task results are large (so time will be saved
+through memory sharing) compared to the overall number of tasks (for
+large numbers of tasks, forking a separate process for each may be a
+substantial overhead).</p>
 <h3 id="how-can-i-see-when-a-task-was-run-and-how-long-it-took-to-execute">How can I see when a task was run and how long it took to execute?</h3>
 <p>Once a task has been executed (or loaded from cache), you can see when
 it was originally executed and how long it took to execute from the
@@ -1555,9 +1580,9 @@ task's <code>.result_meta</code> attribute:</p>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The task execution took: </span><span class="si">{</span><span class="n">aggregation_task</span><span class="o">.</span><span class="n">result_meta</span><span class="o">.</span><span class="n">duration</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="how-can-i-access-the-results-of-intermediatedependency-tasks">How can I access the results of intermediate/dependency tasks?</h3>
-<p>To conserve memory, labtech's default behaviour is to unload the
-results of intermediate/dependency tasks once their directly dependent
-tasks have finished executing.</p>
+<p>To conserve memory, labtech unloads the results of
+intermediate/dependency tasks once their directly dependent tasks have
+finished executing.</p>
 <p>A simple approach to access the results of an intermediate task may
 simply be to include it's results as part of the result of the task
 that depends on it - that way you only need to look at the results of
@@ -1761,20 +1786,26 @@ then guard the call to <code>main()</code> with <code>__name__ == '__main__'</co
     <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 <p>For details, see <a href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing-safe-main-import">Safe importing of main module</a>.</p>
-<h3 id="why-do-i-see-the-following-error-attributeerror-cant-get-attribute-your_task_class-on-module-__main__-built-in">Why do I see the following error: <code>AttributeError: Can't get attribute 'YOUR_TASK_CLASS' on &lt;module '__main__' (built-in)&gt;</code>?</h3>
-<p>You will see this error (as part of a very long stack trace) when
-running a Lab with <code>runner_backend='spawn'</code> (the default on macOS and
-Windows) from an interactive Python shell.</p>
-<p>The solution to this error is to define all of your labtech <code>Task</code>
-types in a separate <code>.py</code> Python module file which you can import into
-your interactive shell session (e.g. <code>from my_module import MyTask</code>).</p>
+<div id="spawn-interactive-main"></div>
+
+<h3 id="why-do-i-see-the-following-error-runnererror-unable-to-submit-yourtasktype-tasks-to-spawnprocessrunner-because-the-task-type-is-defined-in-the-__main__-module-from-an-interactive-python-session">Why do I see the following error: <code>RunnerError: Unable to submit YourTaskType tasks to SpawnProcessRunner because the task type is defined in the __main__ module from an interactive Python session</code>?</h3>
+<p>You may see this error when running a Lab with
+<code>runner_backend='spawn'</code> (the default on macOS and Windows) from an
+interactive Python shell (e.g. a Jupyter notebook session or a Python
+script).</p>
+<p>The solution to this error is to define all of the classes you are
+using from your labtech context and tasks (including task types) in a
+separate <code>.py</code> Python module file which you can import into your
+interactive shell session (e.g. <code>from my_module import MyClass</code>).</p>
 <p>The reason for this error is that "spawned" task subprocesses will not
 receive a copy the current state of your <code>__main__</code> module (which
 contains the variables you declare interactively in the Python shell,
-including task definitions). This error does not occur with
+including class definitions). This error does not occur with
 <code>runner_backend='fork'</code> (the default on Linux) because forked
 subprocesses <em>do</em> receive the current state of all modules (including
 <code>__main__</code>) from the parent process.</p>
+<h3 id="why-do-i-see-the-following-error-attributeerror-cant-get-attribute-your_class-on-module-__main__-built-in">Why do I see the following error: <code>AttributeError: Can't get attribute 'YOUR_CLASS' on &lt;module '__main__' (built-in)&gt;</code>?</h3>
+<p><a href="#spawn-interactive-main">See the answer to the question directly above.</a></p>
 
 
 
