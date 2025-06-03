@@ -11,6 +11,7 @@ from concurrent.futures import wait as wait_futures
 from dataclasses import dataclass
 from logging.handlers import QueueHandler
 from queue import Empty
+from time import monotonic
 from typing import TYPE_CHECKING, Generic, TypeVar, cast
 from uuid import uuid4
 
@@ -152,6 +153,7 @@ class ProcessRunner(Runner, Generic[FutureT], ABC):
     """Runner based on Python multiprocessing."""
 
     def __init__(self) -> None:
+        self.last_consume_log = monotonic()
         self.log_queue = multiprocessing.Manager().Queue(-1)
         self.task_event_queue = multiprocessing.Manager().Queue(-1)
         self.process_monitor = ProcessMonitor(task_event_queue = self.task_event_queue)
@@ -178,7 +180,11 @@ class ProcessRunner(Runner, Generic[FutureT], ABC):
         self.future_to_task[future] = task
 
     def wait(self, *, timeout_seconds: float | None) -> Iterator[tuple[Task, ResultMeta | BaseException]]:
-        self._consume_log_queue()
+        # Consume logs at most every half second.
+        if (monotonic() - self.last_consume_log) >= 0.5:
+            self._consume_log_queue()
+            self.last_consume_log = monotonic()
+
         done = self._get_completed_futures(
             futures=list(self.future_to_task.keys()),
             timeout_seconds=timeout_seconds,
