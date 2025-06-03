@@ -51,7 +51,6 @@ build-backend = "hatchling.build"
 include = [
   "labtech/",
   "tests/",
-  "docs/",
   ".gitignore",
   ".python-version",
   "LICENSE",
@@ -60,7 +59,8 @@ include = [
   "uv.lock",
 ]
 exclude = [
-  "examples/"
+  "examples/",
+  "docs/",
 ]
 
 [tool.mypy]
