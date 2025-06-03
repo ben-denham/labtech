@@ -50,7 +50,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.sdist]
 include = [
   "labtech/",
-  "tests/",
   ".gitignore",
   ".python-version",
   "LICENSE",
@@ -61,6 +60,7 @@ include = [
 exclude = [
   "examples/",
   "docs/",
+  "tests/",
 ]
 
 [tool.mypy]
