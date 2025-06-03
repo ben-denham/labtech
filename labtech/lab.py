@@ -6,6 +6,7 @@ import math
 from collections import Counter, defaultdict
 from enum import StrEnum
 from pathlib import Path
+from time import monotonic
 from typing import TYPE_CHECKING
 
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -223,7 +224,11 @@ class TaskCoordinator:
             )
             task_monitor.show()
 
+        last_monitor_update = monotonic()
+
         def process_completed_tasks():
+            nonlocal last_monitor_update
+
             # Wait up to a short delay before allowing the
             # task monitor to update.
             for task, res in runner.wait(timeout_seconds=0.5):
@@ -241,8 +246,10 @@ class TaskCoordinator:
 
                 runner.remove_results(tasks_with_removable_results)
 
-            if task_monitor is not None:
+            # Update task monitor at most every half second.
+            if task_monitor is not None and ((monotonic() - last_monitor_update) >= 0.5):
                 task_monitor.update()
+                last_monitor_update = monotonic()
 
         redirected_loggers = [] if self.lab.notebook else [logger]
         with logging_redirect_tqdm(loggers=redirected_loggers):
