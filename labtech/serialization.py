@@ -122,6 +122,16 @@ class Serializer:
         return enum_cls[name]
 
     def serialize_class(self, cls: type) -> jsonable:
+        if '<locals>' in cls.__qualname__:
+            raise SerializationError(
+                (f'Unable to serialize class "{cls.__qualname__}" because it was defined in a function. '
+                 'Please ensure all task and parameter classes are defined at the top-level of a module.')
+            )
+
+        if '>' in cls.__qualname__:
+            # This should never happen, but is here for safety.
+            raise SerializationError('Unexpected ">" in class __qualname__')
+
         # Handle nested classes by splitting class nesting path by ">".
         return f'{cls.__module__}.{cls.__qualname__.replace(".", ">")}'
 
