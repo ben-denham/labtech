@@ -173,6 +173,10 @@ class Storage(ABC):
     def delete(self, key: str) -> None:
         """Deletes the cached result for the task with the given `key`."""
 
+    def get_runner_storage(self) -> Storage:
+        """Returns a variation of this storage to be used from runners (e.g. if )."""
+        return self
+
 
 class Cache(ABC):
     """Cache that controls saving task results into
@@ -258,6 +262,12 @@ class Runner(ABC):
         finally:
             current_process.name = orig_process_name
         ```
+
+        Note: Any use of `self.storage` from within a task's execution
+        environment (e.g. a separate machine or process) should
+        instead use `self.storage.get_runner_storage()`.
+        `labtech.runners.base.run_or_load_task` will handle this for
+        itself.
 
         Args:
             task: The task to execute.

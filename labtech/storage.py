@@ -50,23 +50,31 @@ class LocalStorage(Storage):
     """Storage provider that stores cached results in a local filesystem
     directory."""
 
-    def __init__(self, storage_dir: str | Path, *, with_gitignore: bool = True):
+    def __init__(self, storage_dir: str | Path, *,
+                 runner_dir: str | Path | None = None,
+                 with_gitignore: bool = True):
         """
         Args:
             storage_dir: Path to the directory where cached results will be
                 stored. The directory will be created if it does not already
                 exist.
+            runner_dir: Alternative directory path to be used from within runner
+                tasks (e.g. if runner tasks will run on a separate machine with
+                different paths).
             with_gitignore: If `True`, a `.gitignore` file will be created
                 inside the storage directory to ignore the entire storage
                 directory. If an existing `.gitignore` file exists, it will be
                 replaced.
         """
+        self._runner_dir = runner_dir
+
         if isinstance(storage_dir, str):
             storage_dir = Path(storage_dir)
         self._storage_path = storage_dir.resolve()
         if not self._storage_path.exists():
             self._storage_path.mkdir()
 
+        self._with_gitignore = with_gitignore
         if with_gitignore:
             gitignore_path = self._storage_path / '.gitignore'
             with gitignore_path.open('w') as gitignore_file:
@@ -102,6 +110,14 @@ class LocalStorage(Storage):
         key_path = self._key_to_path(key)
         if key_path.exists():
             shutil.rmtree(key_path)
+
+    def get_runner_storage(self) -> LocalStorage:
+        if self._runner_dir is None:
+            return self
+        return LocalStorage(
+            self._runner_dir,
+            with_gitignore=self._with_gitignore,
+        )
 
 
 class FsspecStorage(Storage, ABC):

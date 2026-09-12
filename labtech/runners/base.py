@@ -74,6 +74,10 @@ def run_or_load_task(task: Task, use_cache: bool, filtered_context: LabContext, 
        and use_cache=True
 
     """
+    # Allow the storage to use a different configuration if required
+    # from inside a task (e.g. because a task is run on a different
+    # machine with different mount paths).
+    storage = storage.get_runner_storage()
     if use_cache:
         logger.debug(f"Loading from cache: '{task}'")
         task_result = task._lt.cache.load_result_with_meta(storage, task)
