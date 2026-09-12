@@ -19,6 +19,9 @@ localstack:
 localstack-list-objects:
 	docker compose exec localstack awslocal s3api list-objects --bucket labtech-dev-bucket
 
+spark-cluster:
+	docker compose build && docker compose up spark-master spark-worker spark-connect
+
 sort-imports:
 	uv run ruff check --select "I" --fix
 lint:

@@ -13,3 +13,42 @@ services:
       # - "/var/run/docker.sock:/var/run/docker.sock"
     post_start:
       - command: awslocal s3api create-bucket --bucket labtech-dev-bucket
+  spark-master:
+    build: "./docker/spark"
+    environment:
+      SPARK_MODE: "master"
+      SPARK_NO_DAEMONIZE: "true"
+    ports:
+      - "127.0.0.1:8080:8080" # Dashboard
+      - "127.0.0.1:7077:7077" # Cluster comms
+    command: "/opt/spark/sbin/start-master.sh"
+    volumes:
+      - "./.spark:/opt/spark/share"
+  spark-worker:
+    build: "./docker/spark"
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: "worker"
+      SPARK_NO_DAEMONIZE: "true"
+    command: "/opt/spark/sbin/start-worker.sh spark://spark-master:7077"
+    ports:
+      - "127.0.0.1::8081" # Dashboard
+    volumes:
+      - "./.spark:/opt/spark/share"
+    deploy:
+      replicas: 2
+  spark-connect:
+    build: "./docker/spark"
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_NO_DAEMONIZE=true
+    ports:
+      - "127.0.0.1:15002:15002"
+      - "127.0.0.1:4040:4040"
+    command: >
+      /opt/spark/sbin/start-connect-server.sh
+      --master spark://spark-master:7077
+      --conf spark.connect.grpc.binding.port=15002
