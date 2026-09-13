@@ -1,11 +1,16 @@
 """Test a set of tasks packed with usage of features end-to-end.
 Loosely based on tasks from the tutorial."""
 
+import os
 import platform
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict
 
 import pytest
+
+# Stop ray from attempting to find pyproject.toml. TODO:
+# Consider whether this should be changed.
+os.environ['RAY_ENABLE_UV_RUN_RUNTIME_ENV'] = '0'
 import ray
 
 import labtech
