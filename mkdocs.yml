@@ -5,11 +5,14 @@ nav:
   - README: 'README.md'
   - Tutorial: 'tutorial.md'
   - Cookbook: 'cookbook.md'
-  - Labs and Tasks: 'core.md'
-  - Task Runner Backends: 'runners.md'
-  - Multi-Machine Clusters: 'distributed.md'
-  - Diagramming: 'diagram.md'
-  - Caches and Storage: 'caching.md'
+  - Core API Reference:
+    - Labs and Tasks: 'core.md'
+    - Task Runner Backends: 'runners.md'
+    - Caches and Storage: 'caching.md'
+    - Diagramming: 'diagram.md'
+  - Multi-Machine Distribution:
+    - Ray Clusters: 'distributed.md'
+    - Spark Clusters: 'spark.md'
 plugins:
   - search
   - mkdocstrings:

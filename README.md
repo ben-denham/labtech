@@ -4,6 +4,11 @@
 
 <h1>labtech</h1>
 
+<p> <strong>TL;DR:</strong> <a href="https://docs.python.org/3/library/concurrent.futures.html"><code>concurrent.futures</code></a>-like simplicity
+for concurrently running <a href="https://www.datacamp.com/blog/what-is-a-dag">DAGs</a> of tasks
+with configuration permutations across threads,
+processes, or clusters with implicit result caching. </p
+
 <a href="">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/labtech">
 </a>
@@ -14,13 +19,14 @@
 
 </div>
 
-Labtech makes it easy to define multi-step experiment pipelines and
-run them with maximal parallelism and result caching:
+Labtech makes it easy to define multi-step pipelines with permutations
+of configuration parameters and run them with maximal parallelism and
+result caching:
 
 * **Defining tasks is simple**; write a class with a single `run()`
   method and parameters as dataclass-style attributes.
-* **Flexible experiment configuration**; simply create task objects
-  for all of your parameter permutations.
+* **Flexible configuration**; simply create task objects for all of
+  your parameter permutations.
 * **Handles pipelines of tasks**; any task parameter that is itself a
   task will be executed first and make its result available to its
   dependent task(s).
@@ -32,7 +38,12 @@ run them with maximal parallelism and result caching:
   log task runs to mlflow with all of their parameters.
 * **Easily scale to a multi-machine cluster**; Built-in support for
   running tasks across an easy-to-setup [Ray](https://www.ray.io/)
-  cluster.
+  cluster, or across an [Apache Spark](https://spark.apache.org/)
+  cluster with [Ray on PySpark](https://community.databricks.com/t5/technical-blog/ray-on-spark-a-practical-architecture-and-setup-guide/ba-p/127511).
+* **Great for more than just experiments**; As a lightweight library
+  for running interdependent tasks across interchangeable backends
+  (threads, processes, clusters), Labtech is a great choice for
+  speeding up all sorts of processing pipelines.
 
 To learn more about how Labtech can speed up your experiments, check
 out the Kiwi Pycon presentation:
@@ -82,8 +93,8 @@ def main():
 
     # Configure a Lab to run the experiments:
     lab = labtech.Lab(
-        # Specify a directory to cache results in (running the experiments a second
-        # time will just load results from the cache!):
+        # Specify a directory to cache results in (running the experiments
+        # a second time will just load results from the cache!):
         storage='demo_lab',
         # Control the degree of parallelism:
         max_workers=5,

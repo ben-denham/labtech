@@ -55,7 +55,25 @@ accessed from any node in the cluster. For example, you could use an
 [NFS share](https://en.wikipedia.org/wiki/Network_File_System) or a
 cloud object storage provider (e.g. Amazon S3 or Azure Blob Storage).
 
-To learn how to configure Labtech to use a non-local storage backend, see:
+If you have a file share mounted as a directory across all nodes in
+your cluster, then you can use that directory with Labtech's standard
+directory-based local storage. If the file share is mounted at a
+different location on the host running labtech and the worker nodes,
+then you can specify a separate `runner_dir` for the workers' path:
+
+```python
+from labtech.storage import LocalStorage
+
+lab = labtech.Lab(
+    storage=LocalStorage(
+        'path/on/labtech/host/to/storage',
+        runner_dir='path/on/worker/to/storage',
+    ),
+    ...
+)
+```
+
+To learn how to configure Labtech to directly use a non-local storage backend, see:
 [How can I cache task results somewhere other than my filesystem?](./cookbook.md#how-can-i-cache-task-results-somewhere-other-than-my-filesystem)
 
 In the following example, we will run a
