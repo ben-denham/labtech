@@ -3215,7 +3215,7 @@ provide the following attributes and methods:</p>
 <span class="k">class</span><span class="w"> </span><span class="nc">Task</span><span class="p">(</span><span class="n">Protocol</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">CovariantResultT</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface provided by any class that is decorated by</span>
 <span class="sd">    [`labtech.task`][labtech.task].&quot;&quot;&quot;</span>
-    <span class="n">_lt</span><span class="p">:</span> <span class="n">TaskInfo</span>
+    <span class="n">_lt</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">TaskInfo</span><span class="p">]</span>
     <span class="n">_is_task</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span>
     <span class="n">_results_map</span><span class="p">:</span> <span class="n">ResultsMap</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">_cache_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
