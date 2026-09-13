@@ -41,7 +41,7 @@ dev = [
     "fsspec>=2025.3.2",
     "s3fs>=2025.3.2",
     "ray[default]>=2.44.1",
-    "pyspark-client>=4.2.0",
+    "pyspark[connect]>=4.2.0",
 ]
 
 [build-system]

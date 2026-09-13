@@ -22,8 +22,6 @@ services:
       - "127.0.0.1:8080:8080" # Dashboard
       - "127.0.0.1:7077:7077" # Cluster comms
     command: "/opt/spark/sbin/start-master.sh"
-    volumes:
-      - "./.spark:/opt/spark/share"
   spark-worker:
     build: "./docker/spark"
     depends_on:
@@ -31,24 +29,29 @@ services:
     environment:
       SPARK_MODE: "worker"
       SPARK_NO_DAEMONIZE: "true"
+      SPARK_WORKER_CORES: 2
     command: "/opt/spark/sbin/start-worker.sh spark://spark-master:7077"
     ports:
       - "127.0.0.1::8081" # Dashboard
     volumes:
-      - "./.spark:/opt/spark/share"
+      - "./examples/storage:/opt/spark/shared-storage"
+      # Mount dev version of labtech into venv.
+      - "./labtech:/home/spark/.venv/lib/python3.11/site-packages/labtech"
     deploy:
-      replicas: 2
+      replicas: 3
   spark-connect:
     build: "./docker/spark"
     depends_on:
       - spark-master
     environment:
-      - SPARK_MODE=master
-      - SPARK_NO_DAEMONIZE=true
+      SPARK_NO_DAEMONIZE: "true"
     ports:
       - "127.0.0.1:15002:15002"
       - "127.0.0.1:4040:4040"
+    # The total-executor-cores must be limited, otherwise it will
+    # consume all and not leave room for other Spark drivers.
     command: >
       /opt/spark/sbin/start-connect-server.sh
       --master spark://spark-master:7077
       --conf spark.connect.grpc.binding.port=15002
+      --total-executor-cores 3
