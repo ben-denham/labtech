@@ -11,8 +11,10 @@
       
       
       
-        <link rel="prev" href="../diagram/">
+        <link rel="prev" href="../runners/">
       
+      
+        <link rel="next" href="../diagram/">
       
       
       <link rel="icon" href="../images/icon.png">
@@ -286,6 +288,51 @@
       
   
   
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Core API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Core API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
@@ -303,9 +350,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -325,53 +373,10 @@
     </li>
   
 
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../distributed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Multi-Machine Clusters
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../diagram/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Diagramming
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
+              
+            
+              
+                
   
   
     
@@ -635,6 +640,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#labtech.storage.Storage.get_runner_storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_runner_storage
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -653,6 +667,133 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Diagramming
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Multi-Machine Distribution
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Multi-Machine Distribution
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ray Clusters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Spark Clusters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -890,6 +1031,15 @@
   <a href="#labtech.storage.Storage.delete" class="md-nav__link">
     <span class="md-ellipsis">
       delete
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#labtech.storage.Storage.get_runner_storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_runner_storage
     </span>
   </a>
   
@@ -1676,27 +1826,51 @@ directory.</p>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
-<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LocalStorage</span><span class="p">(</span><span class="n">Storage</span><span class="p">):</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LocalStorage</span><span class="p">(</span><span class="n">Storage</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Storage provider that stores cached results in a local filesystem</span>
 <span class="sd">    directory.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                 <span class="n">runner_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            storage_dir: Path to the directory where cached results will be</span>
 <span class="sd">                stored. The directory will be created if it does not already</span>
 <span class="sd">                exist.</span>
+<span class="sd">            runner_dir: Alternative directory path to be used from within runner</span>
+<span class="sd">                tasks (e.g. if runner tasks will run on a separate machine with</span>
+<span class="sd">                different paths).</span>
 <span class="sd">            with_gitignore: If `True`, a `.gitignore` file will be created</span>
 <span class="sd">                inside the storage directory to ignore the entire storage</span>
 <span class="sd">                directory. If an existing `.gitignore` file exists, it will be</span>
 <span class="sd">                replaced.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_runner_dir</span> <span class="o">=</span> <span class="n">runner_dir</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">storage_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">=</span> <span class="n">storage_dir</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_with_gitignore</span> <span class="o">=</span> <span class="n">with_gitignore</span>
         <span class="k">if</span> <span class="n">with_gitignore</span><span class="p">:</span>
             <span class="n">gitignore_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">/</span> <span class="s1">&#39;.gitignore&#39;</span>
             <span class="k">with</span> <span class="n">gitignore_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">gitignore_file</span><span class="p">:</span>
@@ -1732,6 +1906,14 @@ directory.</p>
         <span class="n">key_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_to_path</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">key_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">key_path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_runner_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LocalStorage</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runner_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="n">LocalStorage</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runner_dir</span><span class="p">,</span>
+            <span class="n">with_gitignore</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_with_gitignore</span><span class="p">,</span>
+        <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -1751,7 +1933,7 @@ directory.</p>
 
 
 <h4 id="labtech.storage.LocalStorage.__init__" class="doc doc-heading">
-            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">runner_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span></code>
 
 </h4>
 
@@ -1770,6 +1952,18 @@ directory.</p>
             <p>Path to the directory where cached results will be
 stored. The directory will be created if it does not already
 exist.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>runner_dir</code></b>
+              (<code><span title="str">str</span> | <span title="pathlib.Path">Path</span> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Alternative directory path to be used from within runner
+tasks (e.g. if runner tasks will run on a separate machine with
+different paths).</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1810,23 +2004,39 @@ replaced.</p>
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+             <span class="n">runner_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">with_gitignore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
 <span class="sd">        storage_dir: Path to the directory where cached results will be</span>
 <span class="sd">            stored. The directory will be created if it does not already</span>
 <span class="sd">            exist.</span>
+<span class="sd">        runner_dir: Alternative directory path to be used from within runner</span>
+<span class="sd">            tasks (e.g. if runner tasks will run on a separate machine with</span>
+<span class="sd">            different paths).</span>
 <span class="sd">        with_gitignore: If `True`, a `.gitignore` file will be created</span>
 <span class="sd">            inside the storage directory to ignore the entire storage</span>
 <span class="sd">            directory. If an existing `.gitignore` file exists, it will be</span>
 <span class="sd">            replaced.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_runner_dir</span> <span class="o">=</span> <span class="n">runner_dir</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">storage_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">=</span> <span class="n">storage_dir</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
 
+    <span class="bp">self</span><span class="o">.</span><span class="n">_with_gitignore</span> <span class="o">=</span> <span class="n">with_gitignore</span>
     <span class="k">if</span> <span class="n">with_gitignore</span><span class="p">:</span>
         <span class="n">gitignore_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_path</span> <span class="o">/</span> <span class="s1">&#39;.gitignore&#39;</span>
         <span class="k">with</span> <span class="n">gitignore_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">gitignore_file</span><span class="p">:</span>
@@ -1958,23 +2168,7 @@ storage.</p>
 
               <details class="quote">
                 <summary>Source code in <code>labtech/storage.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
 <span class="normal">126</span>
@@ -2012,7 +2206,23 @@ storage.</p>
 <span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
-<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FsspecStorage</span><span class="p">(</span><span class="n">Storage</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FsspecStorage</span><span class="p">(</span><span class="n">Storage</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for using an</span>
 <span class="sd">    [`fsspec`](https://filesystem-spec.readthedocs.io) filesystem for</span>
 <span class="sd">    storage.&quot;&quot;&quot;</span>
@@ -2103,11 +2313,11 @@ to use for file storage.</p>
 
             <details class="quote">
               <summary>Source code in <code>labtech/storage.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">fs_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an [`fsspec.AbstractFileSystem`](https://filesystem-spec.readthedocs.io/en/latest/api.html#fsspec.spec.AbstractFileSystem)</span>
 <span class="sd">    to use for file storage.&quot;&quot;&quot;</span>
@@ -2180,7 +2390,11 @@ to use for file storage.</p>
 <span class="normal">171</span>
 <span class="normal">172</span>
 <span class="normal">173</span>
-<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Storage</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Storage</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Storage provider for persisting cached task results.&quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
@@ -2207,6 +2421,10 @@ to use for file storage.</p>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Deletes the cached result for the task with the given `key`.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_runner_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Storage</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a variation of this storage to be used from runners (e.g. if ).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2391,6 +2609,33 @@ storage cache.</p>
 <span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deletes the cached result for the task with the given `key`.&quot;&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="labtech.storage.Storage.get_runner_storage" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_runner_storage</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Storage</span></code>
+
+</h5>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Returns a variation of this storage to be used from runners (e.g. if ).</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>labtech/types.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_runner_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Storage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a variation of this storage to be used from runners (e.g. if ).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

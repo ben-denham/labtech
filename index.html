@@ -362,6 +362,49 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Core API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Core API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="core/" class="md-nav__link">
         
@@ -377,9 +420,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -399,20 +443,21 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="distributed/" class="md-nav__link">
+      <a href="caching/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Multi-Machine Clusters
+    Caches and Storage
     
   </span>
   
@@ -421,9 +466,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -443,25 +489,107 @@
     </li>
   
 
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Multi-Machine Distribution
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Multi-Machine Distribution
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="caching/" class="md-nav__link">
+      <a href="distributed/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Caches and Storage
+    Ray Clusters
     
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="spark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Spark Clusters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -551,6 +679,11 @@
 
 <h1>labtech</h1>
 
+<p> <strong>TL;DR:</strong> <a href="https://docs.python.org/3/library/concurrent.futures.html"><code>concurrent.futures</code></a>-like simplicity
+for concurrently running <a href="https://www.datacamp.com/blog/what-is-a-dag">DAGs</a> of tasks
+with configuration permutations across threads,
+processes, or clusters with implicit result caching. </p
+
 <a href="">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/labtech">
 </a>
@@ -561,13 +694,14 @@
 
 </div>
 
-<p>Labtech makes it easy to define multi-step experiment pipelines and
-run them with maximal parallelism and result caching:</p>
+<p>Labtech makes it easy to define multi-step pipelines with permutations
+of configuration parameters and run them with maximal parallelism and
+result caching:</p>
 <ul>
 <li><strong>Defining tasks is simple</strong>; write a class with a single <code>run()</code>
   method and parameters as dataclass-style attributes.</li>
-<li><strong>Flexible experiment configuration</strong>; simply create task objects
-  for all of your parameter permutations.</li>
+<li><strong>Flexible configuration</strong>; simply create task objects for all of
+  your parameter permutations.</li>
 <li><strong>Handles pipelines of tasks</strong>; any task parameter that is itself a
   task will be executed first and make its result available to its
   dependent task(s).</li>
@@ -579,7 +713,12 @@ run them with maximal parallelism and result caching:</p>
   log task runs to mlflow with all of their parameters.</li>
 <li><strong>Easily scale to a multi-machine cluster</strong>; Built-in support for
   running tasks across an easy-to-setup <a href="https://www.ray.io/">Ray</a>
-  cluster.</li>
+  cluster, or across an <a href="https://spark.apache.org/">Apache Spark</a>
+  cluster with <a href="https://community.databricks.com/t5/technical-blog/ray-on-spark-a-practical-architecture-and-setup-guide/ba-p/127511">Ray on PySpark</a>.</li>
+<li><strong>Great for more than just experiments</strong>; As a lightweight library
+  for running interdependent tasks across interchangeable backends
+  (threads, processes, clusters), Labtech is a great choice for
+  speeding up all sorts of processing pipelines.</li>
 </ul>
 <p>To learn more about how Labtech can speed up your experiments, check
 out the Kiwi Pycon presentation:</p>
@@ -621,8 +760,8 @@ out the Kiwi Pycon presentation:</p>
 
     <span class="c1"># Configure a Lab to run the experiments:</span>
     <span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
-        <span class="c1"># Specify a directory to cache results in (running the experiments a second</span>
-        <span class="c1"># time will just load results from the cache!):</span>
+        <span class="c1"># Specify a directory to cache results in (running the experiments</span>
+        <span class="c1"># a second time will just load results from the cache!):</span>
         <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;demo_lab&#39;</span><span class="p">,</span>
         <span class="c1"># Control the degree of parallelism:</span>
         <span class="n">max_workers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>

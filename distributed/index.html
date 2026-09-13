@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../runners/">
+        <link rel="prev" href="../diagram/">
       
       
-        <link rel="next" href="../diagram/">
+        <link rel="next" href="../spark/">
       
       
       <link rel="icon" href="../images/icon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Multi-Machine Clusters - labtech</title>
+        <title>Ray Clusters - labtech</title>
       
     
     
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Multi-Machine Clusters
+              Ray Clusters
             
           </span>
         </div>
@@ -290,6 +290,49 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Core API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Core API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../core/" class="md-nav__link">
         
@@ -305,9 +348,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -327,9 +371,108 @@
     </li>
   
 
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Caches and Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Diagramming
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Multi-Machine Distribution
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Multi-Machine Distribution
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
     
@@ -347,7 +490,7 @@
   
   
   <span class="md-ellipsis">
-    Multi-Machine Clusters
+    Ray Clusters
     
   </span>
   
@@ -360,7 +503,7 @@
   
   
   <span class="md-ellipsis">
-    Multi-Machine Clusters
+    Ray Clusters
     
   </span>
   
@@ -528,20 +671,21 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="../diagram/" class="md-nav__link">
+      <a href="../spark/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Diagramming
+    Spark Clusters
     
   </span>
   
@@ -550,25 +694,11 @@
     </li>
   
 
-    
+              
+            
+          </ul>
+        </nav>
       
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../caching/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Caches and Storage
-    
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -757,7 +887,7 @@
   
 
 
-  <h1>Multi-Machine Clusters</h1>
+  <h1>Ray Clusters</h1>
 
 <p>Labtech offers built-in support for distributing your tasks across a
 multi-machine <a href="https://www.ray.io/">Ray</a> cluster with the
@@ -805,7 +935,22 @@ persistent storage, you must use a storage backend that can be
 accessed from any node in the cluster. For example, you could use an
 <a href="https://en.wikipedia.org/wiki/Network_File_System">NFS share</a> or a
 cloud object storage provider (e.g. Amazon S3 or Azure Blob Storage).</p>
-<p>To learn how to configure Labtech to use a non-local storage backend, see:
+<p>If you have a file share mounted as a directory across all nodes in
+your cluster, then you can use that directory with Labtech's standard
+directory-based local storage. If the file share is mounted at a
+different location on the host running labtech and the worker nodes,
+then you can specify a separate <code>runner_dir</code> for the workers' path:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">labtech.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalStorage</span>
+
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="n">LocalStorage</span><span class="p">(</span>
+        <span class="s1">&#39;path/on/labtech/host/to/storage&#39;</span><span class="p">,</span>
+        <span class="n">runner_dir</span><span class="o">=</span><span class="s1">&#39;path/on/worker/to/storage&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>To learn how to configure Labtech to directly use a non-local storage backend, see:
 <a href="../cookbook/#how-can-i-cache-task-results-somewhere-other-than-my-filesystem">How can I cache task results somewhere other than my filesystem?</a></p>
 <p>In the following example, we will run a
 <a href="https://www.localstack.cloud/">LocalStack</a> instance to emulate an

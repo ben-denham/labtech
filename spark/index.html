@@ -11,10 +11,8 @@
       
       
       
-        <link rel="prev" href="../caching/">
+        <link rel="prev" href="../distributed/">
       
-      
-        <link rel="next" href="../distributed/">
       
       
       <link rel="icon" href="../images/icon.png">
@@ -22,7 +20,7 @@
     
     
       
-        <title>Diagramming - labtech</title>
+        <title>Spark Clusters - labtech</title>
       
     
     
@@ -71,7 +69,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#labtech.diagram.build_task_diagram" class="md-skip">
+        <a href="#threadrunnerbackend-with-pyspark" class="md-skip">
           Skip to content
         </a>
       
@@ -106,7 +104,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Diagramming
+              Spark Clusters
             
           </span>
         </div>
@@ -288,8 +286,6 @@
       
   
   
-    
-  
   
   
     
@@ -302,11 +298,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
@@ -322,7 +318,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Core API Reference
@@ -402,30 +398,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Diagramming
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../diagram/" class="md-nav__link">
         
   
   
@@ -436,42 +412,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#labtech.diagram.build_task_diagram" class="md-nav__link">
-    <span class="md-ellipsis">
-      build_task_diagram
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#labtech.diagram.display_task_diagram" class="md-nav__link">
-    <span class="md-ellipsis">
-      display_task_diagram
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -488,8 +428,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -500,11 +442,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -520,7 +462,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Multi-Machine Distribution
@@ -554,10 +496,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../spark/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Spark Clusters
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -568,6 +530,57 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#threadrunnerbackend-with-pyspark" class="md-nav__link">
+    <span class="md-ellipsis">
+      ThreadRunnerBackend with PySpark
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ThreadRunnerBackend with PySpark">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tips
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rayrunnerbackend-on-pyspark" class="md-nav__link">
+    <span class="md-ellipsis">
+      RayRunnerBackend on PySpark
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -605,18 +618,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#labtech.diagram.build_task_diagram" class="md-nav__link">
+  <a href="#threadrunnerbackend-with-pyspark" class="md-nav__link">
     <span class="md-ellipsis">
-      build_task_diagram
+      ThreadRunnerBackend with PySpark
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ThreadRunnerBackend with PySpark">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tips
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#labtech.diagram.display_task_diagram" class="md-nav__link">
+  <a href="#rayrunnerbackend-on-pyspark" class="md-nav__link">
     <span class="md-ellipsis">
-      display_task_diagram
+      RayRunnerBackend on PySpark
     </span>
   </a>
   
@@ -641,200 +669,141 @@
   
 
 
-  <h1>Diagramming</h1>
+  <h1>Spark Clusters</h1>
 
-<p>The <code>labtech.diagram</code> module provides the following functions for
-automatically generating a diagram to visualise your tasks, their
-parameters, and their dependency relationships.</p>
-
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="labtech.diagram.build_task_diagram" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">diagram</span><span class="o">.</span><span class="n">build_task_diagram</span><span class="p">(</span><span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span></code>
-
-</h2>
-
-
-    <div class="doc doc-contents first">
-
-        <p>Returns a <a href="https://mermaid.js.org/syntax/classDiagram.html">Mermaid diagram</a>
-representing the task types and dependencies of the given tasks.</p>
-<p>Each task type lists its parameters (with their return types) and
-its run method (with its return type).</p>
-<p>Arrows between task types point from a dependency task type to the
-task type that depends on it, and are labelled with the dependent
-task's parameter that references the dependency task type.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-            <b><code>tasks</code></b>
-              (<code><span title="collections.abc.Sequence">Sequence</span>[<a class="autorefs autorefs-internal" title="labtech.types.Task
+<p>Labtech is a great choice for managing concurrent pipelines of
+experiments and other tasks on an <a href="https://spark.apache.org/">Apache Spark</a> cluster.
+There are two primary ways of using Labtech with PySpark:</p>
+<ol>
+<li>Use <a href="#threadrunnerbackend-with-pyspark"><code>ThreadRunnerBackend</code> with PySpark</a>
+   if your tasks primarily involve PySpark-native operations, including
+   PySpark data transformations,
+   <a href="https://spark.apache.org/mllib/">MLLib</a>, or
+   <a href="https://spark.apache.org/graphx/">GraphX</a>.</li>
+<li>Use <a href="#rayrunnerbackend-on-pyspark"><code>RayRunnerBackend</code> on PySpark</a> if
+   your tasks primarily involve native Python code, such as non-PySpark
+   data processing in <a href="https://pandas.pydata.org/">Pandas</a> or
+   <a href="https://pola.rs/">Polars</a> or machine learning with libraries like
+   <a href="https://scikit-learn.org/">scikit-learn</a>.</li>
+</ol>
+<h2 id="threadrunnerbackend-with-pyspark"><code>ThreadRunnerBackend</code> with PySpark</h2>
+<p>If your tasks delegate heavy processing to PySpark-native operations,
+then you can use the
+<a class="autorefs autorefs-internal" title="labtech.runners.ThreadRunnerBackend" href="../runners/#labtech.runners.ThreadRunnerBackend"><code>ThreadRunnerBackend</code></a> to
+run each task on a lightweight thread. Each task's thread can initiate
+the PySpark execution for that task and then allow other task threads to
+run while waiting for a result to be returned by Spark:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Assuming we already have a PySpark session available in variable: spark</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">labtech</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">labtech.runners</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadRunnerBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">sf</span>
 
 
-  
-      dataclass
-  " href="../core/#labtech.types.Task">Task</a>]</code>)
-          –
-          <div class="doc-md-description">
-            <p>A collection of tasks to diagram.</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-            <b><code>direction</code></b>
-              (<code><span title="str">str</span></code>, default:
-                  <code>&#39;BT&#39;</code>
-)
-          –
-          <div class="doc-md-description">
-            <p>Direction that task types should be laid out, from dependent
-tasks to their dependencies. One of:</p>
-<ul>
-<li><code>'BT'</code> (bottom-to-top)</li>
-<li><code>'TB'</code> (top-to-bottom)</li>
-<li><code>'RL'</code> (right-to-left)</li>
-<li><code>'LR'</code> (left-to-right)</li>
-</ul>
-          </div>
-        </li>
-    </ul>
+<span class="nd">@labtech</span><span class="o">.</span><span class="n">task</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Experiment</span><span class="p">:</span>
+    <span class="n">table</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">power</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s1">&#39;raised_value&#39;</span><span class="p">,</span> <span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">power</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;raised_value&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s1">&#39;mean&#39;</span><span class="p">))</span>
+            <span class="c1"># We run collect() so that the Spark execution of transformations</span>
+            <span class="c1"># is triggered from the task&#39;s thread. Other task threads will be</span>
+            <span class="c1"># free to run while this thread waits for Spark to finish executing.</span>
+            <span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
 
 
-            <details class="quote">
-              <summary>Source code in <code>labtech/diagram.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_task_diagram</span><span class="p">(</span><span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a [Mermaid diagram](https://mermaid.js.org/syntax/classDiagram.html)</span>
-<span class="sd">    representing the task types and dependencies of the given tasks.</span>
+<span class="c1"># Prepare a DataFrame in Spark that can be referenced by name from each task.</span>
+<span class="n">table_name</span> <span class="o">=</span> <span class="s1">&#39;dataset&#39;</span>
+<span class="n">spark_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([</span>
+    <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="p">])</span>
+<span class="n">spark_df</span><span class="o">.</span><span class="n">createOrReplaceTempView</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
 
-<span class="sd">    Each task type lists its parameters (with their return types) and</span>
-<span class="sd">    its run method (with its return type).</span>
-
-<span class="sd">    Arrows between task types point from a dependency task type to the</span>
-<span class="sd">    task type that depends on it, and are labelled with the dependent</span>
-<span class="sd">    task&#39;s parameter that references the dependency task type.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tasks: A collection of tasks to diagram.</span>
-<span class="sd">        direction: Direction that task types should be laid out, from dependent</span>
-<span class="sd">            tasks to their dependencies. One of:</span>
-
-<span class="sd">            * `&#39;BT&#39;` (bottom-to-top)</span>
-<span class="sd">            * `&#39;TB&#39;` (top-to-bottom)</span>
-<span class="sd">            * `&#39;RL&#39;` (right-to-left)</span>
-<span class="sd">            * `&#39;LR&#39;` (left-to-right)</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">diagram_task_structure</span><span class="p">(</span>
-        <span class="n">TaskStructure</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span>
-        <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
+<span class="n">experiments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Experiment</span><span class="p">(</span>
+        <span class="n">table</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
+        <span class="n">power</span><span class="o">=</span><span class="n">power</span><span class="p">,</span>
     <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
+    <span class="k">for</span> <span class="n">power</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="p">]</span>
 
-</div>
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">runner_backend</span><span class="o">=</span><span class="n">ThreadRunnerBackend</span><span class="p">(),</span>
+    <span class="c1"># Max workers should be set relative to available Spark cores</span>
+    <span class="c1"># and the number of cores that each task can leverage.</span>
+    <span class="n">max_workers</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">storage</span><span class="o">=</span><span class="s1">&#39;storage/spark_lab&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">lab</span><span class="o">.</span><span class="n">run_tasks</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="tips">Tips</h3>
+<ul>
+<li>Using Spark table names in task parameters and results allows data
+  to be efficiently managed in Spark without needed to be serialised,
+  transferred, deserialised, and loaded into the main Python process
+  when passed between tasks.</li>
+<li>This approach to using Labtech with PySpark is compatible with
+  remote <a href="https://spark.apache.org/spark-connect/">Spark Connect</a>
+  connections, as long as your tasks only require <a href="https://spark.apache.org/docs/latest/spark-connect-overview.html#what-is-supported">Connect-compatible
+  PySpark APIs</a>,
+  otherwise you will need a full Spark Classic connection.</li>
+</ul>
+<h2 id="rayrunnerbackend-on-pyspark"><code>RayRunnerBackend</code> on PySpark</h2>
+<p>If your tasks perform heavy processing in native Python code that
+cannot be readily delegated to Spark, then the recommended approach is
+to <a href="https://community.databricks.com/t5/technical-blog/ray-on-spark-a-practical-architecture-and-setup-guide/ba-p/127511">start a Ray cluster on PySpark</a>
+to use with Labtech's
+<a href="http://localhost:8000/distributed/"><code>RayRunnerBackend</code></a>.</p>
+<p>While Python code can technically be run directly on Spark workers, it
+requires expensive serialisation and deserialisation of Python objects
+(such as your tasks' parameters and results). <a href="https://www.ray.io/">Ray</a>
+is specifically designed for efficiently distributing Python code
+across a cluster of machines, and is <a href="https://docs.databricks.com/aws/en/machine-learning/ray/spark-ray-overview">recommended by platforms like
+Databricks for distributing native Python tasks</a>.</p>
+<p>The following code provides a basic example of starting a Ray cluster
+and using it with Labtech's
+<a class="autorefs autorefs-internal" title="labtech.runners.ray.RayRunnerBackend" href="../distributed/#labtech.runners.ray.RayRunnerBackend"><code>RayRunnerBackend</code></a>. For more
+detail, refer to the documentation for <a href="../distributed/">using Labtech with Ray</a> and
+<a href="https://docs.ray.io/en/latest/cluster/vms/user-guides/community/spark.html">running Ray on PySpark</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.util.spark</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_ray_cluster</span><span class="p">,</span> <span class="n">shutdown_ray_cluster</span>
 
-<div class="doc doc-object doc-function">
+<span class="kn">import</span><span class="w"> </span><span class="nn">labtech</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">labtech.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalStorage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">labtech.runners.ray</span><span class="w"> </span><span class="kn">import</span> <span class="n">RayRunnerBackend</span>
 
 
-<h2 id="labtech.diagram.display_task_diagram" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">labtech</span><span class="o">.</span><span class="n">diagram</span><span class="o">.</span><span class="n">display_task_diagram</span><span class="p">(</span><span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
+<span class="c1"># Assuming we already have a running PySpark session,</span>
+<span class="c1"># we can start a Ray cluster on top of Spark:</span>
+<span class="n">setup_ray_cluster</span><span class="p">(</span>
+  <span class="n">max_worker_nodes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+  <span class="n">num_cpus_worker_node</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+  <span class="n">num_gpus_worker_node</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+  <span class="n">memory_worker_node</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">),</span>  <span class="c1"># 10 GiB</span>
+<span class="p">)</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 
-</h2>
+<span class="o">...</span>
 
+<span class="n">lab</span> <span class="o">=</span> <span class="n">labtech</span><span class="o">.</span><span class="n">Lab</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="n">LocalStorage</span><span class="p">(</span>
+        <span class="s1">&#39;storage/ray_on_spark_lab&#39;</span><span class="p">,</span>
+        <span class="c1"># We can specify an alternative path if the storage file share</span>
+        <span class="c1"># is mounted at a different location on the Spark workers:</span>
+        <span class="n">runner_dir</span><span class="o">=</span><span class="s1">&#39;/opt/spark/shared-storage/ray_on_spark_lab&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">runner_backend</span><span class="o">=</span><span class="n">RayRunnerBackend</span><span class="p">(),</span>
+<span class="p">)</span>
 
-    <div class="doc doc-contents first">
+<span class="o">...</span>
 
-        <p>Displays a <a href="https://mermaid.js.org/syntax/classDiagram.html">Mermaid diagram</a>
-representing the task types and dependencies of the given tasks.</p>
-<p>If IPython is available (e.g. the code is being run from a Jupyter
-notebook), the diagram will be displayed as a Markdown <code>mermaid</code>
-code block, which will be rendered as a Mermaid diagram from
-<a href="https://blog.jupyter.org/jupyterlab-4-1-and-notebook-7-1-are-here-20bfc3c10217">JupyterLab 4.1 and Notebook 7.1</a>.</p>
-<p>Because Markdown may render arbitrary HTML, you should only
-diagram tasks that you trust.</p>
-<p>Accepts the same arguments as
-<a class="autorefs autorefs-internal" title="labtech.diagram.build_task_diagram(tasks: Sequence[Task], *, direction: str = 'BT') -> str" href="#labtech.diagram.build_task_diagram">build_task_diagram</a>.</p>
-
-
-            <details class="quote">
-              <summary>Source code in <code>labtech/diagram.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">display_task_diagram</span><span class="p">(</span><span class="n">tasks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Task</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Displays a [Mermaid diagram](https://mermaid.js.org/syntax/classDiagram.html)</span>
-<span class="sd">    representing the task types and dependencies of the given tasks.</span>
-
-<span class="sd">    If IPython is available (e.g. the code is being run from a Jupyter</span>
-<span class="sd">    notebook), the diagram will be displayed as a Markdown `mermaid`</span>
-<span class="sd">    code block, which will be rendered as a Mermaid diagram from</span>
-<span class="sd">    [JupyterLab 4.1 and Notebook 7.1](https://blog.jupyter.org/jupyterlab-4-1-and-notebook-7-1-are-here-20bfc3c10217).</span>
-
-<span class="sd">    Because Markdown may render arbitrary HTML, you should only</span>
-<span class="sd">    diagram tasks that you trust.</span>
-
-<span class="sd">    Accepts the same arguments as</span>
-<span class="sd">    [build_task_diagram][labtech.diagram.build_task_diagram].</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">diagram</span> <span class="o">=</span> <span class="n">build_task_diagram</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">is_ipython</span><span class="p">():</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Markdown</span><span class="p">,</span> <span class="n">display</span>
-        <span class="n">display</span><span class="p">(</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;```mermaid</span><span class="se">\n</span><span class="si">{</span><span class="n">diagram</span><span class="si">}</span><span class="se">\n</span><span class="s1">```&#39;</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">diagram</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
+<span class="n">shutdown_ray_cluster</span><span class="p">()</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</code></pre></div>
 
 
 
