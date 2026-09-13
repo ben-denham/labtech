@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from inspect import isclass
-from typing import TYPE_CHECKING, Any, Generic, Protocol, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Protocol, TypeAlias, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -61,7 +61,7 @@ class ResultsMap(Protocol, Generic[ResultT]):
 class Task(Protocol, Generic[CovariantResultT]):
     """Interface provided by any class that is decorated by
     [`labtech.task`][labtech.task]."""
-    _lt: TaskInfo
+    _lt: ClassVar[TaskInfo]
     _is_task: Literal[True]
     _results_map: ResultsMap | None
     _cache_key: str | None

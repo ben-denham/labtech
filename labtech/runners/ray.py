@@ -228,7 +228,7 @@ class RayRunner(Runner):
             logger.warning(f'Task monitor failed to query Ray task states: {ex}')
             return []
 
-        task_name_to_task_info = {}
+        task_name_to_task_info: dict[str, TaskMonitorInfo] = {}
         for task_state in task_states:
             # Avoid duplicating a task if it changed state and was
             # returned in multiple ray state queries.
