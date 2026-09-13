@@ -1,4 +1,4 @@
-.PHONY: deps example sort-imports lint mypy test check build docs-serve docs-build docs-github docs-notebook
+.PHONY: deps example jupyter mlflow ray-up ray-down localstack localstack-list-objects spark-cluster sort-imports lint mypy test check build docs-serve docs-build docs-github docs-notebook
 
 deps:
 	uv sync
