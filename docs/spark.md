@@ -78,11 +78,11 @@ results = lab.run_tasks(experiments)
   to be efficiently managed in Spark without needed to be serialised,
   transferred, deserialised, and loaded into the main Python process
   when passed between tasks.
-  * However, be sure to use table names with random identifiers for
-    task outputs to ensure each unique run of a task is output into a
-    unique table.
-  * You may also like to implement a [custom storage provider](./caching.md#custom-storage)
-    to generically handle persistence of Spark tables for task outputs.
+    * However, be sure to use table names with random identifiers for
+      task outputs to ensure each unique run of a task is output into
+      a unique table.
+    * You may also like to implement a [custom storage provider](./caching.md#custom-storage) to
+      generically handle persistence of Spark tables for task outputs.
 * This approach to using Labtech with PySpark is compatible with
   remote [Spark Connect](https://spark.apache.org/spark-connect/)
   connections, as long as your tasks only require [Connect-compatible
