@@ -2,7 +2,7 @@
 name = "labtech"
 version = "1.1.0"
 license = "GPL-3.0-only"
-description = "Easily run experiment permutations with multi-processing and caching."
+description = "Concurrently run DAGs of tasks with configuration permutations across threads, processes, or clusters with implicit result caching and the simplicity of concurrent.futures."
 authors = [
     {name = "Ben Denham", email = "ben@denham.nz"},
 ]
